@@ -2,7 +2,7 @@
 
 ## NInferno (`ninferno/`, Apache-2.0)
 
-Apply them in order with `git am` on [Brontir/NInferno](https://github.com/Brontir/NInferno) at `9895ebc62e2bdfb367083a72cb2c4a714cf41542` ([`BUILD.md`](../BUILD.md), step 1). Production runs all eight, at commit `6ff9931` on our branch `kvshare-main`.
+Apply them in order with `git am` on [Brontir/NInferno](https://github.com/Brontir/NInferno) at `9895ebc62e2bdfb367083a72cb2c4a714cf41542` ([`BUILD.md`](../BUILD.md), step 1). Production runs all nine, at commit `e9203c5` on our branch `kvshare-main`.
 
 | # | Patch | Active in production | What it does | Measured |
 |---|---|---|---|---|
@@ -13,8 +13,8 @@ Apply them in order with `git am` on [Brontir/NInferno](https://github.com/Bront
 | 05 | `gemma4 attention: FP8 scores on the D512 FP8 prefill route` | yes | Q·K as e4m3 MMAs on the K codes as stored, with Q in E4M3 against each row slice's absmax. The FP8 MMA accumulates in reduced precision, so each MMA starts from zero and is added to an FP32 sum | lab prefill 8K/32K/64K 4,986/3,522/2,542 → 5,110/3,748/2,786; perplexity 77.99 → 77.84. Without promotion, 81.13 |
 | 06 | `nvfp4 shapes: four K warps on the Gemma 4 31B qkv eight-token tile` | yes | the QKV projections' A16 tile at T ≤ 8 runs 1×4 warps (as gate/up) instead of 2×2 | linear bench T=8: 16384×5376 81.9 → 71.0 µs, 18432×5376 90.1 → 73.7 µs; T=1 unchanged |
 | 07 | `q6 head: the sliced 8-column tile for the Gemma 4 31B head at T 6..8` | yes | the tied Q6 head [262144, 5376] at T 6–8 (an MTP verify of up to 7 drafts) takes the sliced 8-column MMA tile instead of the 16-column one | linear bench T=8: 2.50 → 1.76 ms (442 → 627 GB/s) |
-
 | 08 | `serve: finished-request sums and finish reasons on /metrics` | yes | `/metrics` adds, over completed requests since start, their count and summed seconds (e2e, queue, TTFT, prefill, decode), their prompt, cached and output tokens, speculative rounds, drafted and accepted tokens (`ninferno_request_*`, `ninferno_speculative_*`), and `ninferno_requests_finished_total{finish_reason}` (stop, length, tool_calls, abort, repetition; error for failed requests) | no speed change. A monitor differencing two samples lists every client's requests exactly (the NInfer web UI 0.1.0 Monitor does) |
+| 09 | `program: a consumed endpoint is entitled only to the checkpoints it owns alone` | yes | a request that takes over a cached conversation (`PrivateEndpoint`, `ConsumeToActive`) counted every optional checkpoint of the conversation (rewrite state, long anchors) into its entitlement, also one another cached conversation still shares. The ownership count skips shared ones, so `start_request` threw `materialized sequence does not match its active entitlement` and the engine exited (expected `host_state 1`, actual 0). It now counts only checkpoints it owns alone, as the rewrite-restore path already did, and the error names the fields that differ | an agent loop that crashed the engine at the same step every time runs 93 steps, 89 tool calls, no error ([`bench/agenttest.py`](../bench/agenttest.py)) |
 
 Patches 06 and 07 pay with 7 MTP drafts (`--draft-tokens 7`): the verify then runs 8 tokens.
 

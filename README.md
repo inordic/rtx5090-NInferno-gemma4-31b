@@ -42,7 +42,7 @@ Decode depends on how predictable the text is. The drafter lands about 7.4 token
 
 **Agent turns.** Each turn reuses the cached conversation. With a 17.6K-token system prompt, the first turn takes 5.2 s, and each later turn takes 0.5–0.6 s on the fast profile (0.65–0.73 s on the max-context profile). A turn's time to first token is about 0.3 s for a few dozen new tokens ([`bench/turnprobe.py`](bench/turnprobe.py), [night 1 report](research/2026-10-26-night1-decode.md#agent-turns-hermes-where-the-03-s-goes)).
 
-**Tools.** OpenAI tool calls work, streamed and parallel included ([night 1 report](research/2026-10-26-night1-decode.md#tool-calling-works)).
+**Tools.** OpenAI tool calls work, streamed and parallel included ([night 1 report](research/2026-10-26-night1-decode.md#tool-calling-works)). An agent loop with 20 tools ran 93 steps and 89 calls with none returned as text and no error, and replies after histories where the assistant wrote text with its calls came back as clean calls ([`bench/agenttest.py`](bench/agenttest.py), [`bench/textcalltest.py`](bench/textcalltest.py), [CHANGELOG](CHANGELOG.md)).
 
 ## Quality
 
@@ -81,10 +81,11 @@ Perplexity on a 32K window (lower is better) is how the attention kernels were j
 | GPU | NVIDIA GeForce RTX 5090 Laptop GPU (GB203, sm_120, 82 SMs, 24 GB GDDR7, 896 GB/s), driver 595.58.03, VBIOS 98.03.95.00.07 |
 | Host | Proxmox VE, kernel 6.17.13-2-pve. The GPU is also passed to a second container; only one serves at a time |
 | Container | Ubuntu 24.04, 8 cores, 48 GB RAM, CUDA 13.2 |
-| Engine | NInferno ([Brontir/NInferno](https://github.com/Brontir/NInferno)) at `9895ebc` + [our patches 01–08](patches/ninferno/), CUDA arch `120a`, Release |
+| Engine | NInferno ([Brontir/NInferno](https://github.com/Brontir/NInferno)) at `9895ebc` + [our patches 01–09](patches/ninferno/), CUDA arch `120a`, Release |
 | Fast model | [`melcheikh/gemma-4-31B-it-qat-NVFP4-Blackwell`](https://huggingface.co/melcheikh/gemma-4-31B-it-qat-NVFP4-Blackwell), Google's QAT weights in NVFP4 (ModelOpt), converted with NInferno's `gemma4_31b_nvfp4` recipe (Q8 embedding table, Q6 head): 17.8 GiB |
 | Max-context model | [`unsloth/gemma-4-31B-it-qat-GGUF`](https://huggingface.co/unsloth/gemma-4-31B-it-qat-GGUF) `UD-Q4_K_XL` (all Q4_0 inside, on the QAT grid): 16.1 GiB |
 | Drafter | [`google/gemma-4-31B-it-qat-q4_0-unquantized-assistant`](https://huggingface.co/google/gemma-4-31B-it-qat-q4_0-unquantized-assistant), QAT-aware Q4_0 through [our llama.cpp patch](patches/llama.cpp/): 0.28 GB |
+| Chat template | Google's Gemma 4 template of 2026-07-09 with an agent patch ([`config/templates/`](config/templates/)) |
 | Speculative decoding | MTP, 7 draft tokens |
 | KV cache | FP8. The full-attention layers store K only (`NINFERNO_GEMMA4_SHARED_VALUES=2`) |
 | Prefill | W4A4 (fast profile), chunk 1024 (fast) or 512 (max context); GeGLU split at every width (`NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1`) |
@@ -97,8 +98,8 @@ Perplexity on a 32K window (lower is better) is how the attention kernels were j
 |---|---|
 | [`BUILD.md`](BUILD.md) | from a bare container to both profiles serving, step by step, with checks |
 | [`CHANGELOG.md`](CHANGELOG.md) | every change to the running setup, newest first |
-| [`patches/`](patches/) | our NInferno patches 01–08, the QAT-aware Q4_0 llama.cpp patch, and two env-gated experiments that did not pay |
-| [`config/`](config/) | the systemd units of both profiles and the web UI's service files |
+| [`patches/`](patches/) | our NInferno patches 01–09, the QAT-aware Q4_0 llama.cpp patch, and two env-gated experiments that did not pay |
+| [`config/`](config/) | the systemd units of both profiles, the chat template they serve with, and the web UI's service files |
 | [`bench/`](bench/) | the speed, quality, needle, agent-turn and kernel benchmarks, the model download and conversion scripts, the overnight runners with their idle gate, and every queue that ran |
 | [`results/`](results/) | every measurement: speed and quality rows, per-item quality, needles, kernel profiles, drafter tuning, run logs |
 | [`research/`](research/) | the engine and options research, the day-1 and night-1 reports, the QAT Q4 prefill design |

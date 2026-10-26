@@ -1,0 +1,72 @@
+From e9203c579e61e67e8f956c7b25319445422ef298 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 11:49:34 +0000
+Subject: [PATCH] program: a consumed endpoint is entitled only to the
+ checkpoints it owns alone
+
+A request that consumes a catalogued endpoint (PrivateEndpoint, ConsumeToActive)
+counted every optional checkpoint of the lineage (rewrite state, long anchors)
+into its active entitlement, also one another continuation still references.
+owner_exclusive_resources and the rewrite-restore path count only exclusive
+checkpoints, so start_request threw "materialized sequence does not match its
+active entitlement" and the engine exited: an agent conversation resumed from a
+host-resident anchor shared with a sibling continuation (expected host_state 1,
+actual 0). The check now names the fields that differ.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ .../qwen3_5/program/planning/request_plan.cpp |  3 +++
+ .../qwen3_5/program/transactions/commit.cpp   | 19 ++++++++++++++++++-
+ 2 files changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/src/models/qwen3_5/program/planning/request_plan.cpp b/src/models/qwen3_5/program/planning/request_plan.cpp
+index dd255fb..8b29a6c 100644
+--- a/src/models/qwen3_5/program/planning/request_plan.cpp
++++ b/src/models/qwen3_5/program/planning/request_plan.cpp
+@@ -712,6 +712,9 @@ std::optional<AdmissionCandidate> ProgramImpl::inspect_lane(
+                     continue;
+                 }
+                 unique.push_back(state);
++                // A checkpoint another continuation still references stays in global
++                // occupancy; the active sequence owns, and is entitled to, only its own.
++                if (!state_exclusive_to_sequence(*source, state)) { continue; }
+                 const StateReplicaResidency residency = state_store->residency(state);
+                 if (residency == StateReplicaResidency::DeviceOnly ||
+                     residency == StateReplicaResidency::Both) {
+diff --git a/src/models/qwen3_5/program/transactions/commit.cpp b/src/models/qwen3_5/program/transactions/commit.cpp
+index 1244e39..bb7873f 100644
+--- a/src/models/qwen3_5/program/transactions/commit.cpp
++++ b/src/models/qwen3_5/program/transactions/commit.cpp
+@@ -1,3 +1,4 @@
++#include <string>
+ #include "models/qwen3_5/program/program_impl.h"
+ #include "models/qwen3_5/program/context_clock.h"
+ #include "models/qwen3_5/program/context_work.h"
+@@ -123,7 +124,23 @@ StartResult ProgramImpl::start_request(MaterializationTransaction& transaction)
+         actual.device.active_lanes               = 1;
+         const detail::PhysicalResources expected = active;
+         if (actual != expected) {
+-            throw std::logic_error("materialized sequence does not match its active entitlement");
++            const auto fields = [](const detail::PhysicalResources& r) {
++                return "lanes " + std::to_string(r.device.active_lanes) + " state " +
++                       std::to_string(r.device.state_slots) + " main_kv " +
++                       std::to_string(r.device.main_kv_pages) + " backend_kv " +
++                       std::to_string(r.device.backend_kv_pages) + " host_state " +
++                       std::to_string(r.host.state_slots) + " host_kv_bytes " +
++                       std::to_string(r.host.kv_bytes);
++            };
++            throw std::logic_error(
++                "materialized sequence does not match its active entitlement: actual " +
++                fields(actual) + " | expected " + fields(expected) + " | reuse " +
++                std::to_string(static_cast<int>(details.reuse)) + " has_source " +
++                std::to_string(transaction.has_source) + " shared_source " +
++                std::to_string(transaction.has_shared_source) + " source_mode " +
++                std::to_string(static_cast<int>(transaction.source_mode)) + " state_restored " +
++                std::to_string(transaction.state_restored) + " fork_required " +
++                std::to_string(details.state_fork_required));
+         }
+         if (details.reuse != ReusePath::Root) {
+             if (transaction.state_restored) {
+-- 
+2.43.0
+

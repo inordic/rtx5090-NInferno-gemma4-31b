@@ -9,7 +9,7 @@ Environment=PATH=/usr/local/cuda-13.2/bin:/usr/bin:/bin
 Environment=NINFERNO_GEMMA4_SHARED_VALUES=2
 Environment=NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1
 WorkingDirectory=/opt/models
-ExecStart=/opt/NInferno/build/apps-final4/ninferno-serve /opt/models/dl2/qat-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --max-context 155000 --prefill-chunk 1024 --kv-dtype fp8 --spec mtp --drafter /opt/models/dl2/qat-assistant.q40qat.ninferno --draft-tokens 7
+ExecStart=/opt/NInferno/build/apps-final7/ninferno-serve /opt/models/dl2/qat-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --max-context 155000 --prefill-chunk 1024 --kv-dtype fp8 --spec mtp --drafter /opt/models/dl2/qat-assistant.q40qat.ninferno --draft-tokens 7 --chat-template /opt/models/templates/gemma4-agent.jinja
 Restart=on-failure
 RestartSec=10
 

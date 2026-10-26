@@ -1,7 +1,7 @@
 # Build: from a container with an RTX 5090 Laptop GPU to both profiles serving
 
 This is the route we took. The paths are ours:
-- **Engine:** `/opt/NInferno`, built in `/opt/NInferno/build`. Production runs a copy of the binaries in `build/apps-final4`, so later builds in the tree don't touch it.
+- **Engine:** `/opt/NInferno`, built in `/opt/NInferno/build`. Production runs a copy of the binaries in `build/apps-final7`, so later builds in the tree don't touch it.
 - **Converter:** `/opt/llama.cpp`, the patched one, used only to convert the drafter.
 - **Models:** `/opt/models/dl` and `/opt/models/dl2`.
 - **Benchmarks:** `/root/gbench`, holding the contents of [`bench/`](bench/).
@@ -26,18 +26,18 @@ Adjust them to your system. Each step says how to check it before you go on.
 git clone https://github.com/Brontir/NInferno.git /opt/NInferno
 cd /opt/NInferno
 git checkout -b kvshare-main 9895ebc62e2bdfb367083a72cb2c4a714cf41542
-git am /path/to/this/repo/patches/ninferno/*.patch       # patches 01-08, see patches/README.md
+git am /path/to/this/repo/patches/ninferno/*.patch       # patches 01-09, see patches/README.md
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=120a \
       -DCMAKE_CUDA_COMPILER=/usr/local/cuda-13.2/bin/nvcc
 PATH=/usr/local/cuda-13.2/bin:$PATH ninja -C build ninferno-serve ninferno-gemma4 ninferno ninferno-convert
-mkdir -p build/apps-final4 && cp build/apps/ninferno-serve build/apps/ninferno-gemma4 build/apps/ninferno build/apps-final4/
+mkdir -p build/apps-final7 && cp build/apps/ninferno-serve build/apps/ninferno-gemma4 build/apps/ninferno build/apps-final7/
 ```
 
 The full build takes a long time; the kernels are many. Add `-DNINFERNO_BUILD_BENCHMARKS=ON` and `ninja -C build bench/ninferno_linear_bench` if you want the kernel microbenchmark used in [`bench/lb.sh`](bench/lb.sh).
 
 **Check:**
-- `git log --oneline -1` shows `serve: finished-request sums and finish reasons on /metrics`, our patch 08.
-- `build/apps-final4/ninferno-serve --version` prints `NInferno 0.1.0 (built for sm_120, CUDA 13.2)` and lists the GPU.
+- `git log --oneline -1` shows `program: a consumed endpoint is entitled only to the checkpoints it owns alone`, our patch 09.
+- `build/apps-final7/ninferno-serve --version` prints `NInferno 0.1.0 (built for sm_120, CUDA 13.2)` and lists the GPU.
 
 ## 2. llama.cpp with the QAT-aware Q4_0 encoder (for the drafter)
 
@@ -112,8 +112,9 @@ Without `--out`, the converter writes to `.ninferno-cache/gemma-4-31B-it-qat-UD-
 
 ## 4. Serve
 
+1. Copy the chat template: `mkdir -p /opt/models/templates && cp config/templates/gemma4-agent.jinja /opt/models/templates/`. It is Google's Gemma 4 template of 2026-07-09 with an agent patch ([`config/README.md`](config/README.md#templates)); both units pass it with `--chat-template`.
 1. Copy [`config/systemd/gemma4-31b-fast.service`](config/systemd/gemma4-31b-fast.service) and [`config/systemd/gemma4-31b-262k.service`](config/systemd/gemma4-31b-262k.service) to `/etc/systemd/system/`. Set the paths if yours differ.
-2. Run `systemctl daemon-reload && systemctl start gemma4-31b-fast`.
+1. Run `systemctl daemon-reload && systemctl start gemma4-31b-fast`.
 
 The two units conflict, so starting one stops the other. They are not enabled at boot; enable the one you want with `systemctl enable`.
 
@@ -124,6 +125,7 @@ The first start takes about 25 s: weights, plan and CUDA graphs. The log line `p
 2. [`bench/verify.py`](bench/verify.py) passes: models, chat, streaming, and three agent-style turns with prefix reuse. The second and third turns should report `cache` around 17,600 and take about 0.5 s.
 3. [`bench/gbench.py`](bench/gbench.py) `--pp 2048,8192,32768,65536` lands near the numbers in [`results/results.jsonl`](results/results.jsonl), label `C3 candidate final3 K7`.
 4. [`bench/needle.py`](bench/needle.py) `--lengths 32000,72000,140000 --depths 0.1,0.5,0.9` scores 9/9.
+5. [`bench/agenttest.py`](bench/agenttest.py) `--label check --runs 3` ends with `"markup_as_text": 0` and `"errors": 0`, and [`bench/textcalltest.py`](bench/textcalltest.py) prints `TEXTCALL leaks 0`.
 
 [`bench/deploy_fast.sh`](bench/deploy_fast.sh) stops anything on 8080 and brings the fast unit up again. Our overnight runners call it after every test batch.
 

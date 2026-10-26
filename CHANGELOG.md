@@ -2,6 +2,33 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-10-26 12:49: agent tool calls: an updated chat template, and a crash on resumed conversations fixed
+
+- **Changed, template:** both units pass `--chat-template /opt/models/templates/gemma4-agent.jinja` ([`config/templates/`](config/templates/)). This is Google's Gemma 4 template of 2026-07-09 with two agent changes:
+  - an assistant message's text goes before its tool calls, the order the model writes them;
+  - a turn whose tool results end the conversation stays open.
+
+  Before, prompts used the template stored in the QAT-NVFP4 artifact, an older one from its quant's repo.
+- **Changed, engine:** both units run `build/apps-final7`: NInferno `e9203c5`, which is `6ff9931` plus [patch 09](patches/ninferno/). Same flags otherwise. The fast unit restarted at 12:44 (diagnostic build) and 12:47 (the fix), each time back in a few seconds; the unit files were switched to `apps-final7`, the same binary, at 12:49 without a restart.
+- **Why:** the server log of this morning's agent sessions showed two faults.
+  - **Tool markup returned as text, five times (10:09–10:50):** four "malformed structure" and one "trailing content", so the agent got markup instead of a call.
+    - The old template closed the model's turn after an assistant message with text and calls, then wrote every later call and result of the conversation outside any turn.
+    - Google's July template fixes that, but still ends the prompt on a closed turn when the last assistant message had text.
+  - **The engine exited twice (10:37, 10:43)** on agent requests with 82 and 100 messages, with `materialized sequence does not match its active entitlement`. Each crash cost the request and about 40 s of 8080.
+    - A request that takes over a cached conversation counted a checkpoint another cached conversation still shared as its own; the ownership count did not.
+    - The diagnostic build showed it: expected `host_state 1`, actual 0, reuse `PrivateEndpoint`, `ConsumeToActive`.
+- **Measured:**
+  - **[`bench/agenttest.py`](bench/agenttest.py)**, an agent loop with 20 tools and simulated results ([results](results/runs/agent-2026-10-26.jsonl)):
+    - production at 11:17 and the diagnostic build at 12:44: the engine exited at the same step both times (task 2, step 4, 10 messages);
+    - with patch 09 and the new template, 3 runs × 4 tasks: 93 steps, 89 tool calls, none returned as text, no error.
+  - **[`bench/textcalltest.py`](bench/textcalltest.py)**, three histories in which the assistant wrote text with its calls (one with parallel calls), four seeds each: 12 of 12 replies were clean tool calls, with no markup or turn tokens in the text.
+  - **[`config/templates/tplcases.py`](config/templates/tplcases.py):** the agent template renders exactly as Google's for plain chat, multi-turn chat, call-only turns, parallel calls and final answers; only the two text-with-calls shapes differ.
+  - **Not measured:**
+    - the old template on the same text-with-calls histories, which would have meant another restart;
+    - speed, since patch 09 changes one admission count and the template changes only how those histories render.
+- **Also:** tonight's test builds `apps-final5` and `apps-final6` were rebuilt on `e9203c5`, so the night-2 runs carry the fix.
+- **Rollback:** restore `/etc/systemd/system/gemma4-31b-{fast,262k}.service.bak-20261026-114937` (`apps-final4`, artifact template), then `systemctl daemon-reload` and [`bench/deploy_fast.sh`](bench/deploy_fast.sh).
+
 ## 2026-10-26 11:08: web UI tool calling switched on
 
 - **Changed, UI:** the global switch under Settings → Tools is on (`tools_enabled` in the UI's database, set with [`config/ninfer-ui/tools-on.mjs`](config/ninfer-ui/tools-on.mjs)). UI chats now get the built-in `current_time` and `calculator`. No restart; a page reload shows "Use tools" in the Sampling drawer.
