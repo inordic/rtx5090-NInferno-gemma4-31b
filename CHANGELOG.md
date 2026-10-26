@@ -9,6 +9,7 @@ Every change to the running setup, newest first. Each entry names what changed o
   - NInferno commits `633a7e0`, `352aeba`, `28fdaac` and `91d0b18` ([candidate patches 10–13](patches/candidates/));
   - test builds `apps-final5`, `apps-final6`, `apps-visfix`;
   - the packed LilaRest turbo artifact.
+- **Follow-up, 22:10–22:29:** the recommended build end to end, LilaRest turbo with Q/K/V packed and Google's vision tower, on `apps-final8` ([report §7](research/2026-10-26-night2.md#7-follow-up-the-recommended-build-end-to-end-2210-2229-cet)).
 - **Unchanged:** 8080 runs `apps-final7` with the agent template, as before.
 
 ## 2026-10-26 14:24: the fast unit starts at boot

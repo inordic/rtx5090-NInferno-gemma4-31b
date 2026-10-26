@@ -19,3 +19,4 @@
 {"label": "unc-heretic-q4", "ts": "2026-10-26 19:33:07", "gsm8k": "196/200", "gsm8k_secs": 200, "mmlupro": "164/280", "mmlupro_secs": 77, "mmlu": "246/285", "mmlu_secs": 60, "humaneval": "160/164", "humaneval_secs": 153}
 {"label": "alt-turbo-qkv", "ts": "2026-10-26 20:11:04", "gsm8k": "198/200", "gsm8k_secs": 214, "mmlupro": "178/280", "mmlupro_secs": 63, "mmlu": "248/285", "mmlu_secs": 56, "humaneval": "158/164", "humaneval_secs": 163}
 {"label": "unc-huihui-nvfp4", "ts": "2026-10-26 20:21:02", "gsm8k": "194/200", "gsm8k_secs": 214, "mmlupro": "145/280", "mmlupro_secs": 57, "mmlu": "231/285", "mmlu_secs": 49, "humaneval": "157/164", "humaneval_secs": 153}
+{"label": "K1-turbo-qkv-vision", "ts": "2026-10-26 21:22:19", "mmlupro": "177/280", "mmlupro_secs": 69}

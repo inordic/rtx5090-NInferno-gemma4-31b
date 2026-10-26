@@ -1,0 +1,10 @@
+=== 21:08:46 converting: Google's original IT projector
+converting 938 parents in 25988 tasks on 8 threads
+content digests: 1352 objects, 18.87 GiB in 12.31 s
+wrote /opt/models/dl3/turbo-qkv-vision-nvfp4.r31.ninferno: 1352 objects, 1 files, 69.0s (model 11.80s, plan 0.01s, weights 24.86s, finish 32.29s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/dl3/turbo-qkv-vision-nvfp4.r31.ninferno --model-id <repo> attaches them (or convert with --with-drafters)
+-rw------- 1 root root 20259160836 Oct 26 21:09 /opt/models/dl3/turbo-qkv-vision-nvfp4.r31.ninferno
+formats {'nvfp4': 240, 'bf16': 636, 'q8_g32_fp16': 1, 'q6_g64_fp16': 1, 'fp32': 60} components ['text', 'vision']
+query objects 87 packed with key: 87
+vision objects 275
+=== 21:09:55 CONV2 DONE

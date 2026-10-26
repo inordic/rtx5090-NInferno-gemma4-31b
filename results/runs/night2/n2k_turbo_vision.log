@@ -1,0 +1,86 @@
+=== 21:10:06 idle: taking the GPU
+=== 21:10:08 K0 production as deployed (apps-final7, 155K, QAT drafter): prefill baseline
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 34.7s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3126.2 tok/s (n=1706) [3016.418699917682, 3235.918043861974]
+PP 8192: 4345.3 tok/s (n=7468) [4309.922454445086, 4380.643879355749]
+PP 32768: 3469.4 tok/s (n=28972) [3487.7112452544648, 3451.0460598384047]
+PP 65536: 2570.9 tok/s (n=57942) [2569.73458216329, 2572.0159799050093]
+TG@2048 greedy: 124.7 tok/s [120.8230390133725, 128.60646413618682] spec=['mtp K=7', 'mtp K=7']
+TG@2048 sampled: 126.6 tok/s [118.1866298347479, 134.9241557378327] spec=['mtp K=7', 'mtp K=7']
+TG@8192 greedy: 119.5 tok/s [121.9141758395318, 117.04863149253971] spec=['mtp K=7', 'mtp K=7']
+TG@8192 sampled: 115.3 tok/s [116.5249962147619, 114.06500815713251] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 118.0 tok/s (4864 tok) spec=mtp K=7
+CHAT C=1 sampled: 115.8 tok/s (4796 tok) spec=mtp K=7
+ROW {"label": "K0 production apps-final7 155K", "ts": "2026-10-26 21:10:45", "pp2048_ntok": 1706, "pp2048": 3126.2, "pp8192_ntok": 7468, "pp8192": 4345.3, "pp32768_ntok": 28972, "pp32768": 3469.4, "pp65536_ntok": 57942, "pp65536": 2570.9, "tg2048g": 124.7, "tg2048s": 126.6, "tg8192g": 119.5, "tg8192s": 115.3, "chatg": 118.0, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 115.8, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+CEIL turbo-qkv-vision levers regular drafter: vision 202112, text 262144
+=== 21:14:15 K1 recommended build with --vision at 202112
+choice | no candidate holds 202112 tokens for each of 1 streams
+engine ready | turbo-qkv-vision-nvfp4.r31 | total 25.9s | weights 17.9 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 202,112 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the top rung (202,112 tokens x 1 context (202
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 160.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+{"images": ["visual_chart.png"], "q": "What number is in the title of this image? Reply with the nu", "ok": true, "answer": "731", "prompt_tokens": 291, "prompt_ms": 339, "wall": 0.43}
+{"images": ["visual_chart.png"], "q": "How many red circles are in this image? Reply with a single ", "ok": true, "answer": "3", "prompt_tokens": 290, "prompt_ms": 302, "wall": 0.34}
+{"images": ["visual_chart.png"], "q": "Which shape is to the right of the blue square? Reply with t", "ok": true, "answer": "GREEN TRIANGLE", "prompt_tokens": 293, "prompt_ms": 319, "wall": 0.36}
+{"images": ["natural_scene.png"], "q": "What number is on the sign in this image? Reply with the num", "ok": true, "answer": "24", "prompt_tokens": 291, "prompt_ms": 310, "wall": 0.36}
+{"images": ["natural_scene.png"], "q": "What color is the roof of the house? Reply with one word.", "ok": true, "answer": "Red", "prompt_tokens": 289, "prompt_ms": 315, "wall": 0.35}
+{"images": ["compare_left.png", "compare_right.png"], "q": "Which shape appears in the second image but not in the first", "ok": true, "answer": "Star", "prompt_tokens": 541, "prompt_ms": 481, "wall": 0.53}
+{"images": ["compare_left.png", "compare_right.png"], "q": "How many red circles does the second image have more than th", "ok": true, "answer": "1", "prompt_tokens": 541, "prompt_ms": 147, "wall": 0.19}
+VISION K1 turbo-qkv-vision ctx202112 7/7
+PP 2048: 3676.4 tok/s (n=1706) [3623.074014935561, 3729.7132675144317]
+PP 8192: 4361.0 tok/s (n=7468) [4366.548311512278, 4355.520201992744]
+PP 32768: 3449.6 tok/s (n=28972) [3468.3684377185937, 3430.778037392341]
+PP 65536: 2562.1 tok/s (n=57942) [2561.268015065832, 2562.9559019206167]
+TG@2048 greedy: 122.1 tok/s [119.29704280560462, 124.83578557814887] spec=['mtp K=7', 'mtp K=7']
+TG@2048 sampled: 110.8 tok/s [113.40585594470814, 108.11075324493615] spec=['mtp K=7', 'mtp K=7']
+TG@8192 greedy: 113.7 tok/s [121.65393410523619, 105.8434662125204] spec=['mtp K=7', 'mtp K=7']
+TG@8192 sampled: 114.9 tok/s [115.74584161245578, 113.97326816591367] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 109.6 tok/s (4861 tok) spec=mtp K=7
+CHAT C=1 sampled: 110.9 tok/s (4844 tok) spec=mtp K=7
+ROW {"label": "K1 turbo-qkv-vision ctx202112", "ts": "2026-10-26 21:14:45", "pp2048_ntok": 1706, "pp2048": 3676.4, "pp8192_ntok": 7468, "pp8192": 4361.0, "pp32768_ntok": 28972, "pp32768": 3449.6, "pp65536_ntok": 57942, "pp65536": 2562.1, "tg2048g": 122.1, "tg2048s": 110.8, "tg8192g": 113.7, "tg8192s": 114.9, "chatg": 109.6, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 110.9, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+{"edit": "Rename the function `med` to `median` ev", "ok": true, "out_tokens": 1995, "decode": 349.3, "wall": 6.2}
+{"edit": "Change the default of `--reps` from 2 to", "ok": true, "out_tokens": 1995, "decode": 356.1, "wall": 6.1}
+{"edit": "Add a one-line docstring to the function", "ok": true, "out_tokens": 2003, "decode": 355.2, "wall": 6.2}
+EDIT K1 turbo-qkv-vision decode median 355.2
+base: prompt 15211 cache 0 prompt_ms 3811.2528079999997 ttft 3.843s wall 3.88s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 224.068835 ttft 0.246s wall 0.29s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 216.744809 ttft 0.238s wall 0.28s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 235.78592500000002 ttft 0.259s wall 0.30s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 258.27446199999997 ttft 0.28s wall 0.32s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 446.65887399999997 ttft 0.469s wall 0.51s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 462.068471 ttft 0.485s wall 0.52s
+run0 task0: 13 messages
+run0 task1: 22 messages
+run0 task2: 22 messages
+run0 task3: 11 messages
+AGENT K1 turbo-qkv-vision {"steps": 31, "calls": 29, "markup_as_text": 0, "text_with_calls": 5, "final": 2, "errors": 0}
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1577.1, "tg": 70.7, "wall": 82.0, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+{"L": 181900, "depth": 0.5, "ok": true, "ptok": 170226, "pp": 1287.8, "tg": 72.3, "wall": 132.5, "ans": "saffron-falcon-1488", "want": "saffron-falcon-1488"}
+NEEDLE K1 turbo-qkv-vision needles 2/2
+mmlupro: 177/280 (69s)
+ROW {"label": "K1-turbo-qkv-vision", "ts": "2026-10-26 21:22:19", "mmlupro": "177/280", "mmlupro_secs": 69}
+=== 21:23:32 K2 the same without --vision at 262144
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | turbo-qkv-vision-nvfp4.r31 | total 29.7s | weights 16.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve warm_up) | free 6.45 GiB after 16.83 GiB of weights | 0.82 GiB more would serve rung 2, 1.61 GiB the top | planned in 0 ms; the run
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 0.82 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.62 GiB the top rung (262,144 tokens x 1 context (262
+capacity | KV 262,144 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.32 GiB | free 78.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 8192: 4346.7 tok/s (n=7129) [4346.674596080736]
+CHAT C=1 greedy: 109.8 tok/s (4861 tok) spec=mtp K=7
+CHAT C=1 sampled: 107.5 tok/s (4857 tok) spec=mtp K=7
+ROW {"label": "K2 turbo-qkv text ctx262144", "ts": "2026-10-26 21:24:04", "pp8192_ntok": 7129, "pp8192": 4346.7, "chatg": 109.8, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 107.5, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+{"L": 235929, "depth": 0.5, "ok": true, "ptok": 218342, "pp": 1064.0, "tg": 64.5, "wall": 205.6, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+NEEDLE K2 turbo-qkv text needle 1/1
+=== 21:29:07 restoring the fast unit
+active
+=== 21:29:36 N2K DONE

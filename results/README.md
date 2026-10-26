@@ -42,6 +42,7 @@ All measured on the RTX 5090 Laptop GPU described in the [README](../README.md#w
 | `D …`, `alt-…` | night 2: yasu-oh QAT NVFP4 and LilaRest NVFP4-turbo |
 | `H1 …`, `H2 …`, `alt-turbo-qkv` | night 2: turbo with Q/K/V packed (patch 13), drafters |
 | `U …`, `unc-…` | night 2: Heretic QAT Q4 and Huihui QAT-NVFP4 |
+| `K0 …`, `K1 …`, `K2 …` | night 2 follow-up: production baseline, and the recommended build with and without vision |
 | `V2 …`, `J …` | night 2: vision without MTP, and with MTP after patch 12 (with [`vision.jsonl`](vision.jsonl)) |
 
 ## Reading the numbers
