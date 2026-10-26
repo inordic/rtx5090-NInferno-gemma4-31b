@@ -1,0 +1,46 @@
+=== 18:31:57 idle: taking the GPU
+=== 18:32:07 nvfp4: --vision ceiling 211072 at chunk 1024
+choice | no candidate holds 211072 tokens for each of 1 streams
+engine ready | qat-nvfp4-vision.r31 | total 25.4s | weights 17.7 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 211,072 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 211,072 tokens x 1 context (211,072 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.69 GiB more would serve rung 2, 1.49 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 211,072 | 0.70 GiB more free memory would serve rung 2 (211,072 tokens x 1 context (211,072 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.49 GiB the top rung (211,072 tokens x 1 context (211
+capacity | KV 211,072 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,298/3,298 | runtime 5.34 GiB | free 206.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+plan | rung 3 of 3: 211,072 tokens x 1 context (211,072 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.69 GiB more would 
+2026-10-26 18:32:33.304  WARN  plan | rung 3: below the top rung of the asked --max-context 211,072 | 0.70 GiB more free memory would serve rung 2 (211,072 tokens x 1 context (211,072 KV tokens for 1 
+capacity | KV 211,072 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,298/3,298 | runtime 5.34 GiB | free 206.6 MiB
+Traceback (most recent call last):
+  File "/root/gbench/visiontest.py", line 64, in <module>
+    main()
+  File "/root/gbench/visiontest.py", line 49, in main
+    ans, tm, usage, wall = ask(a.base, images, q)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/gbench/visiontest.py", line 35, in ask
+    with urllib.request.urlopen(req, timeout=600) as r:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 500: Internal Server Error
+=== 18:32:39 q4: --vision ceiling 100000 at chunk 512
+DIED
+2026-10-26 18:32:40.299  INFO  engine start refused | planning runtime | 7.68 ms
+2026-10-26 18:32:40.299  FATAL server failed during startup | weight/000147: demanded both in device memory and mapped from the host
+=== 18:32:42 restoring the fast unit
+active
+=== 18:33:11 N2B DONE

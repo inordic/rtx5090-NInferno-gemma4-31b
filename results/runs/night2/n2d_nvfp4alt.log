@@ -1,0 +1,88 @@
+=== 18:33:27 idle: taking the GPU
+=== 18:33:29 turbo: quality (4 lanes)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | turbo-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 10 ms; t
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1008.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.19 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+gsm8k: 197/200 (260s)
+mmlupro: 171/280 (61s)
+mmlu: 246/285 (52s)
+humaneval: 159/164 (217s)
+ROW {"label": "alt-turbo", "ts": "2026-10-26 18:33:55", "gsm8k": "197/200", "gsm8k_secs": 260, "mmlupro": "171/280", "mmlupro_secs": 61, "mmlu": "246/285", "mmlu_secs": 52, "humaneval": "159/164", "humaneval_secs": 217}
+=== 18:43:49 turbo: the production miss (140K, depth 0.5, first draw), needles, speed with the QAT drafter
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | turbo-nvfp4.r31 | total 33.6s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1517.7, "tg": 37.2, "wall": 85.6, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+NEEDLE D turbo repro 1/1
+{"L": 32000, "depth": 0.1, "ok": true, "ptok": 31904, "pp": 3030.1, "tg": 75.0, "wall": 10.7, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 32000, "depth": 0.9, "ok": true, "ptok": 30452, "pp": 3053.1, "tg": 59.8, "wall": 10.1, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+{"L": 72000, "depth": 0.1, "ok": true, "ptok": 66232, "pp": 2242.6, "tg": 43.8, "wall": 29.8, "ans": "cobalt-heron-5557", "want": "cobalt-heron-5557"}
+{"L": 72000, "depth": 0.9, "ok": true, "ptok": 67286, "pp": 2224.2, "tg": 43.8, "wall": 30.5, "ans": "violet-falcon-2519", "want": "violet-falcon-2519"}
+{"L": 140000, "depth": 0.1, "ok": true, "ptok": 131085, "pp": 1477.3, "tg": 46.1, "wall": 89.1, "ans": "saffron-badger-3045", "want": "saffron-badger-3045"}
+{"L": 140000, "depth": 0.9, "ok": true, "ptok": 131214, "pp": 1486.3, "tg": 29.6, "wall": 88.7, "ans": "amber-falcon-4733", "want": "amber-falcon-4733"}
+NEEDLE D turbo needles 6/6
+PP 2048: 3253.6 tok/s (n=1658) [3253.5771741725794]
+PP 8192: 3875.0 tok/s (n=6573) [3875.0323628282845]
+TG@2048 greedy: 75.0 tok/s [74.98703557433086] spec=['mtp K=7']
+TG@2048 sampled: 88.1 tok/s [88.10901767725187] spec=['mtp K=7']
+TG@8192 greedy: 85.4 tok/s [85.41455699327318] spec=['mtp K=7']
+TG@8192 sampled: 88.2 tok/s [88.17069688727759] spec=['mtp K=7']
+CHAT C=1 greedy: 84.6 tok/s (4850 tok) spec=mtp K=7
+CHAT C=1 sampled: 85.7 tok/s (4823 tok) spec=mtp K=7
+ROW {"label": "D turbo QAT drafter K7", "ts": "2026-10-26 18:50:10", "pp2048_ntok": 1658, "pp2048": 3253.6, "pp8192_ntok": 6573, "pp8192": 3875.0, "tg2048g": 75.0, "tg2048s": 88.1, "tg8192g": 85.4, "tg8192s": 88.2, "chatg": 84.6, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 85.7, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 18:52:42 turbo: speed with Google's regular assistant
+DIED
+2026-10-26 18:52:50.375  INFO  engine start refused | finalizing target | 69.6 ms
+2026-10-26 18:52:50.393  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.06 GiB of Device memory free after the weights (18.23 GiB): its last rung, 155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 0 cached states, chunk 1024, needs 5.11 GiB, 0.05 GiB more. What fits instead (--prefill-chunk 1024, an automatic KV capacity in place of --kv-capacity): --max-concurrency 1 with up to 142080 tokens of context.
+=== 18:52:52 yasu: quality (4 lanes)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | yasu-qat-nvfp4.r31 | total 24.7s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 8 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1014.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.19 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+gsm8k: 196/200 (199s)
+mmlupro: 160/280 (57s)
+mmlu: 243/285 (49s)
+humaneval: 160/164 (145s)
+ROW {"label": "alt-yasu", "ts": "2026-10-26 18:53:18", "gsm8k": "196/200", "gsm8k_secs": 199, "mmlupro": "160/280", "mmlupro_secs": 57, "mmlu": "243/285", "mmlu_secs": 49, "humaneval": "160/164", "humaneval_secs": 145}
+=== 19:00:53 yasu: the production miss (140K, depth 0.5, first draw), needles, speed with the QAT drafter
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | yasu-qat-nvfp4.r31 | total 36.7s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1567.3, "tg": 55.6, "wall": 82.8, "ans": "cobalt-otter-3286", "want": "amber-falcon-5506"}
+NEEDLE D yasu repro 0/1
+{"L": 32000, "depth": 0.1, "ok": true, "ptok": 31904, "pp": 3260.8, "tg": 99.8, "wall": 9.9, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 32000, "depth": 0.9, "ok": true, "ptok": 30452, "pp": 3287.7, "tg": 159.6, "wall": 9.4, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+{"L": 72000, "depth": 0.1, "ok": true, "ptok": 66232, "pp": 2353.9, "tg": 109.3, "wall": 28.3, "ans": "cobalt-heron-5557", "want": "cobalt-heron-5557"}
+{"L": 72000, "depth": 0.9, "ok": true, "ptok": 67286, "pp": 2325.1, "tg": 167.8, "wall": 29.1, "ans": "violet-falcon-2519", "want": "violet-falcon-2519"}
+{"L": 140000, "depth": 0.1, "ok": true, "ptok": 131085, "pp": 1518.3, "tg": 90.9, "wall": 86.6, "ans": "saffron-badger-3045", "want": "saffron-badger-3045"}
+{"L": 140000, "depth": 0.9, "ok": true, "ptok": 131214, "pp": 1525.1, "tg": 72.5, "wall": 86.3, "ans": "amber-falcon-4733", "want": "amber-falcon-4733"}
+NEEDLE D yasu needles 6/6
+PP 2048: 3592.6 tok/s (n=1658) [3592.6135068902813]
+PP 8192: 4255.0 tok/s (n=6573) [4255.004009977148]
+TG@2048 greedy: 112.2 tok/s [112.16520423888102] spec=['mtp K=7']
+TG@2048 sampled: 119.6 tok/s [119.62737213201322] spec=['mtp K=7']
+TG@8192 greedy: 109.3 tok/s [109.25015609116052] spec=['mtp K=7']
+TG@8192 sampled: 120.7 tok/s [120.68398111556428] spec=['mtp K=7']
+CHAT C=1 greedy: 118.7 tok/s (4855 tok) spec=mtp K=7
+CHAT C=1 sampled: 117.9 tok/s (4871 tok) spec=mtp K=7
+ROW {"label": "D yasu QAT drafter K7", "ts": "2026-10-26 19:07:04", "pp2048_ntok": 1658, "pp2048": 3592.6, "pp8192_ntok": 6573, "pp8192": 4255.0, "tg2048g": 112.2, "tg2048s": 119.6, "tg8192g": 109.3, "tg8192s": 120.7, "chatg": 118.7, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 117.9, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 19:08:58 restoring the fast unit
+active
+=== 19:09:36 N2D DONE

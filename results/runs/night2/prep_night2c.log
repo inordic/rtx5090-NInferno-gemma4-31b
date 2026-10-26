@@ -1,0 +1,38 @@
+=== 09:45:13 LilaRest NVFP4-turbo
+got .gitattributes 1679
+got .gitignore 26
+got README.md 10736
+got banner.png 503585
+got chat_template.jinja 16447
+got config.json 4220
+got generation_config.json 208
+got model-00001-of-00004.safetensors 6188232922
+got model-00002-of-00004.safetensors 5751359722
+got model-00003-of-00004.safetensors 5757552882
+got model-00004-of-00004.safetensors 1598131986
+got model.safetensors.index.json 207819
+got processor_config.json 1689
+got tokenizer.json 32169626
+got tokenizer_config.json 2068
+content digests: 1186 objects, 17.79 GiB in 33.34 s
+wrote /opt/models/dl3/turbo-nvfp4.r31.ninferno: 1186 objects, 1 files, 84.8s (model 17.11s, plan 0.01s, weights 34.06s, finish 33.58s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/dl3/turbo-nvfp4.r31.ninferno --model-id <repo> attaches them (or convert with --with-drafters)
+-rw------- 1 root root 19107609604 Oct 26 09:54 /opt/models/dl3/turbo-nvfp4.r31.ninferno
+=== 09:54:45 yasu-oh QAT NVFP4
+got .gitattributes 1570
+got README.md 3449
+got chat_template.jinja 18683
+got config.json 19471
+got generation_config.json 204
+got model-00001-of-00002.safetensors 19996702274
+got model-00002-of-00002.safetensors 450140670
+got model.safetensors.index.json 265199
+got processor_config.json 1689
+got recipe.yaml 1665
+got tokenizer.json 32169626
+got tokenizer_config.json 3729
+content digests: 1077 objects, 17.79 GiB in 32.23 s
+wrote /opt/models/dl3/yasu-qat-nvfp4.r31.ninferno: 1077 objects, 1 files, 94.6s (model 16.33s, plan 0.01s, weights 45.80s, finish 32.46s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/dl3/yasu-qat-nvfp4.r31.ninferno --model-id <repo> attaches them (or convert with --with-drafters)
+-rw------- 1 root root 19107569156 Oct 26 10:05 /opt/models/dl3/yasu-qat-nvfp4.r31.ninferno
+=== 10:05:43 PREP3 DONE

@@ -1,0 +1,12 @@
+=== 19:07:15 converting (fused QKV)
+converting 663 parents in 24685 tasks on 8 threads
+content digests: 1077 objects, 17.79 GiB in 2.554 s
+wrote /opt/models/dl3/turbo-qkv-nvfp4.r31.ninferno: 1077 objects, 1 files, 70.2s (model 15.24s, plan 0.01s, weights 43.71s, finish 11.23s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/dl3/turbo-qkv-nvfp4.r31.ninferno --model-id <repo> attaches them (or convert with --with-drafters)
+-rw------- 1 root root 19107565316 Oct 26 19:08 /opt/models/dl3/turbo-qkv-nvfp4.r31.ninferno
+formats {'nvfp4': 240, 'q8_g32_fp16': 1, 'q6_g64_fp16': 1, 'bf16': 361, 'fp32': 60}
+   weight/000000 ['attention/query', 'attention/key', 'attention/value'] [16384, 5376]
+   weight/000010 ['attention/query', 'attention/key'] [18432, 5376]
+   weight/000126 ['attention/output'] [5376, 8192]
+   weight/000171 ['attention/output'] [5376, 16384]
+=== 19:08:25 CONV DONE

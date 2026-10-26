@@ -1,0 +1,15 @@
+diff --git a/src/ops/softmax_attention/gemma4/kernel.cuh b/src/ops/softmax_attention/gemma4/kernel.cuh
+index ae00c34..ae0e849 100644
+--- a/src/ops/softmax_attention/gemma4/kernel.cuh
++++ b/src/ops/softmax_attention/gemma4/kernel.cuh
+@@ -1321,7 +1321,9 @@ inline constexpr int kGemma4CombineWarps = 8;
+ // Splits one combine warp loads in a single round trip (6 registers each). Warps x Batch = 192
+ // covers the split counts the decode plan makes for the Gemma 4 layers on RTX 50 and RTX PRO 6000
+ // cards (at most one D=512 CTA per SM, so at most the SM count); more take extra round trips.
+-inline constexpr int kGemma4CombineBatch = 24;
++// Experiment: 4 instead of 24 frees registers for more resident CTAs; a verify at T=8 runs the
++// combine in several waves at one CTA per SM.
++inline constexpr int kGemma4CombineBatch = 4;
+ 
+ // Merge the live splits of one (token, query head) row over a 128-wide feature chunk. Grid is
+ // (D / 128, Hq, T * B): the head, the token and the batch row come from the grid, and the head

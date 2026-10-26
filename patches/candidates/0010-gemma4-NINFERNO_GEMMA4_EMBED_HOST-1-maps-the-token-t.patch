@@ -1,0 +1,50 @@
+From 633a7e0faac216871169e74110685177be1fd300 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 20:30:56 +0000
+Subject: [PATCH 10/13] gemma4: NINFERNO_GEMMA4_EMBED_HOST=1 maps the token
+ table from host memory
+
+Each token gathers one row of the table, so it is read in place from pinned host memory and its
+1.4 GB (31B, Q8) stay off the device. With FP8 sliding rings, the 31B QAT-NVFP4 serves 262,144
+tokens on a 24 GB card at production speed (prefill 2K/8K/32K/64K 3,453/4,275/3,414/2,577 tok/s,
+chat 118.9 tok/s). A table tied to the head (GGUF) is also the head's weight and stays on the
+device; the engine refuses the setting there.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/models/gemma4/load_target.cpp | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/src/models/gemma4/load_target.cpp b/src/models/gemma4/load_target.cpp
+index 8b3d21a..c8db06f 100644
+--- a/src/models/gemma4/load_target.cpp
++++ b/src/models/gemma4/load_target.cpp
+@@ -6,6 +6,7 @@
+ #include "ninferno/ops/gemma4_moe.h"
+ #include "ninferno/ops/moe.h"
+ 
++#include <cstdlib>
+ #include <cuda_runtime.h>
+ 
+ #include <algorithm>
+@@ -163,8 +164,16 @@ std::unique_ptr<Model> Model::load(const std::filesystem::path& path, DeviceCont
+         vision_ids = demand_vision(demands, *model->vision_config_);
+     }
+     // Tables are bound in whatever format the recipe stored; ops::embedding accepts or refuses it.
++    // NINFERNO_GEMMA4_EMBED_HOST=1: each token gathers one row, so the table is read in place from
++    // pinned host memory, as the per-layer table is, and its 1.4 GB (31B, Q8) stay off the device.
++    const bool embed_host = [] {
++        const char* e = std::getenv("NINFERNO_GEMMA4_EMBED_HOST");
++        return e != nullptr && e[0] == '1';
++    }();
+     const Id embedding =
+-        demands.direct("text/token_embedding", {std::uint64_t(c.vocab_size), h}, std::nullopt);
++        embed_host
++            ? demands.mapped("text/token_embedding", {std::uint64_t(c.vocab_size), h}, std::nullopt)
++            : demands.direct("text/token_embedding", {std::uint64_t(c.vocab_size), h}, std::nullopt);
+     const Id head =
+         demands.matrix("text/output_head", {std::uint64_t(c.vocab_size), h}, "text/final_hidden");
+     const Id final_norm = demands.direct("text/final_norm", {h}, QType::BF16);
+-- 
+2.43.0
+

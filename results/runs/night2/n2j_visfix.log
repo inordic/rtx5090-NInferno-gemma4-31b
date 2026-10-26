@@ -1,0 +1,74 @@
+=== 20:29:43 idle: taking the GPU
+=== 20:29:55 nvfp4: --vision + MTP at 211072, chunk 1024, embed host 1
+choice | no candidate holds 211072 tokens for each of 1 streams
+engine ready | qat-nvfp4-vision.r31 | total 25.4s | weights 17.7 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 211,072 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 211,072 tokens x 1 context (211,072 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.69 GiB more would serve rung 2, 1.49 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 211,072 | 0.70 GiB more free memory would serve rung 2 (211,072 tokens x 1 context (211,072 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.49 GiB the top rung (211,072 tokens x 1 context (211
+capacity | KV 211,072 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,298/3,298 | runtime 5.34 GiB | free 206.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+{"images": ["visual_chart.png"], "q": "What number is in the title of this image? Reply with the nu", "ok": true, "answer": "731", "prompt_tokens": 291, "prompt_ms": 330, "wall": 0.41}
+{"images": ["visual_chart.png"], "q": "How many red circles are in this image? Reply with a single ", "ok": true, "answer": "3", "prompt_tokens": 290, "prompt_ms": 314, "wall": 0.35}
+{"images": ["visual_chart.png"], "q": "Which shape is to the right of the blue square? Reply with t", "ok": true, "answer": "Green triangle", "prompt_tokens": 293, "prompt_ms": 308, "wall": 0.34}
+{"images": ["natural_scene.png"], "q": "What number is on the sign in this image? Reply with the num", "ok": true, "answer": "24", "prompt_tokens": 291, "prompt_ms": 308, "wall": 0.36}
+{"images": ["natural_scene.png"], "q": "What color is the roof of the house? Reply with one word.", "ok": true, "answer": "Red", "prompt_tokens": 289, "prompt_ms": 306, "wall": 0.34}
+{"images": ["compare_left.png", "compare_right.png"], "q": "Which shape appears in the second image but not in the first", "ok": true, "answer": "star", "prompt_tokens": 541, "prompt_ms": 492, "wall": 0.55}
+{"images": ["compare_left.png", "compare_right.png"], "q": "How many red circles does the second image have more than th", "ok": true, "answer": "1", "prompt_tokens": 541, "prompt_ms": 148, "wall": 0.18}
+VISION J nvfp4 ctx211072 mtp 7/7
+PP 2048: 3634.8 tok/s (n=1658) [3634.8229481578464]
+PP 8192: 4278.5 tok/s (n=6573) [4278.547343700301]
+PP 32768: 3382.7 tok/s (n=28692) [3382.6758346014567]
+TG@2048 greedy: 114.4 tok/s [114.39922899791138] spec=['mtp K=7']
+TG@2048 sampled: 121.5 tok/s [121.51370897095265] spec=['mtp K=7']
+TG@8192 greedy: 120.0 tok/s [119.95326170219067] spec=['mtp K=7']
+TG@8192 sampled: 124.2 tok/s [124.21136385066582] spec=['mtp K=7']
+CHAT C=1 greedy: 119.0 tok/s (4828 tok) spec=mtp K=7
+CHAT C=1 sampled: 116.4 tok/s (4778 tok) spec=mtp K=7
+ROW {"label": "J nvfp4 vision mtp ctx211072 chunk1024", "ts": "2026-10-26 20:30:26", "pp2048_ntok": 1658, "pp2048": 3634.8, "pp8192_ntok": 6573, "pp8192": 4278.5, "pp32768_ntok": 28692, "pp32768": 3382.7, "tg2048g": 114.4, "tg2048s": 121.5, "tg8192g": 120.0, "tg8192s": 124.2, "chatg": 119.0, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 116.4, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+base: prompt 15211 cache 0 prompt_ms 3859.11202 ttft 3.894s wall 3.93s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 206.396847 ttft 0.225s wall 0.26s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 215.42271599999998 ttft 0.235s wall 0.27s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 233.597082 ttft 0.256s wall 0.29s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 273.987729 ttft 0.294s wall 0.33s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 502.260876 ttft 0.523s wall 0.56s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 532.785631 ttft 0.555s wall 0.59s
+{"L": 189964, "depth": 0.5, "ok": true, "ptok": 176209, "pp": 1220.8, "tg": 66.0, "wall": 144.7, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+NEEDLE J nvfp4 needle 1/1
+=== 20:35:11 q4: --vision + MTP at 240384, chunk 512, embed host 0
+choice | no candidate holds 240384 tokens for each of 1 streams
+engine ready | qat-ud-q4-vision | total 26.6s | weights 17.4 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 240,384 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 240,384 tokens x 1 context (240,384 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 5.88 GiB after 17.40 GiB of weights | 0.43 GiB more would serve rung 2, 1.02 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 240,384 | 0.43 GiB more free memory would serve rung 2 (240,384 tokens x 1 context (240,384 KV tokens for 1 lane), 1 cached states, chunk 512), 1.03 GiB the top rung (240,384 tokens x 1 context (240,
+capacity | KV 240,384 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,756/3,756 | runtime 5.57 GiB | free 270.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+{"images": ["visual_chart.png"], "q": "What number is in the title of this image? Reply with the nu", "ok": true, "answer": "731", "prompt_tokens": 291, "prompt_ms": 467, "wall": 0.56}
+{"images": ["visual_chart.png"], "q": "How many red circles are in this image? Reply with a single ", "ok": true, "answer": "3", "prompt_tokens": 290, "prompt_ms": 443, "wall": 0.48}
+{"images": ["visual_chart.png"], "q": "Which shape is to the right of the blue square? Reply with t", "ok": true, "answer": "Green triangle", "prompt_tokens": 293, "prompt_ms": 447, "wall": 0.49}
+{"images": ["natural_scene.png"], "q": "What number is on the sign in this image? Reply with the num", "ok": true, "answer": "24", "prompt_tokens": 291, "prompt_ms": 441, "wall": 0.49}
+{"images": ["natural_scene.png"], "q": "What color is the roof of the house? Reply with one word.", "ok": true, "answer": "Red", "prompt_tokens": 289, "prompt_ms": 448, "wall": 0.49}
+{"images": ["compare_left.png", "compare_right.png"], "q": "Which shape appears in the second image but not in the first", "ok": true, "answer": "star", "prompt_tokens": 541, "prompt_ms": 665, "wall": 0.73}
+{"images": ["compare_left.png", "compare_right.png"], "q": "How many red circles does the second image have more than th", "ok": true, "answer": "1", "prompt_tokens": 541, "prompt_ms": 162, "wall": 0.2}
+VISION J q4 ctx240384 mtp 7/7
+PP 2048: 1467.5 tok/s (n=1658) [1467.541820803921]
+PP 8192: 1540.4 tok/s (n=6573) [1540.3906868456213]
+PP 32768: 1299.5 tok/s (n=28692) [1299.5283428685786]
+TG@2048 greedy: 115.0 tok/s [114.9845946767813] spec=['mtp K=7']
+TG@2048 sampled: 103.2 tok/s [103.24973737474593] spec=['mtp K=7']
+TG@8192 greedy: 110.5 tok/s [110.52311308146123] spec=['mtp K=7']
+TG@8192 sampled: 104.5 tok/s [104.4957632880893] spec=['mtp K=7']
+CHAT C=1 greedy: 97.0 tok/s (4839 tok) spec=mtp K=7
+CHAT C=1 sampled: 95.1 tok/s (4849 tok) spec=mtp K=7
+ROW {"label": "J q4 vision mtp ctx240384 chunk512", "ts": "2026-10-26 20:35:43", "pp2048_ntok": 1658, "pp2048": 1467.5, "pp8192_ntok": 6573, "pp8192": 1540.4, "pp32768_ntok": 28692, "pp32768": 1299.5, "tg2048g": 115.0, "tg2048s": 103.2, "tg8192g": 110.5, "tg8192s": 104.5, "chatg": 97.0, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 95.1, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+base: prompt 15211 cache 0 prompt_ms 10541.98199 ttft 10.573s wall 10.62s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 206.835294 ttft 0.227s wall 0.27s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 219.206696 ttft 0.24s wall 0.28s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 260.527739 ttft 0.283s wall 0.33s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 342.14443 ttft 0.37s wall 0.41s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 832.5416730000001 ttft 0.854s wall 0.90s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 929.008615 ttft 0.956s wall 1.00s
+{"L": 216345, "depth": 0.5, "ok": true, "ptok": 200033, "pp": 566.2, "tg": 56.0, "wall": 353.7, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+NEEDLE J q4 needle 1/1
+=== 20:44:37 restoring the fast unit
+active
+=== 20:45:06 N2J DONE

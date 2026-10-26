@@ -1,0 +1,122 @@
+From 28fdaac4c7a6529dc69c54f2b19a77b9f911b5f6 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 20:30:56 +0000
+Subject: [PATCH 12/13] gemma4 vision: an image starts at its own first token
+ under MTP
+
+With MTP prepared, the shared planner starts an image's use span one token early (the bridge
+Qwen's MTP takes). Gemma 4 took the whole span as soft tokens (261 for a 260-token image), the
+encoder refused its output and the engine exited on the first image request. Gemma 4 now places
+an image at its item's first token and runs the token before it as text. The encoder's output
+check names what it got and what it expected.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/models/gemma4/program_family.cpp | 27 ++++++++++++++++++---------
+ src/models/gemma4/vision.cpp         | 10 +++++++++-
+ 2 files changed, 27 insertions(+), 10 deletions(-)
+
+diff --git a/src/models/gemma4/program_family.cpp b/src/models/gemma4/program_family.cpp
+index a2386b5..0c7cebe 100644
+--- a/src/models/gemma4/program_family.cpp
++++ b/src/models/gemma4/program_family.cpp
+@@ -97,12 +97,20 @@ public:
+         timers_.reserve(plan_.uses.size());
+     }
+ 
++    // An image's first soft token. A use span starts one token early when MTP is prepared (the
++    // shared planner's bridge for Qwen's MTP); Gemma 4 runs that token as text.
++    [[nodiscard]] std::uint32_t begin_of(const VisionUseSpan& use) const noexcept {
++        const qwen3_5::VisionItem& item = prompt_.vision_items[use.prepared_item_index];
++        return static_cast<std::uint32_t>(item.token_spans.front().begin);
++    }
++
+     // An image is one call: a unit whose end would cut one ends where it begins (a prompt of 1900
+     // text tokens and a 282-token image no longer asks for a larger --prefill-chunk at a 2048 one).
+     [[nodiscard]] std::uint32_t unit_end(std::uint32_t cursor,
+                                          std::uint32_t end) const noexcept override {
+         for (const VisionUseSpan& use : plan_.uses) {
+-            if (use.begin > cursor && use.begin < end && end < use.end) { return use.begin; }
++            const std::uint32_t begin = begin_of(use);
++            if (begin > cursor && begin < end && end < use.end) { return begin; }
+         }
+         return end;
+     }
+@@ -110,7 +118,7 @@ public:
+     // The image whose soft tokens hold `position`, or null.
+     [[nodiscard]] const VisionUseSpan* use_at(std::uint32_t position) const noexcept {
+         for (const VisionUseSpan& use : plan_.uses) {
+-            if (use.begin <= position && position < use.end) { return &use; }
++            if (begin_of(use) <= position && position < use.end) { return &use; }
+         }
+         return nullptr;
+     }
+@@ -118,14 +126,14 @@ public:
+     // The first image beginning at or after `position`, or null.
+     [[nodiscard]] const VisionUseSpan* next_use(std::uint32_t position) const noexcept {
+         for (const VisionUseSpan& use : plan_.uses) {
+-            if (use.begin >= position) { return &use; }
++            if (begin_of(use) >= position) { return &use; }
+         }
+         return nullptr;
+     }
+ 
+     // The image's soft tokens, BF16 [text hidden, its tokens], encoded on its first call.
+     [[nodiscard]] Tensor soft_tokens(const VisionUseSpan& use) {
+-        const auto count = static_cast<std::int32_t>(use.end - use.begin);
++        const auto count = static_cast<std::int32_t>(use.end - begin_of(use));
+         Tensor output(static_cast<unsigned char*>(workspace_.data) +
+                           workspace_plan_.handoff_offset_bytes,
+                       DType::BF16, {workspace_plan_.output_hidden, count});
+@@ -763,17 +771,18 @@ program::PrefillChunkResult Gemma4Execution::prefill_multimodal_chunk(
+     // run as one call, and a text call stops where the next image begins.
+     const VisionUseSpan* image = images.use_at(call.base);
+     if (image != nullptr) {
+-        if (image->begin != call.base) {
++        const std::uint32_t begin = images.begin_of(*image);
++        if (begin != call.base) {
+             throw std::logic_error("Gemma 4 vision: a prefill resumes inside an image");
+         }
+-        if (call.len < image->end - image->begin) {
++        if (call.len < image->end - begin) {
+             throw std::invalid_argument(
+                 "Gemma 4 vision: a prefill call must hold a whole image; raise --prefill-chunk");
+         }
+-        call.len = image->end - image->begin;
++        call.len = image->end - begin;
+     } else if (const VisionUseSpan* next = images.next_use(call.base);
+-               next != nullptr && next->begin < call.base + call.len) {
+-        call.len = next->begin - call.base;
++               next != nullptr && images.begin_of(*next) < call.base + call.len) {
++        call.len = images.begin_of(*next) - call.base;
+     }
+     call.t       = static_cast<std::int32_t>(call.len);
+     call.is_last = finalize_at_end && call.len == nominal_length;
+diff --git a/src/models/gemma4/vision.cpp b/src/models/gemma4/vision.cpp
+index 22152a0..2fd95c4 100644
+--- a/src/models/gemma4/vision.cpp
++++ b/src/models/gemma4/vision.cpp
+@@ -1,3 +1,4 @@
++#include <string>
+ #include "models/gemma4/vision.h"
+ 
+ #include "core/arena.h"
+@@ -120,7 +121,14 @@ void VisionEncoder::encode(const VisionImage& image, Tensor& output, DeviceSpan
+     const std::int32_t tokens = soft_tokens(patches);
+     if (output.dtype != DType::BF16 || !output.is_contiguous() ||
+         output.ne[0] != c.output_hidden || output.ne[1] != tokens || output.ne[2] != 1) {
+-        throw std::invalid_argument("gemma4 vision: output must be BF16 [text hidden, tokens]");
++        throw std::invalid_argument(
++            "gemma4 vision: output must be BF16 [text hidden, tokens]: got dtype " +
++            std::to_string(static_cast<int>(output.dtype)) + " contiguous " +
++            std::to_string(output.is_contiguous()) + " ne " + std::to_string(output.ne[0]) + " x " +
++            std::to_string(output.ne[1]) + " x " + std::to_string(output.ne[2]) + ", expected " +
++            std::to_string(c.output_hidden) + " x " + std::to_string(tokens) + " (patches " +
++            std::to_string(patches) + ", grid " + std::to_string(image.width) + " x " +
++            std::to_string(image.rows) + ")");
+     }
+     const Layout layout = build_layout(c, weights_, patches);
+     if (workspace.data == nullptr || workspace.bytes < layout.bytes) {
+-- 
+2.43.0
+

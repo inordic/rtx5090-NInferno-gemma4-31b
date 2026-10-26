@@ -26,6 +26,17 @@ Patches 06 and 07 pay with 7 MTP drafts (`--draft-tokens 7`): the verify then ru
 
 Apply it on [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp) at `2280f0f` ([`BUILD.md`](../BUILD.md), step 2).
 
+## Candidates (`candidates/`, tested, not in production)
+
+Night 2's engine changes ([report](../research/2026-10-26-night2.md)), on top of patch 09 (`git am` after 01–09). Production does not run them yet.
+
+| # | Patch | Switch | Measured |
+|---|---|---|---|
+| 10 | `gemma4: NINFERNO_GEMMA4_EMBED_HOST=1 maps the token table from host memory` | env, off by default | with `--sliding-kv-dtype fp8`, QAT-NVFP4 serves 262,144 tokens at production prefill and decode. A table tied to the head (GGUF) is refused |
+| 11 | `gemma4 attention: NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T moves the wide prefill tile threshold` | env, default 1024 | at 64: first token 11% sooner on agent turns that append about 900 tokens |
+| 12 | `gemma4 vision: an image starts at its own first token under MTP` | a fix, always on | under MTP the first image request ended the engine (261 tokens planned for 260); now 7/7 image questions at 211K with MTP |
+| 13 | `convert: NINFERNO_CONVERT_NORMED_QKV_DIVISOR=1 packs a layer's NVFP4 Q/K/V under one divisor` | env for `ninferno-convert`, off by default | LilaRest NVFP4-turbo packed prefills within 1% of production (unpacked: 6–9% slower) |
+
 ## Experiments (`experiments/`, not applied)
 
 Env-gated changes that were measured and not adopted. They are diffs against `4e58bc6`.
@@ -33,4 +44,5 @@ Env-gated changes that were measured and not adopted. They are diffs against `4e
 | Patch | Switch | Result |
 |---|---|---|
 | `verify-a4-env.patch` | `NINFERNO_GEMMA4_VERIFY_A4=1`: the MTP verify keeps each projection's recorded W4A4 policy instead of A16 | chat decode 108.3 / 105.5 against 108.8 / 108.0 tok/s; MMLU-Pro 147. No gain |
+| `combine-batch-4.patch` | none: `kGemma4CombineBatch` 24 → 4 (diff against `91d0b18`) | bit-identical greedy output; chat 118.3 / 114.9 against 117.7 / 113.8, within noise |
 | `q40-w4a8-ws-env.patch` | `NINFERNO_Q40_W4A8_WS=1`: GGML Q4_0 prefill on sm_120 takes NInferno's producer-warp W4A8 tile instead of ggml's MMQ | Q4 prefill +10% at 8K (1,644 → 1,806), +8% at 32K; perplexity 90.93 → 92.81 (+2%) on the quality profile |

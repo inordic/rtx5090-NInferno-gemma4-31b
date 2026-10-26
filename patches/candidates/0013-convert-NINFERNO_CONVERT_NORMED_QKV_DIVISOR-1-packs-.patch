@@ -1,0 +1,134 @@
+From 91d0b183c8385e8da0790b511316115128b448fb Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 20:30:56 +0000
+Subject: [PATCH 13/13] convert: NINFERNO_CONVERT_NORMED_QKV_DIVISOR=1 packs a
+ layer's NVFP4 Q/K/V under one divisor
+
+A text layer's attention query, key and value whose NVFP4 divisors differ were kept apart: three
+GEMMs where a checkpoint with matching divisors runs one QKV plane. Each is RMS-normed per head
+right after the projection (Gemma 4's query/key norms and v_norm), so a member's rows can take the
+query's divisor: the constant factor cancels, and codes and block scales are kept as they are.
+LilaRest/gemma-4-31B-it-NVFP4-turbo so packed prefills like the QAT-NVFP4 build (2K/8K/32K/64K
+3,545/4,242/3,391/2,511 against 3,583/4,264/3,416/2,523 tok/s; unpacked 3,260/3,882/3,161/2,382).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/convert/convert.cpp |  2 +-
+ src/convert/planner.cpp | 45 +++++++++++++++++++++++++++++++++--------
+ src/convert/planner.h   |  3 +++
+ 3 files changed, 41 insertions(+), 9 deletions(-)
+
+diff --git a/src/convert/convert.cpp b/src/convert/convert.cpp
+index b455206..712c76f 100644
+--- a/src/convert/convert.cpp
++++ b/src/convert/convert.cpp
+@@ -710,7 +710,7 @@ private:
+                      std::uint64_t at) {
+                      source.encoded_rows(low, high, s.encoded, &s.log); // appends
+                      const auto index = (task.begin + at) / rows_per_divisor;
+-                     if (s.encoded.divisor != job.divisor_words[index]) {
++                     if (!job.shared_divisor && s.encoded.divisor != job.divisor_words[index]) {
+                          throw std::runtime_error(job.id +
+                                                   ": weight divisor changed between row blocks");
+                      }
+diff --git a/src/convert/planner.cpp b/src/convert/planner.cpp
+index 3b672b8..aa36528 100644
+--- a/src/convert/planner.cpp
++++ b/src/convert/planner.cpp
+@@ -1,3 +1,5 @@
++#include <cstdlib>
++#include <regex>
+ #include "convert/planner.h"
+ 
+ #include "artifact/routed_experts.h"
+@@ -163,6 +165,34 @@ private:
+         return true;
+     }
+ 
++    // A text layer's attention query, key and value packed under one divisor
++    // (NINFERNO_CONVERT_NORMED_QKV_DIVISOR=1): each is RMS-normed per head right after the
++    // projection, so the constant factor its rows take from the query's divisor cancels.
++    bool normed_projection_group(const std::vector<std::size_t>& names) const {
++        static const bool enabled = [] {
++            const char* e = std::getenv("NINFERNO_CONVERT_NORMED_QKV_DIVISOR");
++            return e != nullptr && e[0] == '1';
++        }();
++        if (!enabled || names.size() < 2) { return false; }
++        static const std::regex member(R"(text/layers/\d+/attention/(query|key|value))");
++        return std::all_of(names.begin(), names.end(), [&](std::size_t i) {
++            return std::regex_match(model_.parameters[i].name, member);
++        });
++    }
++
++    // Whether NVFP4 sources disagree on their divisors (false when one provides none).
++    bool divisors_differ(const std::vector<std::size_t>& names) const {
++        std::optional<std::uint32_t> word;
++        for (const auto name : names) {
++            const auto& source = recipe_.selections[name].source;
++            if (!source->provides_divisors()) { return false; }
++            const auto value = source->weight_divisor();
++            if (word && *word != value) { return true; }
++            word = value;
++        }
++        return false;
++    }
++
+     // Whether a default packing group may share one parent: one format and method, NVFP4
+     // sources agreeing on their divisors, FP8 block grids whole and one column order.
+     bool packable(const std::vector<std::size_t>& names) const {
+@@ -170,14 +200,10 @@ private:
+         const auto& first = recipe_.selections[names.front()];
+         if (first.format == QType::NVFP4 && first.method == Method::ImportEncoded) {
+             // Default packing keeps parents apart when their sources disagree on divisors.
+-            std::optional<std::uint32_t> word;
+             for (const auto name : names) {
+-                const auto& source = recipe_.selections[name].source;
+-                if (!source->provides_divisors()) { return false; }
+-                const auto value = source->weight_divisor();
+-                if (word && *word != value) { return false; }
+-                word = value;
++                if (!recipe_.selections[name].source->provides_divisors()) { return false; }
+             }
++            if (divisors_differ(names) && !normed_projection_group(names)) { return false; }
+         }
+         if (first.format == QType::FP8_E4M3FN_B128_F32 && !whole_blocks(names)) {
+             return false; // each member keeps its own 128-row block grid
+@@ -242,8 +268,11 @@ private:
+         job.parameters = names;
+         job.sources    = sources;
+         job.shape      = parent_shape(sources, selection.format);
++        job.shared_divisor = selection.format == QType::NVFP4 &&
++                             selection.method == Method::ImportEncoded &&
++                             normed_projection_group(names) && divisors_differ(names);
+         try {
+-            job.divisors = parent_divisors(sources, selection.format);
++            job.divisors = job.shared_divisor ? 1 : parent_divisors(sources, selection.format);
+         } catch (const std::exception& error) {
+             throw std::runtime_error(label(names) + ": " + error.what());
+         }
+@@ -460,7 +489,7 @@ private:
+         } else {
+             const auto word = job.sources.front()->weight_divisor();
+             for (const auto& source : job.sources) {
+-                if (source->weight_divisor() != word) {
++                if (!job.shared_divisor && source->weight_divisor() != word) {
+                     throw std::runtime_error("weight divisor changed between row blocks");
+                 }
+             }
+diff --git a/src/convert/planner.h b/src/convert/planner.h
+index 8609c13..e9ad8a8 100644
+--- a/src/convert/planner.h
++++ b/src/convert/planner.h
+@@ -25,6 +25,9 @@ struct WeightJob {
+     WeightGeometry geometry;
+     std::uint64_t offset = 0;                 // payload-relative
+     std::vector<std::uint32_t> divisor_words; // NVFP4: one per divisor
++    // NVFP4: every source's rows take the first source's divisor, though theirs differ (a per-head
++    // RMS norm after the projection cancels the factor; NINFERNO_CONVERT_NORMED_QKV_DIVISOR).
++    bool shared_divisor = false;
+     KOrder order; // RowGroupZpOrdered: the plane's column order (every source's)
+ };
+ 
+-- 
+2.43.0
+

@@ -1,0 +1,127 @@
+=== 19:53:31 idle: taking the GPU
+=== 19:53:33 H1 prefill: production
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.3s | weights 16.6 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 6.66 GiB after 16.62 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 155,008 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.85 GiB | free 788.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3583.4 tok/s (n=1706) [3593.6492198681726, 3573.1975091562717]
+PP 8192: 4263.9 tok/s (n=7468) [4274.632940862365, 4253.22105833624]
+PP 32768: 3415.7 tok/s (n=28972) [3427.9298704065386, 3403.4121763973994]
+PP 65536: 2523.1 tok/s (n=57942) [2517.434151140799, 2528.8217431475364]
+ROW {"label": "H1 production levers 155K pp", "ts": "2026-10-26 19:54:00", "pp2048_ntok": 1706, "pp2048": 3583.4, "pp8192_ntok": 7468, "pp8192": 4263.9, "pp32768_ntok": 28972, "pp32768": 3415.7, "pp65536_ntok": 57942, "pp65536": 2523.1}
+=== 19:55:12 H1 prefill: turbo
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | turbo-nvfp4.r31 | total 37.8s | weights 16.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 6.45 GiB after 16.83 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 155,008 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.85 GiB | free 564.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3259.6 tok/s (n=1706) [3331.5229111784365, 3187.616865582928]
+PP 8192: 3882.3 tok/s (n=7468) [3884.7968775393097, 3879.8907499032634]
+PP 32768: 3161.0 tok/s (n=28972) [3171.9220726646863, 3150.1344377552746]
+PP 65536: 2382.1 tok/s (n=57942) [2375.8510803734553, 2388.251863970237]
+ROW {"label": "H1 turbo levers 155K pp", "ts": "2026-10-26 19:55:51", "pp2048_ntok": 1706, "pp2048": 3259.6, "pp8192_ntok": 7468, "pp8192": 3882.3, "pp32768_ntok": 28972, "pp32768": 3161.0, "pp65536_ntok": 57942, "pp65536": 2382.1}
+=== 19:57:06 H1 prefill: turbo-qkv
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | turbo-qkv-nvfp4.r31 | total 35.7s | weights 16.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 6.45 GiB after 16.83 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 155,008 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.85 GiB | free 564.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3545.1 tok/s (n=1706) [3564.9591504274895, 3525.152436858843]
+PP 8192: 4242.1 tok/s (n=7468) [4256.23301511243, 4227.890108981471]
+PP 32768: 3391.1 tok/s (n=28972) [3401.4294219617923, 3380.771356169493]
+PP 65536: 2510.6 tok/s (n=57942) [2503.2367211480973, 2518.0579746103836]
+ROW {"label": "H1 turbo-qkv levers 155K pp", "ts": "2026-10-26 19:57:44", "pp2048_ntok": 1706, "pp2048": 3545.1, "pp8192_ntok": 7468, "pp8192": 4242.1, "pp32768_ntok": 28972, "pp32768": 3391.1, "pp65536_ntok": 57942, "pp65536": 2510.6}
+=== 19:58:55 H2 decode: turbo-qkv with the regular drafter (K7)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | turbo-qkv-nvfp4.r31 | total 34.9s | weights 16.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 6.45 GiB after 16.83 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 155,008 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.85 GiB | free 564.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@2048 greedy: 112.7 tok/s [112.6658419393278] spec=['mtp K=7']
+TG@2048 sampled: 123.8 tok/s [123.83560803839595] spec=['mtp K=7']
+TG@8192 greedy: 89.4 tok/s [89.39048971088314] spec=['mtp K=7']
+TG@8192 sampled: 117.6 tok/s [117.62859141903259] spec=['mtp K=7']
+CHAT C=1 greedy: 109.4 tok/s (4861 tok) spec=mtp K=7
+CHAT C=1 sampled: 107.0 tok/s (4836 tok) spec=mtp K=7
+ROW {"label": "H2 turbo-qkv regular drafter K7 levers 155K", "ts": "2026-10-26 19:59:32", "tg2048g": 112.7, "tg2048s": 123.8, "tg8192g": 89.4, "tg8192s": 117.6, "chatg": 109.4, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 107.0, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+{"edit": "Rename the function `med` to `median` ev", "ok": true, "out_tokens": 1995, "decode": 349.8, "wall": 6.2}
+{"edit": "Change the default of `--reps` from 2 to", "ok": true, "out_tokens": 1995, "decode": 356.5, "wall": 6.1}
+{"edit": "Add a one-line docstring to the function", "ok": true, "out_tokens": 2003, "decode": 354.9, "wall": 6.2}
+EDIT H2 turbo-qkv regular drafter K7 decode median 354.9
+=== 20:01:50 H2 decode: turbo-qkv with the regular-k5 drafter (K5)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | turbo-qkv-nvfp4.r31 | total 32.5s | weights 16.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 6.45 GiB after 16.83 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 155,008 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.85 GiB | free 564.6 MiB
+speculation | serves mtp K=5 (explicit) | fallback none | --spec
+TG@2048 greedy: 110.8 tok/s [110.75417268859788] spec=['mtp K=5']
+TG@2048 sampled: 112.4 tok/s [112.4287404036564] spec=['mtp K=5']
+TG@8192 greedy: 92.1 tok/s [92.07246113213667] spec=['mtp K=5']
+TG@8192 sampled: 109.8 tok/s [109.76035238690442] spec=['mtp K=5']
+CHAT C=1 greedy: 105.6 tok/s (4861 tok) spec=mtp K=5
+CHAT C=1 sampled: 102.8 tok/s (4838 tok) spec=mtp K=5
+ROW {"label": "H2 turbo-qkv regular-k5 drafter K5 levers 155K", "ts": "2026-10-26 20:02:24", "tg2048g": 110.8, "tg2048s": 112.4, "tg8192g": 92.1, "tg8192s": 109.8, "chatg": 105.6, "chatg_spec": {"config": "mtp K=5", "fallback": "none", "reason": "--spec"}, "chats": 102.8, "chats_spec": {"config": "mtp K=5", "fallback": "none", "reason": "--spec"}}
+{"edit": "Rename the function `med` to `median` ev", "ok": true, "out_tokens": 1995, "decode": 358.9, "wall": 6.1}
+{"edit": "Change the default of `--reps` from 2 to", "ok": true, "out_tokens": 1995, "decode": 368.9, "wall": 5.9}
+{"edit": "Add a one-line docstring to the function", "ok": true, "out_tokens": 2003, "decode": 367.2, "wall": 6.0}
+EDIT H2 turbo-qkv regular-k5 drafter K5 decode median 367.2
+=== 20:04:45 H2 decode: turbo-qkv with the qat drafter (K7)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | turbo-qkv-nvfp4.r31 | total 32.2s | weights 16.6 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 6.66 GiB after 16.62 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 155,008 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.85 GiB | free 788.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@2048 greedy: 86.7 tok/s [86.67766708036085] spec=['mtp K=7']
+TG@2048 sampled: 98.7 tok/s [98.69189456043053] spec=['mtp K=7']
+TG@8192 greedy: 81.0 tok/s [80.99118693353313] spec=['mtp K=7']
+TG@8192 sampled: 88.1 tok/s [88.05702555328962] spec=['mtp K=7']
+CHAT C=1 greedy: 84.7 tok/s (4861 tok) spec=mtp K=7
+CHAT C=1 sampled: 85.7 tok/s (4786 tok) spec=mtp K=7
+ROW {"label": "H2 turbo-qkv qat drafter K7 levers 155K", "ts": "2026-10-26 20:05:18", "tg2048g": 86.7, "tg2048s": 98.7, "tg8192g": 81.0, "tg8192s": 88.1, "chatg": 84.7, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 85.7, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+{"edit": "Rename the function `med` to `median` ev", "ok": true, "out_tokens": 1995, "decode": 316.0, "wall": 6.8}
+{"edit": "Change the default of `--reps` from 2 to", "ok": true, "out_tokens": 1995, "decode": 320.4, "wall": 6.7}
+{"edit": "Add a one-line docstring to the function", "ok": true, "out_tokens": 2003, "decode": 292.2, "wall": 7.4}
+EDIT H2 turbo-qkv qat drafter K7 decode median 316.0
+=== 20:08:07 H3 turbo-qkv: agent turns and needles, regular drafter
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | turbo-qkv-nvfp4.r31 | total 32.9s | weights 16.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 6.45 GiB after 16.83 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 155,008 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.85 GiB | free 564.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+base: prompt 15211 cache 0 prompt_ms 3819.390518 ttft 3.853s wall 3.89s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 183.172271 ttft 0.201s wall 0.24s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 217.607141 ttft 0.239s wall 0.28s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 233.453671 ttft 0.256s wall 0.30s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 270.4534 ttft 0.291s wall 0.33s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 501.14283000000006 ttft 0.525s wall 0.57s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 527.0603659999999 ttft 0.555s wall 0.59s
+{"L": 32000, "depth": 0.5, "ok": true, "ptok": 31904, "pp": 3289.3, "tg": 103.5, "wall": 9.8, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 131770, "pp": 1529.6, "tg": 129.3, "wall": 86.4, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+NEEDLE H3 turbo-qkv needles 2/2
+=== 20:10:28 H4 turbo-qkv quality (4 lanes)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | turbo-qkv-nvfp4.r31 | total 34.5s | weights 16.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 39 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 2 cached states, chunk 1024 for 4 lanes (step states, reserve kept) | free 6.45 GiB after 16.83 GiB of weights | 0.02 GiB more would serve rung 38, 4.22 GiB the top | planned in 9 ms; the rungs 
+plan | rung 39: below the top rung of the asked --max-context 4,096 | 0.02 GiB more free memory would serve rung 38 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 3 cached states, chunk 1024), 4.22 GiB the top rung (4,096 tokens x 4 contexts (16,384 
+capacity | KV 4,096 tokens, fp8, sliding rings fp8, auto | activations fast | pages 64/256 | runtime 5.35 GiB | free 1.01 GiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 6.36 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+gsm8k: 198/200 (214s)
+mmlupro: 178/280 (63s)
+mmlu: 248/285 (56s)
+humaneval: 158/164 (163s)
+ROW {"label": "alt-turbo-qkv", "ts": "2026-10-26 20:11:04", "gsm8k": "198/200", "gsm8k_secs": 214, "mmlupro": "178/280", "mmlupro_secs": 63, "mmlu": "248/285", "mmlu_secs": 56, "humaneval": "158/164", "humaneval_secs": 163}
+CEIL turbo-qkv levers drafter regular  
+CEIL turbo-qkv levers drafter qat      
+=== 20:19:40 restoring the fast unit
+active
+=== 20:20:08 N2H DONE

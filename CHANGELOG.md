@@ -2,6 +2,15 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-10-26 21:45: night 2 tests (running setup unchanged)
+
+- **Ran:** ten batches from 18:43 to 21:45, the fast unit back after each. They covered the context levers, speed levers, n-gram settings, vision, other NVFP4 builds and uncensored builds. Results and candidates are in the [night-2 report](research/2026-10-26-night2.md).
+- **On the box, not serving:**
+  - NInferno commits `633a7e0`, `352aeba`, `28fdaac` and `91d0b18` ([candidate patches 10–13](patches/candidates/));
+  - test builds `apps-final5`, `apps-final6`, `apps-visfix`;
+  - the packed LilaRest turbo artifact.
+- **Unchanged:** 8080 runs `apps-final7` with the agent template, as before.
+
 ## 2026-10-26 14:24: the fast unit starts at boot
 
 - **Changed:** `systemctl enable gemma4-31b-fast`, so 8080 comes back with the current setup when the container restarts: `apps-final7`, the agent template, 155K context. The web UI (`ninfer-ui`) was already enabled. Every other model unit on the box stays disabled, so nothing else takes 8080 or the GPU at boot.

@@ -1,0 +1,7 @@
+=== 09:29:32 convert QAT-UD Q4 + vision (mmproj-BF16)
+converting 937 parents in 15747 tasks on 8 threads
+content digests: 941 objects, 17.17 GiB in 2.338 s
+wrote /opt/models/dl/qat-ud-q4-vision.ninferno: 941 objects, 1 files, 90.7s (model 17.27s, plan 0.01s, weights 59.43s, finish 14.01s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/dl/qat-ud-q4-vision.ninferno --model-id <repo> attaches them (or convert with --with-drafters)
+-rw------- 1 root root 18434654976 Oct 26 09:30 /opt/models/dl/qat-ud-q4-vision.ninferno
+=== 09:31:04 PREP2 DONE

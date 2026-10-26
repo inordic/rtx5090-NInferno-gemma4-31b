@@ -8,6 +8,11 @@ This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GP
 - **Quality:** GSM8K 198/200, HumanEval 161/164, MMLU-Pro 147–152/280 (direct answer). The max-context profile (QAT Q4) scores MMLU-Pro 164–165/280; see [Quality](#quality).
 - **Long context:** 9/9 needles at 32K, 67K and 130K on the fast profile, and 2/2 at 185K and 231K on the max-context profile.
 
+**Tested, not yet deployed** ([night 2](research/2026-10-26-night2.md)):
+- the fast profile at 262,144 tokens at the same speed;
+- an NVFP4 build with MMLU-Pro 178/280 at the same prefill;
+- vision with MTP at 211K.
+
 Every number here comes from a file in [`results/`](results/), measured on the box described in [What runs](#what-runs). The night-by-night reports are in [`research/`](research/), and the build route, with a check after each step, is in [`BUILD.md`](BUILD.md).
 
 What made the difference, in order of effect:
@@ -98,11 +103,11 @@ Perplexity on a 32K window (lower is better) is how the attention kernels were j
 |---|---|
 | [`BUILD.md`](BUILD.md) | from a bare container to both profiles serving, step by step, with checks |
 | [`CHANGELOG.md`](CHANGELOG.md) | every change to the running setup, newest first |
-| [`patches/`](patches/) | our NInferno patches 01–09, the QAT-aware Q4_0 llama.cpp patch, and two env-gated experiments that did not pay |
+| [`patches/`](patches/) | our NInferno patches 01–09, the night-2 candidates 10–13 (tested, not in production), the QAT-aware Q4_0 llama.cpp patch, and two env-gated experiments that did not pay |
 | [`config/`](config/) | the systemd units of both profiles, the chat template they serve with, and the web UI's service files |
 | [`bench/`](bench/) | the speed, quality, needle, agent-turn and kernel benchmarks, the model download and conversion scripts, the overnight runners with their idle gate, and every queue that ran |
 | [`results/`](results/) | every measurement: speed and quality rows, per-item quality, needles, kernel profiles, drafter tuning, run logs |
-| [`research/`](research/) | the engine and options research, the day-1 and night-1 reports, the QAT Q4 prefill design |
+| [`research/`](research/) | the engine and options research, the day-1, night-1 and night-2 reports, the QAT Q4 prefill design |
 
 ## Lessons from the way here
 

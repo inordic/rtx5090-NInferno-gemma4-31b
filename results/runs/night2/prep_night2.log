@@ -1,0 +1,23 @@
+=== 09:18:00 mmproj for the QAT-UD Q4 GGUF
+-rw-r--r-- 1 root root 1200726496 Oct 26 09:18 mmproj-BF16.gguf
+=== 09:18:33 convert QAT-UD Q4 + vision
+gguf resources: tokenizer.json rebuilt from tokenizer.ggml (gemma4 byte-fallback BPE)
+gguf resources: tokenizer_config.json rebuilt: 24 added tokens, 17 special (from CONTROL token types)
+gguf resources: generation_config.json rebuilt from the tokenizer.ggml token ids
+ls: cannot access '/opt/models/dl/qat-ud-q4-vision.ninferno': No such file or directory
+=== 09:18:34 convert QAT-NVFP4 + vision
+content digests: 1352 objects, 18.87 GiB in 17.53 s
+wrote /opt/models/dl2/qat-nvfp4-vision.r31.ninferno: 1352 objects, 1 files, 136.6s (model 21.75s, plan 0.01s, weights 96.67s, finish 18.10s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/dl2/qat-nvfp4-vision.r31.ninferno --model-id <repo> attaches them (or convert with --with-drafters)
+-rw------- 1 root root 20259162116 Oct 26 09:20 /opt/models/dl2/qat-nvfp4-vision.r31.ninferno
+=== 09:20:51 download Huihui QAT-abliterated NVFP4
+got config.json 18951
+got generation_config.json 203
+got processor_config.json 1689
+got tokenizer.json 32169879
+got tokenizer_config.json 2741
+got model.safetensors 20446828600
+=== 09:29:05 convert Huihui QAT-abliterated NVFP4 (text)
+ninferno-convert: error: cannot read /opt/models/dl3/huihui-qat-abl-nvfp4/chat_template.jinja
+ls: cannot access '/opt/models/dl3/huihui-qat-abl-nvfp4.r31.ninferno': No such file or directory
+=== 09:29:07 PREP DONE

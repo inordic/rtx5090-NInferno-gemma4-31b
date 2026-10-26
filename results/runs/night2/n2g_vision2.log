@@ -1,0 +1,99 @@
+=== 19:41:56 idle: taking the GPU
+=== 19:41:57 probe nvfp4-host-mtp
+choice | KV fp8, activations fast | 38.0 tok/s decode, 2723 prefill, KLD 0.0245 (estimates) | the model's weights (the one quantization): every stream holds 32768 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | qat-nvfp4-vision.r31 | total 36.2s | weights 17.7 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 32,768 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 32,768 tokens x 1 context (32,768 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 32,768 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 512/512 | runtime 3.50 GiB | free 2.05 GiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 500: Internal Server Error
+the Engine failed: gemma4 vision: output must be BF16 [text hidden, tokens]: got dtype 0 contiguous 1 ne 5376 x 261 x 1, expected 5376 x 260 (patches 2340, grid 60 x 39)
+req#1 failed during generation | openai-chat | HTTP 500 | internal error
+=== 19:42:39 probe nvfp4-mtp
+choice | KV fp8, activations fast | 38.0 tok/s decode, 2723 prefill, KLD 0.0245 (estimates) | the model's weights (the one quantization): every stream holds 32768 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | qat-nvfp4-vision.r31 | total 28.6s | weights 19.1 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 32,768 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 32,768 tokens x 1 context (32,768 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 4.20 GiB after 19.08 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 32,768 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 512/512 | runtime 3.50 GiB | free 674.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 500: Internal Server Error
+the Engine failed: gemma4 vision: output must be BF16 [text hidden, tokens]: got dtype 0 contiguous 1 ne 5376 x 261 x 1, expected 5376 x 260 (patches 2340, grid 60 x 39)
+req#1 failed during generation | openai-chat | HTTP 500 | internal error
+=== 19:43:14 probe nvfp4-plain
+choice | KV fp8, activations fast | 38.0 tok/s decode, 2723 prefill, KLD 0.0245 (estimates) | the model's weights (the one quantization): every stream holds 32768 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | qat-nvfp4-vision.r31 | total 26.6s | weights 18.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 32,768 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 32,768 tokens x 1 context (32,768 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 4.45 GiB after 18.84 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 32,768 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 512/512 | runtime 3.47 GiB | free 958.6 MiB
+speculation | serves plain (explicit) | fallback none | --spec
+VISION VP nvfp4-plain 7/7
+=== 19:43:56 nvfp4-plain: --vision at 155840, chunk 1024, embed host 0, --spec none
+choice | no candidate holds 155840 tokens for each of 1 streams
+engine ready | qat-nvfp4-vision.r31 | total 31.2s | weights 18.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,840 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,840 tokens x 1 context (155,840 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 4.45 GiB after 18.84 GiB of weights | 0.72 GiB more would serve rung 2, 1.51 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,840 | 0.72 GiB more free memory would serve rung 2 (155,840 tokens x 1 context (155,840 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.52 GiB the top rung (155,840 tokens x 1 context (155
+capacity | KV 155,840 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 2,435/2,435 | runtime 4.25 GiB | free 154.6 MiB
+speculation | serves plain (explicit) | fallback none | --spec
+{"images": ["visual_chart.png"], "q": "What number is in the title of this image? Reply with the nu", "ok": true, "answer": "731", "prompt_tokens": 291, "prompt_ms": 1178, "wall": 1.57}
+{"images": ["visual_chart.png"], "q": "How many red circles are in this image? Reply with a single ", "ok": true, "answer": "3", "prompt_tokens": 290, "prompt_ms": 304, "wall": 0.34}
+{"images": ["visual_chart.png"], "q": "Which shape is to the right of the blue square? Reply with t", "ok": true, "answer": "Green triangle", "prompt_tokens": 293, "prompt_ms": 295, "wall": 0.36}
+{"images": ["natural_scene.png"], "q": "What number is on the sign in this image? Reply with the num", "ok": true, "answer": "24", "prompt_tokens": 291, "prompt_ms": 299, "wall": 0.37}
+{"images": ["natural_scene.png"], "q": "What color is the roof of the house? Reply with one word.", "ok": true, "answer": "Red", "prompt_tokens": 289, "prompt_ms": 308, "wall": 0.35}
+{"images": ["compare_left.png", "compare_right.png"], "q": "Which shape appears in the second image but not in the first", "ok": true, "answer": "star", "prompt_tokens": 541, "prompt_ms": 473, "wall": 0.52}
+{"images": ["compare_left.png", "compare_right.png"], "q": "How many red circles does the second image have more than th", "ok": true, "answer": "1", "prompt_tokens": 541, "prompt_ms": 141, "wall": 0.18}
+VISION V2 nvfp4-plain ctx155840 7/7
+PP 2048: 3650.8 tok/s (n=1658) [3650.7795354527047]
+PP 8192: 4346.0 tok/s (n=6573) [4346.04528326608]
+PP 32768: 3432.1 tok/s (n=28692) [3432.13045701268]
+TG@2048 greedy: 35.1 tok/s [35.09852240822688] spec=['plain']
+TG@2048 sampled: 35.0 tok/s [35.04050497332249] spec=['plain']
+TG@8192 greedy: 34.7 tok/s [34.69588892237533] spec=['plain']
+TG@8192 sampled: 34.7 tok/s [34.70074244661405] spec=['plain']
+CHAT C=1 greedy: 35.8 tok/s (4855 tok) spec=plain
+CHAT C=1 sampled: 35.8 tok/s (4844 tok) spec=plain
+ROW {"label": "V2 nvfp4-plain vision ctx155840 chunk1024", "ts": "2026-10-26 19:44:34", "pp2048_ntok": 1658, "pp2048": 3650.8, "pp8192_ntok": 6573, "pp8192": 4346.0, "pp32768_ntok": 28692, "pp32768": 3432.1, "tg2048g": 35.1, "tg2048s": 35.0, "tg8192g": 34.7, "tg8192s": 34.7, "chatg": 35.8, "chatg_spec": {"config": "plain", "fallback": "none", "reason": "--spec"}, "chats": 35.8, "chats_spec": {"config": "plain", "fallback": "none", "reason": "--spec"}}
+{"L": 140256, "depth": 0.5, "ok": true, "ptok": 129144, "pp": 1581.6, "tg": 28.8, "wall": 82.1, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+NEEDLE V2 nvfp4-plain needle 1/1
+=== 19:52:01 q4: --vision at 240384, chunk 512, embed host 0, --spec mtp --drafter /opt/models/dl2/qat-assistant.q40qat.ninferno --draft-tokens 7
+choice | no candidate holds 240384 tokens for each of 1 streams
+engine ready | qat-ud-q4-vision | total 26.5s | weights 17.4 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 240,384 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 240,384 tokens x 1 context (240,384 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 5.88 GiB after 17.40 GiB of weights | 0.43 GiB more would serve rung 2, 1.02 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 240,384 | 0.43 GiB more free memory would serve rung 2 (240,384 tokens x 1 context (240,384 KV tokens for 1 lane), 1 cached states, chunk 512), 1.03 GiB the top rung (240,384 tokens x 1 context (240,
+capacity | KV 240,384 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,756/3,756 | runtime 5.57 GiB | free 270.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+Traceback (most recent call last):
+  File "/root/gbench/visiontest.py", line 64, in <module>
+    main()
+  File "/root/gbench/visiontest.py", line 49, in main
+    ans, tm, usage, wall = ask(a.base, images, q)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/gbench/visiontest.py", line 35, in ask
+    with urllib.request.urlopen(req, timeout=600) as r:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 500: Internal Server Error
+the Engine failed: gemma4 vision: output must be BF16 [text hidden, tokens]: got dtype 0 contiguous 1 ne 5376 x 261 x 1, expected 5376 x 260 (patches 2340, grid 60 x 39)
+req#1 failed during generation | openai-chat | HTTP 500 | internal error
+=== 19:52:33 restoring the fast unit
+active
+=== 19:53:02 N2G DONE

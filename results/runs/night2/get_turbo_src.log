@@ -1,0 +1,18 @@
+=== 18:58:12 LilaRest NVFP4-turbo source
+got .gitattributes 1679
+got .gitignore 26
+got README.md 10736
+got banner.png 503585
+got chat_template.jinja 16447
+got config.json 4220
+got generation_config.json 208
+got model-00001-of-00004.safetensors 6188232922
+got model-00002-of-00004.safetensors 5751359722
+got model-00003-of-00004.safetensors 5757552882
+got model-00004-of-00004.safetensors 1598131986
+got model.safetensors.index.json 207819
+got processor_config.json 1689
+got tokenizer.json 32169626
+got tokenizer_config.json 2068
+19G	/opt/models/dl3/turbo-src
+=== 19:06:59 GET DONE

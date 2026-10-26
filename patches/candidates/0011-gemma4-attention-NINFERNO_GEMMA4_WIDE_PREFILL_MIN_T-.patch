@@ -1,0 +1,37 @@
+From 352aeba2f1449d22e7e930f62f95715e19f47195 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 20:30:56 +0000
+Subject: [PATCH 11/13] gemma4 attention: NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T
+ moves the wide prefill tile threshold
+
+Default 1024 as before. At 64, a resumed agent turn that appends 865-954 tokens to a 15K cached
+prompt reaches its first token 11% sooner (0.573 -> 0.510 s, 0.606 -> 0.537 s); 2K and 8K prefill
+gain about 1%.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/ops/softmax_attention/gemma4/launch.cu | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/ops/softmax_attention/gemma4/launch.cu b/src/ops/softmax_attention/gemma4/launch.cu
+index f78252c..16406cd 100644
+--- a/src/ops/softmax_attention/gemma4/launch.cu
++++ b/src/ops/softmax_attention/gemma4/launch.cu
+@@ -135,7 +135,13 @@ bool wide_prefill(std::int32_t tokens, bool fp8) {
+     // Gemma 4 31B UD-Q4_K_XL prefill of a 16K prompt) gains 1.5-1.7 % as the 4090 did,
+     // and 5.0 % with the token-major W4A8 grid beside it (2946 -> 3093 t/s).
+     // FP8 rows take it too where their D = 512 tile holds the codes alone (64 KiB wide).
+-    return (!fp8 || kGemma4Fp8Hardware) && tokens >= kWidePrefillMinTokens;
++    // NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=N moves the threshold (default 1024); 64 takes the wide
++    // tile on the few-hundred-token calls of a resumed agent turn too.
++    static const std::int32_t min_tokens = [] {
++        const char* e = std::getenv("NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T");
++        return e != nullptr ? std::atoi(e) : kWidePrefillMinTokens;
++    }();
++    return (!fp8 || kGemma4Fp8Hardware) && tokens >= min_tokens;
+ }
+ 
+ 
+-- 
+2.43.0
+

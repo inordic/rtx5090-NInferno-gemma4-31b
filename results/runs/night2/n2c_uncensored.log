@@ -1,0 +1,66 @@
+=== 19:09:57 refusal baseline: the production unit (censored)
+REFUSAL prod gemma4-31b-fast (QAT-NVFP4) answered 8/8
+=== 19:15:13 idle: taking the GPU
+=== 19:15:16 huihui-nvfp4: speed, refusals, needles
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | huihui-qat-abl-nvfp4.r31 | total 35.3s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+REFUSAL U huihui-nvfp4 answered 8/8
+PP 2048: 3650.2 tok/s (n=1658) [3650.249250158886]
+PP 8192: 4343.9 tok/s (n=6573) [4343.930703539627]
+TG@2048 greedy: 111.2 tok/s [111.23034111223552] spec=['mtp K=7']
+TG@2048 sampled: 125.6 tok/s [125.61835163445097] spec=['mtp K=7']
+TG@8192 greedy: 115.2 tok/s [115.22349510013113] spec=['mtp K=7']
+TG@8192 sampled: 129.3 tok/s [129.26458601243937] spec=['mtp K=7']
+CHAT C=1 greedy: 113.6 tok/s (4816 tok) spec=mtp K=7
+CHAT C=1 sampled: 112.1 tok/s (4793 tok) spec=mtp K=7
+ROW {"label": "U huihui-nvfp4 ctx155000 chunk1024 K7", "ts": "2026-10-26 19:16:07", "pp2048_ntok": 1658, "pp2048": 3650.2, "pp8192_ntok": 6573, "pp8192": 4343.9, "tg2048g": 111.2, "tg2048s": 125.6, "tg8192g": 115.2, "tg8192s": 129.3, "chatg": 113.6, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 112.1, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+{"L": 32000, "depth": 0.5, "ok": true, "ptok": 31904, "pp": 3349.3, "tg": 108.8, "wall": 9.7, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 72000, "depth": 0.5, "ok": true, "ptok": 67207, "pp": 2384.1, "tg": 169.1, "wall": 28.3, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 129361, "pp": 1585.1, "tg": 91.4, "wall": 81.9, "ans": "cobalt-heron-5557", "want": "cobalt-heron-5557"}
+NEEDLE U huihui-nvfp4 needles 3/3
+=== 19:20:01 huihui-nvfp4: quality (4 lanes)
+DIED
+=== 19:21:04 heretic-q4: speed, refusals, needles
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | heretic-qat-q40qat | total 35.3s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.94 GiB more would serve rung 2, 2.11 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 0.95 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 512), 2.12 GiB the top rung (262,144 tokens x 1 context (262,
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.56 GiB | free 354.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+REFUSAL U heretic-q4 answered 8/8
+PP 2048: 1517.8 tok/s (n=1658) [1517.829153141368]
+PP 8192: 1563.5 tok/s (n=6573) [1563.5145710692636]
+TG@2048 greedy: 90.2 tok/s [90.19973003181967] spec=['mtp K=7']
+TG@2048 sampled: 119.9 tok/s [119.85827070510778] spec=['mtp K=7']
+TG@8192 greedy: 114.4 tok/s [114.4453202091997] spec=['mtp K=7']
+TG@8192 sampled: 103.1 tok/s [103.07184258062023] spec=['mtp K=7']
+CHAT C=1 greedy: 108.0 tok/s (4814 tok) spec=mtp K=7
+CHAT C=1 sampled: 106.3 tok/s (4833 tok) spec=mtp K=7
+ROW {"label": "U heretic-q4 ctx262144 chunk512 K7", "ts": "2026-10-26 19:21:57", "pp2048_ntok": 1658, "pp2048": 1517.8, "pp8192_ntok": 6573, "pp8192": 1563.5, "tg2048g": 90.2, "tg2048s": 119.9, "tg8192g": 114.4, "tg8192s": 103.1, "chatg": 108.0, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 106.3, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+{"L": 32000, "depth": 0.5, "ok": true, "ptok": 31904, "pp": 1293.6, "tg": 100.2, "wall": 24.8, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 131770, "pp": 751.2, "tg": 66.3, "wall": 175.7, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+{"L": 200000, "depth": 0.5, "ok": true, "ptok": 186201, "pp": 609.8, "tg": 73.4, "wall": 305.7, "ans": "cobalt-heron-5557", "want": "cobalt-heron-5557"}
+NEEDLE U heretic-q4 needles 3/3
+=== 19:32:38 heretic-q4: quality (4 lanes)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | heretic-qat-q40qat | total 27.5s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 42 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 512 for 4 lanes (step survival chunk, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.26 GiB more would serve rung 41, 12.99 GiB the top | planned in 15 ms; t
+plan | rung 42: below the top rung of the asked --max-context 4,096; a survival rung | 0.27 GiB more free memory would serve rung 41 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 1024), 13.00 GiB the top rung (4,096 tokens x 4
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 5.14 GiB | free 1.73 GiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 6.87 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+gsm8k: 196/200 (200s)
+mmlupro: 164/280 (77s)
+mmlu: 246/285 (60s)
+humaneval: 160/164 (153s)
+ROW {"label": "unc-heretic-q4", "ts": "2026-10-26 19:33:07", "gsm8k": "196/200", "gsm8k_secs": 200, "mmlupro": "164/280", "mmlupro_secs": 77, "mmlu": "246/285", "mmlu_secs": 60, "humaneval": "160/164", "humaneval_secs": 153}
+=== 19:41:20 restoring the fast unit
+active
+=== 19:41:49 N2C DONE

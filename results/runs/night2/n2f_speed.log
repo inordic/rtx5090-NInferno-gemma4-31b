@@ -1,0 +1,159 @@
+=== 18:01:57 idle: taking the GPU
+=== 18:02:00 F1 rep 1: final5
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 24.9s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3330.4 tok/s (n=1658) [3330.4098374425153]
+TG@2048 greedy: 150.9 tok/s [150.93643376719862] spec=['mtp K=7']
+TG@2048 sampled: 101.7 tok/s [101.67546372528518] spec=['mtp K=7']
+TG@8192 greedy: 118.0 tok/s [118.01570652515915] spec=['mtp K=7']
+TG@8192 sampled: 104.0 tok/s [104.03535282696551] spec=['mtp K=7']
+TG@32768 greedy: 109.3 tok/s [109.3091634090732] spec=['mtp K=7']
+TG@32768 sampled: 100.2 tok/s [100.16446762523516] spec=['mtp K=7']
+CHAT C=1 greedy: 117.8 tok/s (4864 tok) spec=mtp K=7
+CHAT C=1 sampled: 114.5 tok/s (4839 tok) spec=mtp K=7
+ROW {"label": "F1 final5 rep1", "ts": "2026-10-26 18:02:32", "pp2048_ntok": 1658, "pp2048": 3330.4, "tg2048g": 150.9, "tg2048s": 101.7, "tg8192g": 118.0, "tg8192s": 104.0, "tg32768g": 109.3, "tg32768s": 100.2, "chatg": 117.8, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 114.5, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 18:04:51 F1 rep 1: final6
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3296.9 tok/s (n=1658) [3296.8879733871545]
+TG@2048 greedy: 145.6 tok/s [145.56748800804849] spec=['mtp K=7']
+TG@2048 sampled: 103.9 tok/s [103.86396881125587] spec=['mtp K=7']
+TG@8192 greedy: 116.8 tok/s [116.78822793348546] spec=['mtp K=7']
+TG@8192 sampled: 103.8 tok/s [103.80677703925284] spec=['mtp K=7']
+TG@32768 greedy: 120.9 tok/s [120.8630815338876] spec=['mtp K=7']
+TG@32768 sampled: 91.1 tok/s [91.05459211373709] spec=['mtp K=7']
+CHAT C=1 greedy: 118.3 tok/s (4864 tok) spec=mtp K=7
+CHAT C=1 sampled: 114.7 tok/s (4764 tok) spec=mtp K=7
+ROW {"label": "F1 final6 rep1", "ts": "2026-10-26 18:05:23", "pp2048_ntok": 1658, "pp2048": 3296.9, "tg2048g": 145.6, "tg2048s": 103.9, "tg8192g": 116.8, "tg8192s": 103.8, "tg32768g": 120.9, "tg32768s": 91.1, "chatg": 118.3, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 114.7, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 18:07:41 F1 rep 2: final5
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3364.3 tok/s (n=1658) [3364.3071306254255]
+TG@2048 greedy: 150.4 tok/s [150.43274438541997] spec=['mtp K=7']
+TG@2048 sampled: 103.8 tok/s [103.78072576720679] spec=['mtp K=7']
+TG@8192 greedy: 113.3 tok/s [113.28213964616742] spec=['mtp K=7']
+TG@8192 sampled: 118.3 tok/s [118.28644366075912] spec=['mtp K=7']
+TG@32768 greedy: 126.0 tok/s [126.01516826972863] spec=['mtp K=7']
+TG@32768 sampled: 92.5 tok/s [92.5087059970369] spec=['mtp K=7']
+CHAT C=1 greedy: 117.6 tok/s (4864 tok) spec=mtp K=7
+CHAT C=1 sampled: 113.0 tok/s (4799 tok) spec=mtp K=7
+ROW {"label": "F1 final5 rep2", "ts": "2026-10-26 18:08:13", "pp2048_ntok": 1658, "pp2048": 3364.3, "tg2048g": 150.4, "tg2048s": 103.8, "tg8192g": 113.3, "tg8192s": 118.3, "tg32768g": 126.0, "tg32768s": 92.5, "chatg": 117.6, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 113.0, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 18:10:31 F1 rep 2: final6
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3376.2 tok/s (n=1658) [3376.1522496586317]
+TG@2048 greedy: 146.7 tok/s [146.70168370975054] spec=['mtp K=7']
+TG@2048 sampled: 105.3 tok/s [105.28113946659875] spec=['mtp K=7']
+TG@8192 greedy: 126.1 tok/s [126.0743957617631] spec=['mtp K=7']
+TG@8192 sampled: 106.8 tok/s [106.82708112172399] spec=['mtp K=7']
+TG@32768 greedy: 121.9 tok/s [121.86434403777378] spec=['mtp K=7']
+TG@32768 sampled: 104.1 tok/s [104.09459378609833] spec=['mtp K=7']
+CHAT C=1 greedy: 118.3 tok/s (4864 tok) spec=mtp K=7
+CHAT C=1 sampled: 115.1 tok/s (4755 tok) spec=mtp K=7
+ROW {"label": "F1 final6 rep2", "ts": "2026-10-26 18:11:03", "pp2048_ntok": 1658, "pp2048": 3376.2, "tg2048g": 146.7, "tg2048s": 105.3, "tg8192g": 126.1, "tg8192s": 106.8, "tg32768g": 121.9, "tg32768s": 104.1, "chatg": 118.3, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 115.1, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+F1 greedy identical: True [True, True, True]
+=== 18:13:20 F2 wide prefill from T >= 1024
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+base: prompt 15211 cache 0 prompt_ms 3843.632121 ttft 3.878s wall 3.91s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 260.316834 ttft 0.281s wall 0.31s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 261.393102 ttft 0.283s wall 0.32s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 294.505117 ttft 0.317s wall 0.35s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 318.922008 ttft 0.342s wall 0.37s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 548.4934460000001 ttft 0.573s wall 0.61s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 579.52149 ttft 0.606s wall 0.64s
+PP 2048: 3486.2 tok/s (n=1706) [3304.4532819414453, 3668.003885572848]
+PP 8192: 4351.9 tok/s (n=7468) [4342.856383564248, 4360.9170056161865]
+ROW {"label": "F2 wide-min-1024", "ts": "2026-10-26 18:13:53", "pp2048_ntok": 1706, "pp2048": 3486.2, "pp8192_ntok": 7468, "pp8192": 4351.9}
+=== 18:14:00 F2 wide prefill from T >= 64
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 24.9s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.49 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 202.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+base: prompt 15211 cache 0 prompt_ms 3774.737961 ttft 3.809s wall 3.85s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 263.247292 ttft 0.281s wall 0.31s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 271.687754 ttft 0.293s wall 0.33s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 284.90022500000003 ttft 0.307s wall 0.34s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 305.207517 ttft 0.328s wall 0.36s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 488.621658 ttft 0.51s wall 0.54s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 508.74361999999996 ttft 0.537s wall 0.57s
+PP 2048: 3513.1 tok/s (n=1706) [3314.87665459929, 3711.3394248131785]
+PP 8192: 4394.0 tok/s (n=7468) [4412.8129881714785, 4375.124575418341]
+ROW {"label": "F2 wide-min-64", "ts": "2026-10-26 18:14:33", "pp2048_ntok": 1706, "pp2048": 3513.1, "pp8192_ntok": 7468, "pp8192": 4394.0}
+=== 18:14:41 F3 shared values 2: decode at 32K / 64K (90K context)
+choice | KV fp8, activations fast | 38.0 tok/s decode, 2723 prefill, KLD 0.0245 (estimates) | the model's weights (the one quantization): every stream holds 90000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | qat-nvfp4.r31 | total 24.7s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 90,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 90,000 tokens x 1 context (90,048 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 90,048 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,407/1,407 | runtime 4.60 GiB | free 644.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@32768 greedy: 112.8 tok/s [112.75548184517633] spec=['mtp K=7']
+TG@32768 sampled: 101.0 tok/s [100.9550326729623] spec=['mtp K=7']
+TG@65536 greedy: 97.3 tok/s [97.29622405309891] spec=['mtp K=7']
+TG@65536 sampled: 86.0 tok/s [85.97776836635103] spec=['mtp K=7']
+ROW {"label": "F3 shared-values-2", "ts": "2026-10-26 18:15:07", "tg32768g": 112.8, "tg32768s": 101.0, "tg65536g": 97.3, "tg65536s": 86.0}
+=== 18:16:36 F3 shared values 1: decode at 32K / 64K (90K context)
+choice | KV fp8, activations fast | 38.0 tok/s decode, 2723 prefill, KLD 0.0245 (estimates) | the model's weights (the one quantization): every stream holds 90000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | qat-nvfp4.r31 | total 24.8s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 90,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 90,000 tokens x 1 context (90,048 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 90,048 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,407/1,407 | runtime 5.02 GiB | free 208.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@32768 greedy: 104.6 tok/s [104.60655135285484] spec=['mtp K=7']
+TG@32768 sampled: 96.4 tok/s [96.44931191678313] spec=['mtp K=7']
+TG@65536 greedy: 103.9 tok/s [103.85303553787426] spec=['mtp K=7']
+TG@65536 sampled: 91.1 tok/s [91.10902581668263] spec=['mtp K=7']
+ROW {"label": "F3 shared-values-1", "ts": "2026-10-26 18:17:03", "tg32768g": 104.6, "tg32768s": 96.4, "tg65536g": 103.9, "tg65536s": 91.1}
+=== 18:18:27 F4 request phases on an idle server
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+request 0: 187 ms
+request 1: 230 ms
+request 2: 230 ms
+request 3: 215 ms
+request 4: 180 ms
+request 5: 177 ms
+request 6: 180 ms
+request 7: 176 ms
+request 8: 137 ms
+request 9: 138 ms
+F4 keys: ['artifact_type', 'context_cache', 'decode_batch', 'event', 'host_work', 'interval_seconds', 'scheduler', 'schema_version', 'server_instance_id', 'throughput_tokens_per_second', 'timestamp_unix_ms', 'tokens']
+{"timestamp_unix_ms": 1793038744293}
+{"timestamp_unix_ms": 1793038744429}
+{"throughput_tokens_per_second": {"decode": 0.9108581693599473, "prefill": 8.6531526089195}, "timestamp_unix_ms": 1793038745472, "tokens": {"committed_decode": 2, "computed_prefill": 19}}
+=== 18:19:08 restoring the fast unit
+active
+=== 18:19:36 N2F DONE

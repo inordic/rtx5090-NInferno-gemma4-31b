@@ -23,6 +23,10 @@ Everything here is stdlib Python or bash, and ran from `/root/gbench` on the con
 | [`needle.py`](needle.py) | three planted access codes in a Federal Register haystack, asks for one; prefill and decode speed at that length | `needle.jsonl`; [`needlesum.py`](needlesum.py) summarises a run log |
 | [`verify.py`](verify.py) | `/v1/models`, a chat answer, streaming, and three agent-style turns on a long system prompt (cache reuse, latency) | stdout |
 | [`turnprobe.py`](turnprobe.py) | time to first token of cached turns that append 60 to 4,000 characters | stdout |
+| [`editbench.py`](editbench.py) | three greedy edits of a 150-line Python file returned whole, where n-gram copy drafts pay | `edit.jsonl` |
+| [`visiontest.py`](visiontest.py) | 7 questions on NInferno's example images (`examples/cli/media`), one or two images each | `vision.jsonl` |
+| [`agenttest.py`](agenttest.py) | an agent loop with 20 tools and simulated results; counts tool markup returned as text and HTTP errors | `agent.jsonl` |
+| [`textcalltest.py`](textcalltest.py) | histories where the assistant wrote text with its tool calls; the reply must be a clean call | stdout |
 | [`ppl.py`](ppl.py), [`scorecmp.py`](scorecmp.py) | perplexity from `ninferno-gemma4 score --dump` files; `scorecmp` compares two | stdout |
 | [`lb.sh`](lb.sh) | NInferno's linear bench (built with `-DNINFERNO_BUILD_BENCHMARKS=ON`) on the six decode GEMM shapes at T 1, 9 and 16 | stdout |
 | [`prof_nv.sh`](prof_nv.sh), [`kerntop.py`](kerntop.py) | an nsys kernel profile of a lab-tool prefill, grouped by kernel family | `prof_*_cuda_gpu_kern_sum.csv` and a summary |
@@ -47,7 +51,7 @@ The `needle.py` haystack is NInferno's own `examples/cli/messages/long_niah_256k
 
 ## Runs
 
-[`runs/`](runs/) keeps every queue that ran, as it ran.
+[`runs/`](runs/) keeps every queue that ran, as it ran. [`runs/night2/`](runs/night2/) holds night 2's batch runners (`n2a`–`n2j`), the turbo download and packed conversion, and the milestone watcher. The uncensored batch calls a refusal spot check that is not published.
 - **Day 1, 2026-10-25** ([`runs/day1/`](runs/day1/)): `queue1.sh` to `queue29.sh`, the side builds (`build_*.sh`) and the kernel variant patchers (`patch_*.py`).
 - **Night 1, 2026-10-25/26** ([`runs/night1/`](runs/night1/)): `night1.sh` to `night13.sh`, each behind the idle gate and ending with `deploy_fast.sh`, plus the trace analysis of agent turns (`turnsplit*.py`, `turnbins.py`).
 

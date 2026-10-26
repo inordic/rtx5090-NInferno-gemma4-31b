@@ -1,0 +1,18 @@
+=== 20:20:33 idle: taking the GPU
+=== 20:20:36 huihui-nvfp4: quality (4 lanes)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | huihui-qat-abl-nvfp4.r31 | total 24.9s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 8 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1014.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.19 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+gsm8k: 194/200 (214s)
+mmlupro: 145/280 (57s)
+mmlu: 231/285 (49s)
+humaneval: 157/164 (153s)
+ROW {"label": "unc-huihui-nvfp4", "ts": "2026-10-26 20:21:02", "gsm8k": "194/200", "gsm8k_secs": 214, "mmlupro": "145/280", "mmlupro_secs": 57, "mmlu": "231/285", "mmlu_secs": 49, "humaneval": "157/164", "humaneval_secs": 153}
+=== 20:29:00 restoring the fast unit
+active
+=== 20:29:28 N2I DONE
