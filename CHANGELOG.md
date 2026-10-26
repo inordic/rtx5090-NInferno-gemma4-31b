@@ -2,6 +2,31 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-10-26 07:39: request counters on `/metrics`, and web UI 0.1.0 (every client on the Monitor)
+
+- **Changed, engine:** `gemma4-31b-fast` and `gemma4-31b-262k` now run `build/apps-final4`: NInferno `6ff9931`, which is `1a3d564` plus [patch 08](patches/ninferno/). Same flags; the fast unit restarted at a moment with no request in flight, and 8080 was down for 36 s ([`bench/deploy_final4.sh`](bench/deploy_final4.sh)).
+- **Changed, UI:** `ninfer-ui` runs release 0.1.0 (commit `1492c70`), ported from iNordic's vLLM fork of the same UI. The Monitor reads the engine's `/metrics` once a second, so it shows every client (agents, eval runners, the UI itself), not only the UI's own requests:
+  - server activity (running, waiting, reading or generating), with live Speed and a new Prefill card;
+  - recent requests with a Source column (UI or API), with the server's own prefill and decode speeds;
+  - a totals line: requests, cached prompt tokens, prefix-cache hit rate, MTP acceptance.
+
+  Also ported: one row of cards per GPU, chat and thinking-box scrolling fixes, and lighter rendering of long thinking. `NINFER_ENGINE_METRICS=off` turns the polling off.
+- **Patch 08:** `/metrics` adds, over completed requests since start:
+  - their count and summed seconds (e2e, queue, TTFT, prefill, decode);
+  - their prompt, cached and output tokens;
+  - speculative rounds, drafted and accepted tokens;
+  - `ninferno_requests_finished_total{finish_reason}`.
+
+  A scraper differencing two samples gets each request that finished alone in between exactly.
+- **Why:** the old Monitor never saw traffic sent straight to 8080. This box's main client (an agent) and the eval runner both do that. Also, `ninferno_reused_prompt_tokens_total` stays at 0 for an agent turn resumed from cache; the per-request cached count is that request's own context-cache hit.
+- **Measured:** no speed change; `apps-final4` is `1a3d564` plus counter bookkeeping.
+  - **Live test:** on the new build behind a 0.1.0 test UI ([`bench/mtest_start.sh`](bench/mtest_start.sh), [log](results/runs/mtest.log), [rerun](results/runs/mtest_rerun.txt)), a UI chat was tagged UI, and a direct API request and an API tool call were tagged API, each with prefill and decode speed.
+  - **Cached agent turns:** 16,495 of 17,449 prompt tokens cached on one turn, an 84.1% prefix-hit rate overall, and MTP acceptance 3.8 tokens per step.
+  - **Tests:** NInferno's HTTP-routes test (with a new check for the counters) and the UI's 69 tests pass.
+- **Rollback:**
+  - **Engine:** restore `/etc/systemd/system/gemma4-31b-{fast,262k}.service.bak-20261026-063712` (`apps-final3`), then `systemctl daemon-reload` and [`bench/deploy_fast.sh`](bench/deploy_fast.sh).
+  - **UI:** `mv /opt/ninfer-ui/app /opt/ninfer-ui/app-0.1.0 && mv /opt/ninfer-ui/previous-20261026-063903 /opt/ninfer-ui/app && systemctl restart ninfer-ui`. The 0.0.9 Monitor ignores the new counters.
+
 ## 2026-10-26: documentation published
 
 - This repository: build route, configs, patches 01–07, benchmarks, every result and run log, and the reports.

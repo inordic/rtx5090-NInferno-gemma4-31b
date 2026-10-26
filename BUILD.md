@@ -1,7 +1,7 @@
 # Build: from a container with an RTX 5090 Laptop GPU to both profiles serving
 
 This is the route we took. The paths are ours:
-- **Engine:** `/opt/NInferno`, built in `/opt/NInferno/build`. Production runs a copy of the binaries in `build/apps-final3`, so later builds in the tree don't touch it.
+- **Engine:** `/opt/NInferno`, built in `/opt/NInferno/build`. Production runs a copy of the binaries in `build/apps-final4`, so later builds in the tree don't touch it.
 - **Converter:** `/opt/llama.cpp`, the patched one, used only to convert the drafter.
 - **Models:** `/opt/models/dl` and `/opt/models/dl2`.
 - **Benchmarks:** `/root/gbench`, holding the contents of [`bench/`](bench/).
@@ -26,18 +26,18 @@ Adjust them to your system. Each step says how to check it before you go on.
 git clone https://github.com/Brontir/NInferno.git /opt/NInferno
 cd /opt/NInferno
 git checkout -b kvshare-main 9895ebc62e2bdfb367083a72cb2c4a714cf41542
-git am /path/to/this/repo/patches/ninferno/*.patch       # patches 01-07, see patches/README.md
+git am /path/to/this/repo/patches/ninferno/*.patch       # patches 01-08, see patches/README.md
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=120a \
       -DCMAKE_CUDA_COMPILER=/usr/local/cuda-13.2/bin/nvcc
 PATH=/usr/local/cuda-13.2/bin:$PATH ninja -C build ninferno-serve ninferno-gemma4 ninferno ninferno-convert
-mkdir -p build/apps-final3 && cp build/apps/ninferno-serve build/apps/ninferno-gemma4 build/apps/ninferno build/apps-final3/
+mkdir -p build/apps-final4 && cp build/apps/ninferno-serve build/apps/ninferno-gemma4 build/apps/ninferno build/apps-final4/
 ```
 
 The full build takes a long time; the kernels are many. Add `-DNINFERNO_BUILD_BENCHMARKS=ON` and `ninja -C build bench/ninferno_linear_bench` if you want the kernel microbenchmark used in [`bench/lb.sh`](bench/lb.sh).
 
 **Check:**
-- `git log --oneline -1` shows `q6 head: the sliced 8-column tile for the Gemma 4 31B head at T 6..8`, our patch 07.
-- `build/apps-final3/ninferno-serve --version` prints `NInferno 0.1.0 (built for sm_120, CUDA 13.2)` and lists the GPU.
+- `git log --oneline -1` shows `serve: finished-request sums and finish reasons on /metrics`, our patch 08.
+- `build/apps-final4/ninferno-serve --version` prints `NInferno 0.1.0 (built for sm_120, CUDA 13.2)` and lists the GPU.
 
 ## 2. llama.cpp with the QAT-aware Q4_0 encoder (for the drafter)
 
@@ -129,7 +129,7 @@ The first start takes about 25 s: weights, plan and CUDA graphs. The log line `p
 
 ## 5. Optional: the NInfer web UI
 
-The UI is iNordic's NInfer web UI, a Node app: release 0.0.9, commit `ef4ebaa`. It isn't in this repository. Put the app in `/opt/ninfer-ui/app` and its bundled Node 22 runtime in `/opt/ninfer-ui/runtime`, then:
+The UI is iNordic's NInfer web UI, a Node app: release 0.1.0, commit `1492c70`. It isn't in this repository. Its Monitor reads the engine's `/metrics` (patch 08's counters), so it shows every client of 8080. Put the app in `/opt/ninfer-ui/app` and its bundled Node 22 runtime in `/opt/ninfer-ui/runtime`, then:
 
 ```bash
 mkdir -p /etc/ninfer-ui/tls && chmod 700 /etc/ninfer-ui/tls

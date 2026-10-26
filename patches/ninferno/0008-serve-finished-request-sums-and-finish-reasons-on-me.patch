@@ -1,0 +1,278 @@
+From 6ff9931dd828653625500ba61160b10b69ae0fee Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 06:02:44 +0000
+Subject: [PATCH] serve: finished-request sums and finish reasons on /metrics
+
+/metrics adds, over completed generation requests since start, the
+count and summed seconds (e2e, queue, ttft, prefill, decode), summed
+prompt, cached and output tokens, speculative rounds, drafted and
+accepted tokens (ninferno_request_*, ninferno_speculative_*), and
+ninferno_requests_finished_total{finish_reason} (stop, length,
+tool_calls, abort, repetition; error for failed requests). A scraper
+differencing two samples gets each request that finished alone in
+between exactly, so a monitor can list every client's requests, as the
+NInfer Web UI 0.1.0 Monitor does. The cached tokens are each request's
+context-cache hit, which ninferno_reused_prompt_tokens_total leaves out
+for a turn resumed from its closure.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/serve/http_server.cpp   | 57 +++++++++++++++++++++++++++++++++++--
+ src/serve/http_server.h     |  4 +++
+ src/serve/openai_common.cpp | 41 +++++++++++++++++++++++++-
+ src/serve/openai_common.h   | 31 ++++++++++++++++++--
+ tests/test_http_routes.cpp  | 20 +++++++++++++
+ 5 files changed, 147 insertions(+), 6 deletions(-)
+
+diff --git a/src/serve/http_server.cpp b/src/serve/http_server.cpp
+index b3482aa..63f3fd7 100644
+--- a/src/serve/http_server.cpp
++++ b/src/serve/http_server.cpp
+@@ -425,16 +425,63 @@ void HttpServer::record_request_rejected(const RequestRejectionLogContext& conte
+     operational_log_.request_rejected(context);
+ }
+ 
++namespace {
++
++// The OpenAI spelling of how a completed request ended, as /metrics labels it.
++std::string_view finished_label(const GenerationOutcome& outcome) {
++    if (!outcome.tool_calls.empty()) { return "tool_calls"; }
++    switch (outcome.finish_reason) {
++    case ninferno::FinishReason::StopToken:
++    case ninferno::FinishReason::StopString:
++        return "stop";
++    case ninferno::FinishReason::OutputLimit:
++    case ninferno::FinishReason::ContextCapacity:
++        return "length";
++    case ninferno::FinishReason::Cancelled:
++        return "abort";
++    case ninferno::FinishReason::Repetition:
++        return "repetition";
++    case ninferno::FinishReason::None:
++        break;
++    }
++    return "other";
++}
++
++} // namespace
++
+ void HttpServer::record_request_done(const RequestLogContext& context,
+                                      const GenerationOutcome& outcome) {
+     request_jsonl_.write_request_done(context, outcome);
+     operational_log_.request_done(context, outcome);
++    const GenerationMetrics& m = outcome.metrics;
++    const std::lock_guard<std::mutex> lock(request_totals_mutex_);
++    RequestTotals& t = request_totals_;
++    ++t.finished;
++    t.e2e_seconds += m.total_seconds;
++    t.queue_seconds += m.engine_timing.queue_wait_seconds;
++    t.ttft_seconds += m.ttft_seconds;
++    t.prefill_seconds += m.prefill_seconds;
++    t.decode_seconds += m.decode_seconds;
++    t.prompt_tokens += static_cast<std::uint64_t>(std::max(outcome.prompt_tokens, 0));
++    t.cached_prompt_tokens += m.prefix_cache_hit_tokens;
++    t.generation_tokens += static_cast<std::uint64_t>(std::max(outcome.completion_tokens, 0));
++    t.speculative_rounds += m.speculative_rounds;
++    t.speculative_drafted += m.speculative_draft_tokens;
++    t.speculative_accepted += m.speculative_accepted_tokens;
++    const std::string_view label = finished_label(outcome);
++    if (auto it = t.finish_reasons.find(label); it != t.finish_reasons.end()) {
++        ++it->second;
++    } else {
++        t.finish_reasons.emplace(std::string(label), 1);
++    }
+ }
+ 
+ void HttpServer::record_request_failure(const RequestLogContext& context,
+                                         const RequestFailure& failure) {
+     request_jsonl_.write_request_error(context, failure.machine_message);
+     operational_log_.request_failure(context, failure);
++    const std::lock_guard<std::mutex> lock(request_totals_mutex_);
++    ++request_totals_.finish_reasons["error"];
+ }
+ 
+ void HttpServer::record_response_failure(std::uint64_t request_id, const RequestFailure& failure) {
+@@ -616,8 +663,14 @@ void HttpServer::register_routes() {
+     server_.Get("/metrics", [this](const httplib::Request&, httplib::Response& res) {
+         const ninferno::RuntimeStats stats =
+             service_ != nullptr ? service_->runtime_stats() : ninferno::RuntimeStats{};
+-        res.set_content(make_prometheus_metrics(stats, active_requests_.load(), model_metadata_),
+-                        "text/plain; version=0.0.4");
++        RequestTotals requests;
++        {
++            const std::lock_guard<std::mutex> lock(request_totals_mutex_);
++            requests = request_totals_;
++        }
++        res.set_content(
++            make_prometheus_metrics(stats, active_requests_.load(), model_metadata_, requests),
++            "text/plain; version=0.0.4");
+     });
+     server_.Get(
+         api_route_pattern("/models"),
+diff --git a/src/serve/http_server.h b/src/serve/http_server.h
+index 03f22fc..0457e64 100644
+--- a/src/serve/http_server.h
++++ b/src/serve/http_server.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include "serve/generation_service.h"
++#include "serve/openai_common.h"
+ #include "serve/operational_log.h"
+ #include "serve/openai_responses_store.h"
+ #include "serve/request_log.h"
+@@ -165,6 +166,9 @@ private:
+     // Generation requests from parsing to their last byte (a RequestLifecycle's lifetime, which a
+     // stream's content provider holds until the stream ends).
+     std::atomic<std::uint32_t> active_requests_{0};
++    // Finished-request sums for /metrics (record_request_done / record_request_failure).
++    std::mutex request_totals_mutex_;
++    RequestTotals request_totals_;
+     std::atomic<bool> drain_requested_{false};
+     std::atomic<bool> stop_requested_{false};
+     std::atomic<bool> draining_{false};
+diff --git a/src/serve/openai_common.cpp b/src/serve/openai_common.cpp
+index 2d16422..331af08 100644
+--- a/src/serve/openai_common.cpp
++++ b/src/serve/openai_common.cpp
+@@ -296,7 +296,8 @@ std::string make_props(const std::string& model_id, std::uint32_t max_context,
+ 
+ std::string make_prometheus_metrics(const ninferno::RuntimeStats& stats,
+                                     std::uint32_t http_active_requests,
+-                                    const ninferno::ModelMetadata& metadata) {
++                                    const ninferno::ModelMetadata& metadata,
++                                    const RequestTotals& requests) {
+     std::string out;
+     const auto metric = [&out](const char* name, const char* type, const char* help,
+                                double value) {
+@@ -331,6 +332,44 @@ std::string make_prometheus_metrics(const ninferno::RuntimeStats& stats,
+            static_cast<double>(stats.materializing_requests));
+     metric("ninferno_http_active_requests", "gauge", "HTTP requests being served.",
+            static_cast<double>(http_active_requests));
++    const auto count = [](std::uint64_t v) { return static_cast<double>(v); };
++    metric("ninferno_request_e2e_seconds_count", "counter",
++           "Generation requests completed (the ninferno_request_* sums cover them).",
++           count(requests.finished));
++    metric("ninferno_request_e2e_seconds_sum", "counter",
++           "Seconds from arrival to the last token, summed over completed requests.",
++           requests.e2e_seconds);
++    metric("ninferno_request_queue_seconds_sum", "counter",
++           "Seconds waiting for the engine, summed over completed requests.", requests.queue_seconds);
++    metric("ninferno_request_ttft_seconds_sum", "counter",
++           "Seconds to the first token, summed over completed requests.", requests.ttft_seconds);
++    metric("ninferno_request_prefill_seconds_sum", "counter",
++           "Prefill seconds, summed over completed requests.", requests.prefill_seconds);
++    metric("ninferno_request_decode_seconds_sum", "counter",
++           "Decode seconds after the first token, summed over completed requests.",
++           requests.decode_seconds);
++    metric("ninferno_request_prompt_tokens_sum", "counter",
++           "Prompt tokens of completed requests, cached ones included.", count(requests.prompt_tokens));
++    metric("ninferno_request_cached_prompt_tokens_sum", "counter",
++           "Prompt tokens of completed requests served from the context cache.",
++           count(requests.cached_prompt_tokens));
++    metric("ninferno_request_generation_tokens_sum", "counter",
++           "Output tokens of completed requests.", count(requests.generation_tokens));
++    metric("ninferno_speculative_rounds_total", "counter",
++           "Speculative verify rounds of completed requests.", count(requests.speculative_rounds));
++    metric("ninferno_speculative_draft_tokens_total", "counter",
++           "Draft tokens proposed for completed requests.", count(requests.speculative_drafted));
++    metric("ninferno_speculative_accepted_tokens_total", "counter",
++           "Draft tokens accepted for completed requests.", count(requests.speculative_accepted));
++    if (!requests.finish_reasons.empty()) {
++        out += "# HELP ninferno_requests_finished_total Generation requests by how they finished.\n"
++               "# TYPE ninferno_requests_finished_total counter\n";
++        for (const auto& [reason, n] : requests.finish_reasons) {
++            char number[32];
++            std::snprintf(number, sizeof(number), "%llu", static_cast<unsigned long long>(n));
++            out += "ninferno_requests_finished_total{finish_reason=\"" + reason + "\"} " + number + '\n';
++        }
++    }
+     // An info gauge: the value is 1, the labels carry the fingerprint (hex and dashes only, no
+     // label escaping needed).
+     if (!metadata.decision_fingerprint.empty()) {
+diff --git a/src/serve/openai_common.h b/src/serve/openai_common.h
+index 17c2f02..796d724 100644
+--- a/src/serve/openai_common.h
++++ b/src/serve/openai_common.h
+@@ -8,6 +8,8 @@
+ #include <nlohmann/json.hpp>
+ 
+ #include <cstdint>
++#include <functional>
++#include <map>
+ #include <string>
+ #include <string_view>
+ 
+@@ -50,12 +52,35 @@ std::string make_model_object(const std::string& model_id, std::int64_t created,
+ // GET /props: llama.cpp's server properties, as clients read them for the context and slots.
+ std::string make_props(const std::string& model_id, std::uint32_t max_context,
+                        std::uint32_t slots, const ninferno::ModelMetadata& metadata);
++// Finished generation requests since start, summed (HttpServer::record_request_done and
++// record_request_failure). A scraper takes the difference of two samples: when one request finished
++// in between, its phases and tokens are exact.
++struct RequestTotals {
++    std::uint64_t finished              = 0; // requests that completed; the sums below cover them
++    double e2e_seconds                  = 0.0;
++    double queue_seconds                = 0.0;
++    double ttft_seconds                 = 0.0;
++    double prefill_seconds              = 0.0;
++    double decode_seconds               = 0.0;
++    std::uint64_t prompt_tokens         = 0;
++    std::uint64_t cached_prompt_tokens  = 0; // served from the context cache instead of prefill
++    std::uint64_t generation_tokens     = 0;
++    std::uint64_t speculative_rounds    = 0;
++    std::uint64_t speculative_drafted   = 0;
++    std::uint64_t speculative_accepted  = 0;
++    // stop, length, tool_calls, abort, repetition (completed) and error (failed)
++    std::map<std::string, std::uint64_t, std::less<>> finish_reasons;
++};
++
+ // GET /metrics: Prometheus text exposition under llama.cpp's metric names (dashboards made for it
+-// read ours), plus ninferno's own counters and the decision fingerprint's info gauge
+-// (ninferno_decision_fingerprint_info{fingerprint,manifest,schema} 1, when metadata carries one).
++// read ours), plus ninferno's own counters, the finished-request sums (ninferno_request_*,
++// ninferno_speculative_*, ninferno_requests_finished_total{finish_reason}) and the decision
++// fingerprint's info gauge (ninferno_decision_fingerprint_info{fingerprint,manifest,schema} 1, when
++// metadata carries one).
+ std::string make_prometheus_metrics(const ninferno::RuntimeStats& stats,
+                                     std::uint32_t http_active_requests,
+-                                    const ninferno::ModelMetadata& metadata);
++                                    const ninferno::ModelMetadata& metadata,
++                                    const RequestTotals& requests = RequestTotals{});
+ std::string make_error_body(const ApiError& error);
+ std::int64_t unix_time_now();
+ 
+diff --git a/tests/test_http_routes.cpp b/tests/test_http_routes.cpp
+index 054b50f..fcf781d 100644
+--- a/tests/test_http_routes.cpp
++++ b/tests/test_http_routes.cpp
+@@ -114,6 +114,26 @@ int main() {
+             ninferno::serve::make_prometheus_metrics(stats, 3, ninferno::ModelMetadata{})
+                     .find("ninferno_decision_fingerprint_info") == std::string::npos,
+         "/metrics must carry the decision fingerprint as an info gauge when there is one");
++    // Finished-request sums and finish reasons, which a scraper differences between two samples.
++    ninferno::serve::RequestTotals requests;
++    requests.finished             = 2;
++    requests.prefill_seconds      = 0.5;
++    requests.cached_prompt_tokens = 40;
++    requests.speculative_rounds   = 9;
++    requests.finish_reasons["stop"]  = 1;
++    requests.finish_reasons["error"] = 3;
++    const std::string totals =
++        ninferno::serve::make_prometheus_metrics(stats, 3, ninferno::ModelMetadata{}, requests);
++    failures += check(
++        totals.find("ninferno_request_e2e_seconds_count 2\n") != std::string::npos &&
++            totals.find("ninferno_request_prefill_seconds_sum 0.5\n") != std::string::npos &&
++            totals.find("ninferno_request_cached_prompt_tokens_sum 40\n") != std::string::npos &&
++            totals.find("ninferno_speculative_rounds_total 9\n") != std::string::npos &&
++            totals.find("ninferno_requests_finished_total{finish_reason=\"error\"} 3\n"
++                        "ninferno_requests_finished_total{finish_reason=\"stop\"} 1\n") !=
++                std::string::npos &&
++            metrics.find("ninferno_requests_finished_total") == std::string::npos,
++        "/metrics must carry the finished-request sums and, once any finished, their reasons");
+     const Json models = Json::parse(ninferno::serve::make_models_list("m", 0, 4096, fingerprinted));
+     failures += check(
+         models.at("data").at(0).at("meta").at("decision_fingerprint") == "nf1-0123456789abcdef" &&
+-- 
+2.43.0
+

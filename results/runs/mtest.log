@@ -1,0 +1,31 @@
+=== 05:58:30 idle: swapping in apps-metrics
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+=== 05:58:59 API request (non-stream)
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+KeyError: 'usage'
+=== 05:59:01 chat through the test UI (stream)
+43
+=== 05:59:04 API tool call (stream)
+0
+=== 05:59:16 engine /metrics (new counters)
+ninferno_requests_prefilling 0
+ninferno_requests_materializing 0
+ninferno_request_e2e_seconds_count 1
+ninferno_request_e2e_seconds_sum 1.355463772
+ninferno_request_queue_seconds_sum 0.00089120200000000001
+ninferno_request_ttft_seconds_sum 0.14288783299999999
+ninferno_request_prefill_seconds_sum 0.096039013000000006
+ninferno_request_decode_seconds_sum 1.2123961930000002
+ninferno_request_prompt_tokens_sum 24
+ninferno_request_cached_prompt_tokens_sum 0
+ninferno_request_generation_tokens_sum 152
+ninferno_speculative_rounds_total 36
+ninferno_speculative_draft_tokens_total 252
+ninferno_speculative_accepted_tokens_total 117
+ninferno_requests_finished_total{finish_reason="stop"} 1
+=== 05:59:16 test UI engine snapshot
+per_request True totals {"requests": 1, "prompt_tokens": 52, "cached_tokens": 0, "generated_tokens": 157, "prefix_cache_hit_percent": 0, "spec_acceptance_length": 4.25, "preemptions": null}
+row {"source": "ui", "count": 1, "finish": "stop", "prompt_tokens": 24, "cached_tokens": 0, "output_tokens": 152, "prefill_tok_s": 249.9, "decode_tok_s": 124.5, "e2e_s": 1.355, "queue_s": 0.001}
+=== 05:59:16 MTEST STARTED

@@ -9,6 +9,8 @@ Everything here is stdlib Python or bash, and ran from `/root/gbench` on the con
 | [`srv.sh`](srv.sh) | `srv.sh start NAME MODEL [serve args]` starts `ninferno-serve` on 8080 in the background, waits for `listening on`, and prints the plan and capacity lines. `srv.sh stop` stops it. The runners make copies with another binary path (`srv_final3.sh` and so on) |
 | [`deploy_fast.sh`](deploy_fast.sh) | stops the 262K unit and any `srv.sh` server, starts `gemma4-31b-fast`, and waits until it answers |
 | [`apply_candidate.sh`](apply_candidate.sh), [`revert_candidate.sh`](revert_candidate.sh) | the night-1 switch of both units to `apps-final3` with 7 drafts, with unit-file backups, and its rollback |
+| [`deploy_final4.sh`](deploy_final4.sh) | the switch of both units to `apps-final4` (patch 08), with unit-file backups; restarts the fast unit at a moment with no request in flight |
+| [`mtest_start.sh`](mtest_start.sh), [`mtest_end.sh`](mtest_end.sh) | the live test of patch 08: behind an idle gate, swap in the new build on 8080, send a UI chat, an API request and an API tool call, print the counters and the UI's view; then put the fast unit back |
 | [`build_aside.sh`](build_aside.sh) | `build_aside.sh NAME` builds the tree and copies the binaries to `build/apps-NAME`, so experiments never replace the serving binary |
 | [`idle_gate.sh`](idle_gate.sh), [`idle_gate_any.sh`](idle_gate_any.sh) | hold an overnight runner until the fast unit has served no request for N minutes and `/root/gbench/HOLD` does not exist |
 
