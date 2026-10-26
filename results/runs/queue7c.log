@@ -1,0 +1,46 @@
+=== 18:55:03 F3 NVFP4 quality (QAT drafter)
+DIED
+2026-10-25 18:55:06.730  INFO  engine start refused | finalizing target | 79.3 ms
+2026-10-25 18:55:06.746  FATAL server failed during startup | no rung of the 58-rung plan ladder fits the 5.28 GiB of Device memory free after the weights (18.02 GiB): its last rung, 4,096 tokens x 1 context (4,096 KV tokens for 6 lanes), 0 cached states, chunk 128, needs 5.70 GiB, 0.43 GiB more. What fits instead (prefill chunk down to 128): --max-concurrency 5 with the asked 4096 tokens of context.
+=== 18:55:07 C7 serve: tuned profile (spec auto), shared2 262K chunk512
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 26.8s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.94 GiB more would serve rung 2, 2.11 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 0.95 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 512), 2.12 GiB the top rung (262,144 tokens x 1 context (262,
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.56 GiB | free 364.6 MiB
+speculation | serves mtp:8 (fixed) | fallback none | profile local tune /root/gbench/qatasst_deep.tune.json
+TG@2048 greedy: 109.1 tok/s [98.99574932225917, 119.19701082951985] spec=['mtp:8', 'mtp:8']
+TG@2048 sampled: 88.7 tok/s [83.12470033972538, 94.36029205042944] spec=['mtp:8', 'mtp:8']
+TG@8192 greedy: 97.3 tok/s [92.85208393322299, 101.75078485557502] spec=['mtp:8', 'mtp:8']
+TG@8192 sampled: 85.3 tok/s [80.68673135816357, 89.87774579083525] spec=['mtp:8', 'mtp:8']
+Traceback (most recent call last):
+  File "/root/gbench/gbench.py", line 125, in <module>
+    main()
+  File "/root/gbench/gbench.py", line 110, in main
+    res = chat(base, p, 512, greedy)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/gbench/gbench.py", line 42, in chat
+    out, wall = post(base, body)
+                ^^^^^^^^^^^^^^^^
+  File "/root/gbench/gbench.py", line 31, in post
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 503: Service Unavailable

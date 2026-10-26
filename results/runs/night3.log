@@ -1,0 +1,75 @@
+=== 00:26:25 waiting for 15 idle minutes on 8080
+=== 00:26:26 idle: taking the GPU
+=== 00:26:28 K7 decode (final binary, 155K chunk1024)
+grep: /root/gbench/logs/K7-final.log: No such file or directory
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 37.8s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@2048 greedy: 116.6 tok/s [116.58975450849196] spec=['mtp K=7']
+TG@2048 sampled: 133.9 tok/s [133.86791733525538] spec=['mtp K=7']
+TG@8192 greedy: 96.3 tok/s [96.26132684121426] spec=['mtp K=7']
+TG@8192 sampled: 111.0 tok/s [110.95030667493093] spec=['mtp K=7']
+CHAT C=1 greedy: 114.3 tok/s (4813 tok) spec=mtp K=7
+CHAT C=1 sampled: 110.0 tok/s (4781 tok) spec=mtp K=7
+ROW {"label": "K7 QAT-NVFP4 final split1 155K", "ts": "2026-10-26 00:27:08", "tg2048g": 116.6, "tg2048s": 133.9, "tg8192g": 96.3, "tg8192s": 111.0, "chatg": 114.3, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 110.0, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 00:29:03 K8 decode (final binary, 155K chunk1024)
+grep: /root/gbench/logs/K8-final.log: No such file or directory
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.6s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+TG@2048 greedy: 111.8 tok/s [111.8381258765495] spec=['mtp K=8']
+TG@2048 sampled: 134.8 tok/s [134.83720058399877] spec=['mtp K=8']
+TG@8192 greedy: 89.8 tok/s [89.84252664073675] spec=['mtp K=8']
+TG@8192 sampled: 95.3 tok/s [95.3273165428652] spec=['mtp K=8']
+CHAT C=1 greedy: 108.1 tok/s (4760 tok) spec=mtp K=8
+CHAT C=1 sampled: 105.4 tok/s (4810 tok) spec=mtp K=8
+ROW {"label": "K8 QAT-NVFP4 final split1 155K", "ts": "2026-10-26 00:29:30", "tg2048g": 111.8, "tg2048s": 134.8, "tg8192g": 89.8, "tg8192s": 95.3, "chatg": 108.1, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 105.4, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+=== 00:31:29 K12 decode (final binary, 155K chunk1024)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.7s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=12 (explicit) | fallback none | --spec
+TG@2048 greedy: 114.0 tok/s [114.03305546874903] spec=['mtp K=12']
+TG@2048 sampled: 143.9 tok/s [143.91840234628023] spec=['mtp K=12']
+TG@8192 greedy: 90.6 tok/s [90.61515710256388] spec=['mtp K=12']
+TG@8192 sampled: 104.9 tok/s [104.85783263729364] spec=['mtp K=12']
+CHAT C=1 greedy: 101.7 tok/s (4748 tok) spec=mtp K=12
+CHAT C=1 sampled: 99.6 tok/s (4787 tok) spec=mtp K=12
+ROW {"label": "K12 QAT-NVFP4 final split1 155K", "ts": "2026-10-26 00:31:57", "tg2048g": 114.0, "tg2048s": 143.9, "tg8192g": 90.6, "tg8192s": 104.9, "chatg": 101.7, "chatg_spec": {"config": "mtp K=12", "fallback": "none", "reason": "--spec"}, "chats": 99.6, "chats_spec": {"config": "mtp K=12", "fallback": "none", "reason": "--spec"}}
+=== 00:34:00 K15 decode (final binary, 155K chunk1024)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.9s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.48 GiB more would serve rung 2, 3.04 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.49 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.05 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=15 (explicit) | fallback none | --spec
+TG@2048 greedy: 106.1 tok/s [106.10731708710027] spec=['mtp K=15']
+TG@2048 sampled: 112.9 tok/s [112.88043236404242] spec=['mtp K=15']
+TG@8192 greedy: 79.0 tok/s [78.95525143078403] spec=['mtp K=15']
+TG@8192 sampled: 88.9 tok/s [88.94859650946961] spec=['mtp K=15']
+CHAT C=1 greedy: 96.2 tok/s (4856 tok) spec=mtp K=15
+CHAT C=1 sampled: 94.2 tok/s (4825 tok) spec=mtp K=15
+ROW {"label": "K15 QAT-NVFP4 final split1 155K", "ts": "2026-10-26 00:34:28", "tg2048g": 106.1, "tg2048s": 112.9, "tg8192g": 79.0, "tg8192s": 88.9, "chatg": 96.2, "chatg_spec": {"config": "mtp K=15", "fallback": "none", "reason": "--spec"}, "chats": 94.2, "chats_spec": {"config": "mtp K=15", "fallback": "none", "reason": "--spec"}}
+SCHED ninferno_linear_bench       NVFP4 A16     5376    21504      8      83.968      81.920      8
+SCHED ninferno_linear_bench       NVFP4 A16     5376    21504      9     104.448      97.792     10
+SCHED ninferno_linear_bench       NVFP4 A16     5376     8192      8      34.816      32.768      3
+SCHED ninferno_linear_bench       NVFP4 A16     5376     8192      9      40.480      38.912      4
+SCHED ninferno_linear_bench       NVFP4 A16     5376    16384      8      63.488      61.472      6
+SCHED ninferno_linear_bench       NVFP4 A16     5376    16384      9      75.296      73.152      7
+SCHED ninferno_linear_bench       NVFP4 A16    16384     5376      8      81.920      79.872      8
+SCHED ninferno_linear_bench       NVFP4 A16    16384     5376      9      73.760      71.168      7
+SCHED lb_v1      SCHED lb_v1      SCHED lb_v1      SCHED lb_v1      SCHED lb_v1      SCHED lb_v1      SCHED lb_v1      SCHED lb_v1      SCHED lb_v2      SCHED lb_v2      SCHED lb_v2      SCHED lb_v2      SCHED lb_v2      SCHED lb_v2      SCHED lb_v2      SCHED lb_v2      SCHED lb_v3      SCHED lb_v3      SCHED lb_v3      SCHED lb_v3      SCHED lb_v3      SCHED lb_v3      SCHED lb_v3      SCHED lb_v3      === 00:36:44 restoring the fast unit
+active
+=== 00:37:13 NIGHT3 DONE

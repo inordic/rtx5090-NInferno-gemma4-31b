@@ -1,0 +1,42 @@
+=== 15:55:57 drafter A/B: QAT-matched assistant, full head
+[qatasst_full] spec-tune plain     math        37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+[qatasst_full] spec-tune plain     code        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1223/1223
+[qatasst_full] spec-tune plain     prose       37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+[qatasst_full] spec-tune plain     thinking    37.7 tok/s   1.00 tok/round  acc 0.000  identical 2048/2048
+[qatasst_full] spec-tune mtp:3     math       101.1 tok/s   3.65 tok/round  acc 0.884  identical 902/1280
+[qatasst_full] spec-tune mtp:3     code       102.5 tok/s   3.74 tok/round  acc 0.915  identical 1194/1207
+[qatasst_full] spec-tune mtp:3     prose       61.8 tok/s   2.22 tok/round  acc 0.408  identical 630/1280
+[qatasst_full] spec-tune mtp:3     thinking   101.1 tok/s   3.65 tok/round  acc 0.884  identical 1221/2048
+[qatasst_full] spec-tune mtp:4     math       112.4 tok/s   4.46 tok/round  acc 0.864  identical 902/1280
+[qatasst_full] spec-tune mtp:4     code       116.3 tok/s   4.63 tok/round  acc 0.907  identical 1194/1207
+[qatasst_full] spec-tune mtp:4     prose       58.9 tok/s   2.32 tok/round  acc 0.331  identical 630/1280
+[qatasst_full] spec-tune mtp:4     thinking   111.3 tok/s   4.40 tok/round  acc 0.851  identical 1221/2048
+=== 16:03:47 drafter A/B: generic assistant, full head
+[asst_full] spec-tune plain     math        37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+[asst_full] spec-tune plain     code        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1223/1223
+[asst_full] spec-tune plain     prose       37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+[asst_full] spec-tune plain     thinking    37.7 tok/s   1.00 tok/round  acc 0.000  identical 2048/2048
+[asst_full] spec-tune mtp:3     math        72.5 tok/s   2.61 tok/round  acc 0.538  identical 902/1280
+[asst_full] spec-tune mtp:3     code        57.5 tok/s   2.10 tok/round  acc 0.366  identical 1194/1207
+[asst_full] spec-tune mtp:3     prose       44.9 tok/s   1.62 tok/round  acc 0.206  identical 630/1280
+[asst_full] spec-tune mtp:3     thinking    72.4 tok/s   2.62 tok/round  acc 0.541  identical 1221/2048
+[asst_full] spec-tune mtp:4     math        72.6 tok/s   2.86 tok/round  acc 0.465  identical 902/1280
+[asst_full] spec-tune mtp:4     code        54.2 tok/s   2.16 tok/round  acc 0.291  identical 1194/1207
+[asst_full] spec-tune mtp:4     prose       41.4 tok/s   1.63 tok/round  acc 0.158  identical 630/1280
+[asst_full] spec-tune mtp:4     thinking    72.5 tok/s   2.87 tok/round  acc 0.467  identical 1221/2048
+=== 16:12:37 llama.cpp L1 plain f16 KV 32K
+DIED
+error: invalid argument: --no-mmap
+=== 16:12:41 llama.cpp L2 MTP3 f16 KV 32K
+DIED
+error: invalid argument: --no-mmap
+=== 16:12:45 llama.cpp L3 MTP3 q8_0 KV 32K
+DIED
+error: invalid argument: --no-mmap
+=== 16:12:48 llama.cpp L4 DFlash7 f16 KV 32K
+DIED
+error: invalid argument: --no-mmap
+=== 16:12:51 quality matrix
+DIED
+2026-10-25 16:13:07.908  INFO  engine start refused | finalizing target | 315 ms
+2026-10-25 16:13:07.931  FATAL server failed during startup | no rung of the 68-rung plan ladder fits the 6.90 GiB of Device memory free after the weights (16.39 GiB): its last rung, 16,384 tokens x 1 context (16,384 KV tokens for 8 lanes), 0 cached states, chunk 128, needs 8.09 GiB, 1.19 GiB more. What fits instead (prefill chunk down to 128): --max-concurrency 7 with up to 1024 tokens of context; --max-concurrency 6 with up to 8192 tokens of context; --max-concurrency 3 with the asked 16384 tokens of context.

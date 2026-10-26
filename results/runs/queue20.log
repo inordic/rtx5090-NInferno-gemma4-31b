@@ -1,0 +1,37 @@
+=== 21:46:18 profile decode: serve under nsys, one 512-token chat
+grep: logs/prof_decode2.log: No such file or directory
+chat {'completion_tokens': 512, 'completion_tokens_details': {'reasoning_tokens': 0}, 'prompt_tokens': 29, 'prompt_tokens_details': {'cached_tokens': 0}, 'total_tokens': 541} 5.87s
+chat {'completion_tokens': 512, 'completion_tokens_details': {'reasoning_tokens': 0}, 'prompt_tokens': 29, 'prompt_tokens_details': {'cached_tokens': 22}, 'total_tokens': 541} 5.82s
+req#1 done | openai-chat | output limit | prompt 29 | output 512 | cache 0 (0.0%) | TTFT 127 ms | total 5.9s | prefill 232.1 tok/s | decode 89.2 tok/s | mtp K=8 (explicit) | mtp accepted 370/1,123 (32.9%)
+req#2 done | openai-chat | output limit | prompt 29 | output 512 | cache 22 (75.9%, turn closure) | TTFT 89.0 ms | total 5.8s | prefill 79.1 tok/s | decode 89.2 tok/s | mtp K=8 (explicit) | mtp accepted 370/1,123 (32.9%)
+total kernel time 28948.8 ms over 491793 launches
+-- by kernel family
+ 28.5%    8241.5 ms  nvfp4_a4_tma_kernel
+ 25.5%    7379.2 ms  rmma_kernel
+ 16.1%    4661.3 ms  nvfp4_a16_reg_mma_kernel
+  9.0%    2615.9 ms  nvfp4_a4_mma_kernel
+  5.0%    1456.0 ms  gemma4_attention_kernel
+  4.8%    1384.4 ms  ops
+  3.8%    1093.9 ms  w4a4_kernel
+  2.6%     754.2 ms  q6_a16_mma_kernel
+  1.8%     527.0 ms  gemma4_attention_combine_kernel
+  1.3%     377.0 ms  q6_a16_simt_kernel
+  1.0%     278.6 ms  nvfp4_a4_quantize_kernel
+  0.2%      64.1 ms  rmsnorm_cta_bf16x2_kernel
+  0.2%      47.6 ms  nvfp4_a16_gemv_kernel
+  0.1%      31.6 ms  argmax_tiled_atomic_kernel
+  0.0%      10.1 ms  embed_gather_q8_kernel
+  0.0%       4.7 ms  w4a4_quantize_kernel
+-- top instantiations
+ 18.5%    5349.2 ms  n=12600  void ninferno::ops::detail::nvfp4_a4_tma_kernel<ninferno::ops::detail::Nvfp4ScheduleInstance<ninferno::ops::detail::Nvfp4A4TmaMmaSchedule<(int)256, (i
+ 18.0%    5214.1 ms  n=18360  void ninferno::ops::detail::generic::rmma_kernel<ninferno::ops::detail::generic::Nvfp4Decoder, ninferno::ops::detail::generic::RmmaSchedule<(int)1, (i
+  7.1%    2041.2 ms  n=17880  void ninferno::ops::detail::nvfp4_a16_reg_mma_kernel<ninferno::ops::detail::Nvfp4Geometry<(int)5376, (int)21504>, ninferno::ops::detail::Nvfp4A16RegMm
+  6.8%    1966.5 ms  n= 4140  void ninferno::ops::detail::nvfp4_a4_tma_kernel<ninferno::ops::detail::Nvfp4ScheduleInstance<ninferno::ops::detail::Nvfp4A4TmaMmaSchedule<(int)256, (i
+  4.2%    1201.5 ms  n=14900  void ninferno::ops::detail::nvfp4_a16_reg_mma_kernel<ninferno::ops::detail::Nvfp4Geometry<(int)16384, (int)5376>, ninferno::ops::detail::Nvfp4A16RegMm
+  3.8%    1093.9 ms  n= 2340  void ninferno::ops::detail::generic::w4a4_kernel<ninferno::ops::detail::generic::W4a4Schedule<(int)128, (int)128, (int)4, (int)2, (int)3>, (ninferno::
+  3.7%    1060.1 ms  n=23688  void ninferno::ops::detail::generic::rmma_kernel<ninferno::ops::detail::generic::Ggml32Decoder<(ninferno::ops::detail::generic::Ggml32)0>, ninferno::o
+  2.6%     743.4 ms  n= 8900  void ninferno::ops::gemma4_attention_kernel<ninferno::ops::Gemma4Geometry<(int)256, (int)2, (int)128>, (int)2, (int)32, (bool)0, (bool)1, (bool)0>(nin
+  2.6%     739.1 ms  n=  292  void ninferno::ops::detail::q6_a16_mma_kernel<ninferno::ops::detail::Q6A16MmaSchedule<(int)64, (int)16, (int)128, (int)16, (int)8, (int)2, (int)3, (ni
+  2.3%     673.5 ms  n=14900  void ninferno::ops::detail::nvfp4_a16_reg_mma_kernel<ninferno::ops::detail::Nvfp4Geometry<(int)5376, (int)8192>, ninferno::ops::detail::Nvfp4A16RegMma
+  2.3%     671.0 ms  n= 3450  void ninferno::ops::detail::nvfp4_a4_tma_kernel<ninferno::ops::detail::Nvfp4ScheduleInstance<ninferno::ops::detail::Nvfp4A4TmaMmaSchedule<(int)256, (i
+=== 21:47:57 QUEUE20 DONE

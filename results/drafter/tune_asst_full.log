@@ -1,0 +1,19 @@
+ninferno-gemma4: sized to the device: context 4096, chunk 2048 (6773 MiB free, 196 MiB kept for CUDA graphs, 1 trial sessions)
+spec-tune plain     math        37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+spec-tune plain     code        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1223/1223
+spec-tune plain     prose       37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+spec-tune plain     thinking    37.7 tok/s   1.00 tok/round  acc 0.000  identical 2048/2048
+spec-tune mtp:3     math        72.5 tok/s   2.61 tok/round  acc 0.538  identical 902/1280
+spec-tune mtp:3     code        57.5 tok/s   2.10 tok/round  acc 0.366  identical 1194/1207
+spec-tune mtp:3     prose       44.9 tok/s   1.62 tok/round  acc 0.206  identical 630/1280
+spec-tune mtp:3     thinking    72.4 tok/s   2.62 tok/round  acc 0.541  identical 1221/2048
+spec-tune mtp:4     math        72.6 tok/s   2.86 tok/round  acc 0.465  identical 902/1280
+spec-tune mtp:4     code        54.2 tok/s   2.16 tok/round  acc 0.291  identical 1194/1207
+spec-tune mtp:4     prose       41.4 tok/s   1.63 tok/round  acc 0.158  identical 630/1280
+spec-tune mtp:4     thinking    72.5 tok/s   2.87 tok/round  acc 0.467  identical 1221/2048
+choice non_thinking mtp:3      x1.487  56.1 tok/s  floor 1.35 tok/round
+choice thinking     mtp:4      x1.924  72.5 tok/s  floor 1.48 tok/round
+choice default      mtp:3      x1.576  59.5 tok/s  floor 1.36 tok/round
+drafter assistant  accepted 
+drafter ngram      untested no configuration measured within the time budget
+{"profile":"/root/gbench/asst_full.tune.json","tune_seconds":522.9,"gpu_class":"gb203:82sm","default":"mtp:3","skipped":0}

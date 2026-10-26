@@ -1,0 +1,20 @@
+=== 01:59:18 idle: taking the GPU
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 28.1s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.94 GiB more would serve rung 2, 2.11 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 0.95 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 512), 2.12 GiB the top rung (262,144 tokens x 1 context (262,
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.56 GiB | free 354.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+models ['U262-f3-k7']
+chat '391' 0.19s
+stream chunks 5 done True first 0.181s total 0.29s
+turn 0: prompt 17606 cache 0 prompt_ms 12217.271136000001 wall 13.30s decode 105.9937396891029
+turn 1: prompt 105 cache 17599 prompt_ms 294.985312 wall 0.66s decode 133.82319442519457
+turn 2: prompt 69 cache 17697 prompt_ms 263.612934 wall 0.63s decode 115.9720443261449
+{"L": 200000, "depth": 0.5, "ok": true, "ptok": 185087, "pp": 613.0, "tg": 59.0, "wall": 302.3, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+{"L": 250000, "depth": 0.5, "ok": true, "ptok": 230777, "pp": 528.3, "tg": 53.2, "wall": 437.3, "ans": "amber-falcon-2535", "want": "amber-falcon-2535"}
+NEEDLE U262 final3 K7 2/2
+=== 02:12:29 restoring the deployed unit
+active
+=== 02:12:58 NIGHT13 DONE

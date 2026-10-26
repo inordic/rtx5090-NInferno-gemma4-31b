@@ -1,0 +1,41 @@
+=== 18:41:59 F0 NVFP4 plan at 262K
+plan | speculation mtp K=8
+device 23.42 GiB | weights 18.01 GiB | free after the weights 5.27 GiB | kept beside a rung: 0.00 GiB (driver 0.00 GiB, class reserve 0.00 GiB) + warm-up allowance 0.06 GiB
+  - no rung of the 6-rung plan ladder fits the 5.28 GiB of Device memory free after the weights (18.02 GiB): its last rung, 262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 0 cached states, chunk 128, needs 6.12 GiB, 0.85 GiB more. What fits instead (prefill chunk down to 128, an automatic KV capacity in place of --kv-capacity): --max-concurrency 1 with up to 155840 tokens of context.
+=== 18:42:09 F1 NVFP4 W4A4 plain, shared2 64K chunk2048: prefill
+choice | KV fp8, activations fast, chunk 2048 | 38.0 tok/s decode, 2723 prefill, KLD 0.0245 (estimates) | the model's weights (the one quantization): every stream holds 70000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | qat-nvfp4.r31 | total 1m 9.3s | weights 17.8 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 70,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 2 of 3: 70,000 tokens x 1 context (70,016 KV tokens), 1 cached state, chunk 2048 for 1 lane (step extra_states, reserve kept) | free 5.52 GiB after 17.76 GiB of weights | 0.38 GiB more would serve rung 1, 0.38 GiB the top | planned in 0 ms; the run
+plan | rung 2: below the top rung of the asked --max-context 70,000 | 0.38 GiB more free memory would serve rung 1 (70,000 tokens x 1 context (70,016 KV tokens for 1 lane), 2 cached states, chunk 2048), 0.38 GiB the top rung (70,000 tokens x 1 context (70,016 
+capacity | KV 70,016 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,094/1,094 | runtime 4.57 GiB | free 936.6 MiB
+speculation | serves plain (explicit) | fallback none | --spec
+PP 2048: 2197.4 tok/s (n=1658) [2197.3622709563597]
+PP 8192: 2517.1 tok/s (n=6573) [2517.08715597516]
+PP 32768: 1983.5 tok/s (n=28692) [1983.5191034724828]
+PP 65536: 1456.4 tok/s (n=58518) [1456.3669240766385]
+TG@2048 greedy: 33.7 tok/s [33.70734434897165] spec=['plain']
+TG@2048 sampled: 33.7 tok/s [33.689332780580735] spec=['plain']
+TG@8192 greedy: 33.4 tok/s [33.419494849292] spec=['plain']
+TG@8192 sampled: 33.4 tok/s [33.42728542675577] spec=['plain']
+ROW {"label": "F1 QAT-NVFP4 W4A4 plain shared2 64K chunk2048", "ts": "2026-10-25 18:43:20", "pp2048_ntok": 1658, "pp2048": 2197.4, "pp8192_ntok": 6573, "pp8192": 2517.1, "pp32768_ntok": 28692, "pp32768": 1983.5, "pp65536_ntok": 58518, "pp65536": 1456.4, "tg2048g": 33.7, "tg2048s": 33.7, "tg8192g": 33.4, "tg8192s": 33.4}
+=== 18:45:30 F2 NVFP4 + QAT drafter K8, shared2 64K chunk2048
+choice | KV fp8, activations fast, chunk 2048 | 38.0 tok/s decode, 2723 prefill, KLD 0.0245 (estimates) | the model's weights (the one quantization): every stream holds 70000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | qat-nvfp4.r31 | total 1m 15.2s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 70,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 2 of 3: 70,000 tokens x 1 context (70,016 KV tokens), 1 cached state, chunk 2048 for 1 lane (step extra_states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.68 GiB more would serve rung 1, 0.68 GiB the top | planned in 0 ms; the run
+plan | rung 2: below the top rung of the asked --max-context 70,000 | 0.68 GiB more free memory would serve rung 1 (70,000 tokens x 1 context (70,016 KV tokens for 1 lane), 2 cached states, chunk 2048), 0.68 GiB the top rung (70,000 tokens x 1 context (70,016 
+capacity | KV 70,016 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,094/1,094 | runtime 4.60 GiB | free 652.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+TG@2048 greedy: 118.0 tok/s [106.15533625804304, 129.86731320135175] spec=['mtp K=8', 'mtp K=8']
+TG@2048 sampled: 98.9 tok/s [90.90719096335528, 106.7976470127561] spec=['mtp K=8', 'mtp K=8']
+TG@8192 greedy: 101.7 tok/s [84.90968998062455, 118.41663952614064] spec=['mtp K=8', 'mtp K=8']
+TG@8192 sampled: 94.9 tok/s [99.01366276492142, 90.88173933742584] spec=['mtp K=8', 'mtp K=8']
+CHAT C=1 greedy: 100.0 tok/s (4816 tok) spec=mtp K=8
+CHAT C=1 sampled: 97.2 tok/s (4761 tok) spec=mtp K=8
+ROW {"label": "F2 QAT-NVFP4 QATdrafter K8 shared2 64K", "ts": "2026-10-25 18:46:47", "tg2048g": 118.0, "tg2048s": 98.9, "tg8192g": 101.7, "tg8192s": 94.9, "chatg": 100.0, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 97.2, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+=== 18:49:25 F3 NVFP4 quality (QAT drafter)
+grep: /root/gbench/logs/q-qat-nvfp4-shared2.log: No such file or directory
+DIED
+2026-10-25 18:49:32.755  INFO  engine start refused | finalizing target | 89.6 ms
+2026-10-25 18:49:32.772  FATAL server failed during startup | no rung of the 58-rung plan ladder fits the 5.28 GiB of Device memory free after the weights (18.02 GiB): its last rung, 4,096 tokens x 1 context (4,096 KV tokens for 6 lanes), 0 cached states, chunk 128, needs 5.70 GiB, 0.43 GiB more. What fits instead (prefill chunk down to 128): --max-concurrency 5 with the asked 4096 tokens of context.

@@ -1,0 +1,186 @@
+From 739ea73ddae5604e773dce1841fa2eb9477c8a3e Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Sun, 25 Oct 2026 20:08:24 +0000
+Subject: [PATCH 3/7] gemma4: --activations int8 runs NVFP4 W4A8 prefill
+
+Gemma 4 refused --activations int8. The A8 profile caps every recorded W4A4
+projection at eight-bit activations (models::loading::Prepare cap_a8), so an
+NVFP4 checkpoint prefills on its W4A8 route; the Execution reports the mode it
+was built for to the sequence plan.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/models/common/loading.cpp           | 3 ++-
+ src/models/common/loading.h             | 9 ++++++---
+ src/models/gemma4/load.h                | 5 ++++-
+ src/models/gemma4/model.h               | 4 +++-
+ src/models/gemma4/program_family.cpp    | 5 +++--
+ src/runtime/engine/gemma4_family.cpp    | 4 +++-
+ src/runtime/engine/hf_text_frontend.cpp | 5 +++--
+ src/runtime/engine/hf_text_frontend.h   | 4 +++-
+ 8 files changed, 27 insertions(+), 12 deletions(-)
+
+diff --git a/src/models/common/loading.cpp b/src/models/common/loading.cpp
+index 6e7e055..37c3d0d 100644
+--- a/src/models/common/loading.cpp
++++ b/src/models/common/loading.cpp
+@@ -64,7 +64,8 @@ ops::WeightInput Prepare::input(Id id) const {
+     if (!use) {
+         throw std::invalid_argument(items_.at(id).reference.name + " has no mathematical use");
+     }
+-    const auto policy = recorded_ ? use->policy : ops::LinearPolicy::A16Only;
++    auto policy = recorded_ ? use->policy : ops::LinearPolicy::A16Only;
++    if (cap_a8_ && policy == ops::LinearPolicy::AllowA4) { policy = ops::LinearPolicy::AllowA8; }
+     return {views_.at(id), policy, use->activation_input_divisor};
+ }
+ 
+diff --git a/src/models/common/loading.h b/src/models/common/loading.h
+index 1df15d4..7b68911 100644
+--- a/src/models/common/loading.h
++++ b/src/models/common/loading.h
+@@ -96,9 +96,11 @@ using Projection = ops::SingleProjectionWeight;
+ class Prepare {
+ public:
+     // `recorded`: every projection keeps the activation policy its Use recorded (W4A4 where the
+-    // checkpoint was calibrated for it); otherwise every activation stays BF16.
+-    Prepare(const Demands& demands, const ArtifactBacking& backing, bool recorded)
+-        : items_(demands.items()), views_(backing.views), recorded_(recorded) {}
++    // checkpoint was calibrated for it); otherwise every activation stays BF16. `cap_a8`: a
++    // recorded W4A4 policy runs eight-bit activations at most (Gemma 4 --activations int8).
++    Prepare(const Demands& demands, const ArtifactBacking& backing, bool recorded,
++            bool cap_a8 = false)
++        : items_(demands.items()), views_(backing.views), recorded_(recorded), cap_a8_(cap_a8) {}
+ 
+     const WeightView& view(Id id) const { return views_.at(id); }
+ 
+@@ -120,6 +122,7 @@ private:
+     const std::vector<Pending>& items_;
+     const std::deque<WeightView>& views_;
+     bool recorded_;
++    bool cap_a8_;
+ };
+ 
+ // The policy of a MoE's routed experts: A8 (the R8 route of codebook banks at decode) only where
+diff --git a/src/models/gemma4/load.h b/src/models/gemma4/load.h
+index 38598d2..764e530 100644
+--- a/src/models/gemma4/load.h
++++ b/src/models/gemma4/load.h
+@@ -18,7 +18,10 @@ public:
+     // Every profile but Artifact keeps the dense projections' activations in BF16; the expert
+     // bank's prefill route reads recorded_input() whatever the profile.
+     Prepare(const Demands& demands, const ArtifactBacking& backing, ActivationProfile profile)
+-        : models::loading::Prepare(demands, backing, profile == ActivationProfile::Artifact) {}
++        : models::loading::Prepare(demands, backing,
++                                   profile == ActivationProfile::Artifact ||
++                                       profile == ActivationProfile::A8,
++                                   profile == ActivationProfile::A8) {}
+ };
+ 
+ } // namespace ninferno::models::gemma4::loading
+diff --git a/src/models/gemma4/model.h b/src/models/gemma4/model.h
+index 98428c8..3652f31 100644
+--- a/src/models/gemma4/model.h
++++ b/src/models/gemma4/model.h
+@@ -33,9 +33,11 @@ using models::ArtifactBacking;
+ //   the 26B-A4B expert bank keeps its recorded W4A4 prefill route, so on that model this profile
+ //   is mixed.
+ // - `A16Full` is `A16` plus W4A16 experts: no activation is encoded to four bits anywhere.
++// - `A8` is `Artifact` with every recorded W4A4 projection capped at eight-bit activations
++//   (--activations int8: NVFP4 weights run their W4A8 prefill route).
+ // On a model without an expert bank `A16Full` equals `A16`. Decode and verify widths (T <= 16)
+ // already run the expert bank in BF16 under every profile.
+-enum class ActivationProfile : std::uint8_t { Artifact, A16, A16Full };
++enum class ActivationProfile : std::uint8_t { Artifact, A16, A16Full, A8 };
+ 
+ class Model {
+ public:
+diff --git a/src/models/gemma4/program_family.cpp b/src/models/gemma4/program_family.cpp
+index 7cccfc7..a2386b5 100644
+--- a/src/models/gemma4/program_family.cpp
++++ b/src/models/gemma4/program_family.cpp
+@@ -195,7 +195,7 @@ public:
+     Gemma4Execution(const Model& model, const Drafter* drafter, DeviceContext& device,
+                     std::int32_t public_tokens, ActivationMode activations)
+         : model_(model), c_(model.config()), pass_(model, device), drafter_(drafter),
+-          invariant_(activations == ActivationMode::Exact),
++          invariant_(activations == ActivationMode::Exact), activations_(activations),
+           traits_{.hidden        = c_.hidden_size,
+                   .output_rows   = c_.vocab_size,
+                   .public_tokens = public_tokens,
+@@ -263,7 +263,7 @@ public:
+     [[nodiscard]] models::LoadOptions load_options() const override {
+         return {.vision      = encoder_.has_value(),
+                 .speculative = drafter_ ? SpeculativeBackend::Mtp : SpeculativeBackend::None,
+-                .activations = invariant_ ? ActivationMode::Exact : ActivationMode::Fast};
++                .activations = activations_};
+     }
+ 
+     void validate_options(DeviceContext& device, const EngineOptions& options) const override {
+@@ -728,6 +728,7 @@ private:
+     const Drafter* drafter_ = nullptr;
+     std::optional<DrafterPass> drafter_pass_;
+     bool invariant_; // ActivationMode::Exact: the invariant route profile
++    ActivationMode activations_; // as built: load_options() reports it to the sequence plan
+     ModelTraits traits_;
+     std::vector<std::uint32_t> index_;
+     std::vector<float> v_from_k_; // per full layer: 1 / c under shared values, else empty
+diff --git a/src/runtime/engine/gemma4_family.cpp b/src/runtime/engine/gemma4_family.cpp
+index 8eeca35..fb142ae 100644
+--- a/src/runtime/engine/gemma4_family.cpp
++++ b/src/runtime/engine/gemma4_family.cpp
+@@ -24,7 +24,7 @@ public:
+ } // namespace
+ 
+ FamilyLoad load_gemma4(const EngineOptions& options, DeviceContext& device) {
+-    refuse_qwen_only_options(options, "Gemma 4");
++    refuse_qwen_only_options(options, "Gemma 4", /*int8_activations=*/true);
+     // Before the weights load, as the dense family checks (validate_options repeats it after).
+     if (options.speculative.backend != SpeculativeBackend::None &&
+         options.speculative.backend != SpeculativeBackend::Mtp) {
+@@ -44,6 +44,8 @@ FamilyLoad load_gemma4(const EngineOptions& options, DeviceContext& device) {
+             models::gemma4::Model::load(options.artifact_path, device,
+                                         options.activations == ActivationMode::Exact
+                                             ? models::gemma4::ActivationProfile::A16Full
++                                        : options.activations == ActivationMode::Int8
++                                            ? models::gemma4::ActivationProfile::A8
+                                             : models::gemma4::ActivationProfile::Artifact,
+                                         options.enable_vision);
+         if (options.speculative.backend == SpeculativeBackend::Mtp) {
+diff --git a/src/runtime/engine/hf_text_frontend.cpp b/src/runtime/engine/hf_text_frontend.cpp
+index 339dc8b..d108f66 100644
+--- a/src/runtime/engine/hf_text_frontend.cpp
++++ b/src/runtime/engine/hf_text_frontend.cpp
+@@ -9,12 +9,13 @@
+ 
+ namespace ninferno::runtime {
+ 
+-void refuse_qwen_only_options(const EngineOptions& options, std::string_view family) {
++void refuse_qwen_only_options(const EngineOptions& options, std::string_view family,
++                              bool int8_activations) {
+     if (options.rope_yarn_factor != 1.0F) {
+         throw std::invalid_argument("--rope-yarn-factor is for Qwen 3.5/3.6 models; " +
+                                     std::string(family) + " keeps its checkpoint's RoPE");
+     }
+-    if (options.activations == ActivationMode::Int8) {
++    if (!int8_activations && options.activations == ActivationMode::Int8) {
+         throw std::invalid_argument("--activations int8 is for Qwen 3.5/3.6 models; " +
+                                     std::string(family) + " runs fast or exact");
+     }
+diff --git a/src/runtime/engine/hf_text_frontend.h b/src/runtime/engine/hf_text_frontend.h
+index 431b691..1cdb43a 100644
+--- a/src/runtime/engine/hf_text_frontend.h
++++ b/src/runtime/engine/hf_text_frontend.h
+@@ -25,7 +25,9 @@ struct HfTextFiles {
+ // that would ignore one says so instead: --rope-yarn-factor (the checkpoint's own RoPE stays),
+ // --activations int8 (it would run as fast) and --state-dtype bf16|f16 (it keeps no Gated
+ // DeltaNet state). `family` names the model in the error.
+-void refuse_qwen_only_options(const EngineOptions& options, std::string_view family);
++// `int8_activations`: the family runs --activations int8 itself (Gemma 4: W4A8 prefill).
++void refuse_qwen_only_options(const EngineOptions& options, std::string_view family,
++                              bool int8_activations = false);
+ 
+ // Builds the HF tokenizer over `files`, checks that its public vocabulary is a contiguous domain
+ // within the `embedding_rows`, and sets out.make_frontend. Returns the public vocabulary. `family`
+-- 
+2.43.0
+

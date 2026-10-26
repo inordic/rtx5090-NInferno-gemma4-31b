@@ -1,0 +1,10 @@
+=== 00:37:30 waiting for 5 idle minutes on 8080
+=== 00:37:30 idle: taking the GPU
+=== 00:37:32 drafter sl64k-q8
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 17.9 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.38 GiB after 17.91 GiB of weights | 1.39 GiB more would serve rung 2, 2.95 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.40 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 2.96 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 306.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec

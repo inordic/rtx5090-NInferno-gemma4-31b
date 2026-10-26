@@ -1,0 +1,17 @@
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 8, 2, 2>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 8, 2, 2>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 8, 2, 2>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 8, 2, 2>;
+SCHED_v1_OK
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 8, 1, 16, 16, 2, 1>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 8, 1, 16, 16, 2, 1>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 8, 1, 16, 16, 2, 1>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 8, 1, 16, 16, 2, 1>;
+SCHED_v2_OK
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 16, 3, 2>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 16, 3, 2>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 16, 3, 2>;
+using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 16, 3, 2>;
+SCHED_v3_OK
+SCHED_BASE_REBUILT
+SCHED_DONE

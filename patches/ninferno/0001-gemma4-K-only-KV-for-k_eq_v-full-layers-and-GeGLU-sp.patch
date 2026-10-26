@@ -1,0 +1,693 @@
+From afb1bd1e497d7cb4e96151975188b29057cb45db Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Sun, 25 Oct 2026 19:49:44 +0000
+Subject: [PATCH 1/7] gemma4: K-only KV for k_eq_v full layers and GeGLU split
+ on prefill
+
+- NINFERNO_GEMMA4_SHARED_VALUES=1|2: the full layers keep FP8 K and only V's
+  rotated dimensions (1), or nothing of V, its rotated pairs turned back from
+  K by RoPE inside the attention kernel (2). 262K context fits a 24 GB card.
+- NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=N: calls of N+ columns project gate/up
+  through the tuned linear route and apply GeGLU after it; the fused GeGLU
+  epilogue ran the generic W4A4 kernel (31B QAT-NVFP4 prefill 2.5K -> 4.1K tok/s).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ include/ninferno/ops/gemma4_attention.h       |  17 +++
+ src/models/gemma4/program_family.cpp          |  59 +++++++++-
+ src/models/gemma4/target.cu                   |  12 +-
+ .../program/planning/sequence_bytes.cpp       |  17 ++-
+ .../qwen3_5/program/planning/state_shape.h    |   3 +
+ src/models/qwen3_5/program/ring_kv_bindings.h |   5 +-
+ src/ops/gemma4_fused/gemma4_fused.cu          |  67 +++++++++++-
+ .../gemma4/gemma4_attention.cpp               |  31 +++++-
+ src/ops/softmax_attention/gemma4/kernel.cuh   | 103 +++++++++++++++++-
+ src/ops/softmax_attention/gemma4/kv_address.h |   1 +
+ src/ops/softmax_attention/gemma4/launch.cu    |  24 +++-
+ src/ops/softmax_attention/gemma4/launch.h     |   2 +
+ 12 files changed, 320 insertions(+), 21 deletions(-)
+
+diff --git a/include/ninferno/ops/gemma4_attention.h b/include/ninferno/ops/gemma4_attention.h
+index eeb8988..5bebd9b 100644
+--- a/include/ninferno/ops/gemma4_attention.h
++++ b/include/ninferno/ops/gemma4_attention.h
+@@ -48,7 +48,22 @@ namespace ninferno::ops {
+  * first stored[b] tokens only, and its later tokens write nothing. A verify call pads a row with
+  * fewer drafts than the launch's width by repeating the position of its last token; without it
+  * those columns would race that token for its slot. Readers ignore it.
++ *
++ * Shared values (v_from_k != 0): a k_eq_v full layer (D = 512, 64 rotated pairs, a key norm whose
++ * weight is one constant c) has V = unrope(K) / c, so V equals K / c on every dimension RoPE does
++ * not rotate. Such a layer keeps FP8 K planes as above and a V plane of only the
++ * kGemma4SharedValueDims rotated dimensions ([0, 64) then [256, 320)), coded against the K row's
++ * scale and with no scale plane of its own (v_scale empty); v_from_k is 1 / c. The K row scale is
++ * taken over the rotated pairs' norms, so the unrotated values fit the same scale. Readers take
++ * V's other dimensions from the K codes and scale the output by v_from_k.
++ *
++ * With a V plane of kGemma4SharedValueDimsRope (one code per row, never read or written) V keeps
++ * nothing of its own: readers turn the K codes of the rotated pairs back by their RoPE angle
++ * (rope_theta; 64 of the 256 pairs (i, i + 256) of D = 512 rotate) instead.
+  */
++inline constexpr std::int32_t kGemma4SharedValueDims     = 128;
++inline constexpr std::int32_t kGemma4SharedValueDimsRope = 1;
++
+ struct Gemma4KvLayer {
+     Tensor k;
+     Tensor v;
+@@ -58,6 +73,8 @@ struct Gemma4KvLayer {
+     Tensor k_scale;
+     Tensor v_scale;
+     Tensor stored;
++    float v_from_k   = 0.0f;
++    float rope_theta = 0.0f; // shared values without a V plane: the full layers' RoPE base
+ };
+ 
+ /**
+diff --git a/src/models/gemma4/program_family.cpp b/src/models/gemma4/program_family.cpp
+index 7b6c753..7cccfc7 100644
+--- a/src/models/gemma4/program_family.cpp
++++ b/src/models/gemma4/program_family.cpp
+@@ -24,6 +24,9 @@
+ #include "spec/engine_support.h"
+ 
+ #include <algorithm>
++#include <cmath>
++#include <cstdlib>
++#include <cstring>
+ #include <limits>
+ #include <array>
+ #include <functional>
+@@ -46,6 +49,21 @@ namespace program = qwen3_5::execution;
+ 
+ constexpr std::size_t kVisionAlignment = 256;
+ 
++// Shared values (ops::Gemma4KvLayer::v_from_k), asked for with NINFERNO_GEMMA4_SHARED_VALUES: a
++// k_eq_v model whose full layers are D512 with 64 rotated pairs keeps V's rotated dimensions only
++// (1), or nothing of V, its rotated pairs turned back from K by RoPE (2); with --kv-dtype fp8 (a
++// BF16 pool keeps both planes whole). The V plane's width per row, 0 when not asked.
++std::int32_t shared_value_dims(const Config& c) {
++    const char* flag = std::getenv("NINFERNO_GEMMA4_SHARED_VALUES");
++    if (flag == nullptr || !c.k_eq_v || c.full.head_dim != 512 ||
++        c.full.rotary_pairs * 2 != ops::kGemma4SharedValueDims) {
++        return 0;
++    }
++    if (std::strcmp(flag, "1") == 0) { return ops::kGemma4SharedValueDims; }
++    if (std::strcmp(flag, "2") == 0) { return ops::kGemma4SharedValueDimsRope; }
++    return 0;
++}
++
+ std::size_t align_vision(std::size_t bytes) {
+     return (bytes + kVisionAlignment - 1) / kVisionAlignment * kVisionAlignment;
+ }
+@@ -202,6 +220,31 @@ public:
+         if (full_layers_ == 0 || sliding_layers_ == 0) {
+             throw std::invalid_argument("Gemma 4 Program requires full and sliding layers");
+         }
++        if (shared_value_dims(c_) != 0) {
++            // V = unrope(K) / c needs every full layer's key norm weight to be one constant c.
++            v_from_k_.assign(full_layers_, 0.0f);
++            for (std::int32_t i = 0; i < c_.layers; ++i) {
++                if (c_.kinds[i] != LayerKind::Full || !c_.owns_kv(i)) { continue; }
++                const Tensor& w = model.weights().layers[static_cast<std::size_t>(i)].key_norm;
++                std::vector<std::uint16_t> host(static_cast<std::size_t>(w.numel()));
++                CUDA_CHECK(cudaMemcpy(host.data(), w.data, host.size() * sizeof(std::uint16_t),
++                                      cudaMemcpyDeviceToHost));
++                if (host.empty() ||
++                    std::any_of(host.begin(), host.end(), [&](auto x) { return x != host[0]; })) {
++                    throw std::invalid_argument(
++                        "NINFERNO_GEMMA4_SHARED_VALUES: a full layer's key norm weight is not one "
++                        "constant, so V is not unrope(K) / c");
++                }
++                const std::uint32_t bits = static_cast<std::uint32_t>(host[0]) << 16;
++                float c;
++                std::memcpy(&c, &bits, sizeof(c));
++                if (!std::isfinite(c) || c == 0.0f) {
++                    throw std::invalid_argument(
++                        "NINFERNO_GEMMA4_SHARED_VALUES: a full layer's key norm constant is 0");
++                }
++                v_from_k_[index_[static_cast<std::size_t>(i)]] = 1.0f / c;
++            }
++        }
+         if (drafter_ != nullptr) { drafter_pass_.emplace(*drafter_, model, device); }
+         if (model.vision_config()) {
+             encoder_.emplace(*model.vision_config(), *model.vision_weights());
+@@ -641,10 +684,22 @@ private:
+     bindings(const qwen3_5::PagedKVCache& cache, const qwen3_5::StateImageDevicePool& images,
+              const Tensor& tables, const Tensor& rows_full, const Tensor& rows_ring,
+              const Tensor& stored = {}) const {
+-        return program::ring_decoder_bindings(
++        auto layers = program::ring_decoder_bindings(
+             cache, images, index_,
+             [&](std::size_t i) { return c_.kinds[i] == LayerKind::Full ? 0 : c_.sliding_window; },
+             tables, rows_full, rows_ring, stored);
++        // A pool that keeps only V's rotated dimensions holds shared values.
++        for (std::size_t i = 0; i < layers.size(); ++i) {
++            auto& layer = layers[i];
++            if (layer.window == 0 && layer.v.ne[0] != layer.k.ne[0]) {
++                if (v_from_k_.empty()) {
++                    throw std::logic_error("Gemma 4: a shared-value pool without its constants");
++                }
++                layer.v_from_k   = v_from_k_[index_[i]];
++                layer.rope_theta = c_.full.rope_theta;
++            }
++        }
++        return layers;
+     }
+ 
+     std::function<void()> ordinary_body(program::OrdinaryBatchContext& state,
+@@ -675,6 +730,7 @@ private:
+     bool invariant_; // ActivationMode::Exact: the invariant route profile
+     ModelTraits traits_;
+     std::vector<std::uint32_t> index_;
++    std::vector<float> v_from_k_; // per full layer: 1 / c under shared values, else empty
+     std::uint32_t full_layers_    = 0;
+     std::uint32_t sliding_layers_ = 0;
+     std::optional<VisionEncoder> encoder_;
+@@ -811,6 +867,7 @@ StateShape state_shape(const Config& config, std::int32_t public_tokens) {
+         .family           = StateFamily::Gemma4,
+         .kv_heads         = config.full.kv_heads,
+         .head_dim         = config.full.head_dim,
++        .shared_value_dims = shared_value_dims(config),
+         .sliding_kv_heads = config.sliding.kv_heads,
+         .sliding_head_dim = config.sliding.head_dim,
+         .window           = static_cast<std::uint32_t>(config.sliding_window),
+diff --git a/src/models/gemma4/target.cu b/src/models/gemma4/target.cu
+index 447b266..bc29767 100644
+--- a/src/models/gemma4/target.cu
++++ b/src/models/gemma4/target.cu
+@@ -1,3 +1,4 @@
++#include <cstdlib>
+ #include "models/gemma4/target.h"
+ 
+ #include "core/debug_poison.h"
+@@ -472,7 +473,16 @@ void TargetPass::layers(DeviceArena& work_, Tensor& x, Tensor& h, const Tensor&
+                 join_.record(side_.get());
+             }
+             Tensor product = work_.alloc(DType::BF16, {c_.intermediate[i], t});
+-            if (ops::linear_geglu_supports(layer.gate_up.weight)) {
++            // NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=N: a call of N or more columns projects gate/up
++            // through the linear route and applies GeGLU after it; the fused GeGLU epilogue runs
++            // the generic kernel, which on NVFP4 prefill is several times slower than the tuned
++            // route (31B QAT-NVFP4, 6.6K prompt: 5.65 s of 9.65 s of kernel time).
++            static const int geglu_split_min_t = [] {
++                const char* e = std::getenv("NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T");
++                return e ? std::atoi(e) : 0;
++            }();
++            const bool geglu_split = geglu_split_min_t > 0 && t >= geglu_split_min_t;
++            if (!geglu_split && ops::linear_geglu_supports(layer.gate_up.weight)) {
+                 // GeGLU in the projection's epilogue: no BF16 gate/up plane, no second kernel.
+                 auto geglu_scope  = work_.scope();
+                 const auto policy = activations == Activations::A16Only ? ops::verify_linear_policy(layer.gate_up.policy)
+diff --git a/src/models/qwen3_5/program/planning/sequence_bytes.cpp b/src/models/qwen3_5/program/planning/sequence_bytes.cpp
+index 4363c4e..5ee8f8d 100644
+--- a/src/models/qwen3_5/program/planning/sequence_bytes.cpp
++++ b/src/models/qwen3_5/program/planning/sequence_bytes.cpp
+@@ -146,14 +146,21 @@ struct HeadMajorPool {
+     PagedKVStorageLayout layer_storage;
+ };
+ 
+-HeadMajorPool head_major_pool(KvCacheStorage requested, std::int32_t head_dim) {
++HeadMajorPool head_major_pool(KvCacheStorage requested, std::int32_t head_dim,
++                              std::int32_t shared_value_dims = 0) {
+     const bool fp8 = requested == KvCacheStorage::Fp8E4M3Row256;
+     const PagedKVVectorLayout vector =
+         fp8 ? PagedKVVectorLayout{DType::FP8_E4M3FN, head_dim, DType::FP32, 1}
+             : PagedKVVectorLayout{DType::BF16, head_dim, DType::U8, 0};
+     const KvCacheStorage storage = fp8 ? KvCacheStorage::Fp8E4M3Row256 : KvCacheStorage::BFloat16;
++    // Shared values (Gemma 4, FP8 only): the V plane keeps the rotated dimensions' codes, under
++    // the K row's scale.
++    const PagedKVVectorLayout value =
++        fp8 && shared_value_dims > 0
++            ? PagedKVVectorLayout{DType::FP8_E4M3FN, shared_value_dims, DType::U8, 0}
++            : vector;
+     return {.storage       = storage,
+-            .layer_storage = PagedKVStorageLayout{storage, head_dim, vector, vector}};
++            .layer_storage = PagedKVStorageLayout{storage, head_dim, vector, value}};
+ }
+ 
+ std::int32_t state_image_slots(const SequencePlanImpl& plan, const char* not_normalized,
+@@ -342,8 +349,10 @@ PersistentLayout gemma4_layout(const StateShape& shape, const SequencePlanImpl&
+                           "Gemma 4 state image slot count exceeds int32");
+     // --kv-dtype fp8: the full layers' pool holds E4M3 codes and an FP32 scale per row
+     // (Gemma4KvLayer's FP8 storage, any head_dim); the sliding layers' rings follow
+-    // --sliding-kv-dtype, the same storage in the images layout.
+-    const HeadMajorPool pool = head_major_pool(plan.kv_storage, shape.head_dim);
++    // --sliding-kv-dtype, the same storage in the images layout. Shared values keep the
++    // rotated dimensions of V only (StateShape::shared_value_dims).
++    const HeadMajorPool pool =
++        head_major_pool(plan.kv_storage, shape.head_dim, shape.shared_value_dims);
+ 
+     LayoutBuilder builder;
+     PersistentLayout out;
+diff --git a/src/models/qwen3_5/program/planning/state_shape.h b/src/models/qwen3_5/program/planning/state_shape.h
+index 6fac2c9..64266e8 100644
+--- a/src/models/qwen3_5/program/planning/state_shape.h
++++ b/src/models/qwen3_5/program/planning/state_shape.h
+@@ -45,6 +45,9 @@ struct StateShape {
+     std::uint32_t full_layers = 0;
+     std::int32_t kv_heads     = 0;
+     std::int32_t head_dim     = 0;
++    // Nonzero: an FP8 pool keeps only this many value dimensions per row and no value scale
++    // (Gemma 4's shared values, ops::Gemma4KvLayer::v_from_k).
++    std::int32_t shared_value_dims = 0;
+     // Sliding-window layers (a ring of window + the widest call - 1 rows per StateImage slot).
+     std::uint32_t sliding_layers  = 0;
+     std::int32_t sliding_kv_heads = 0;
+diff --git a/src/models/qwen3_5/program/ring_kv_bindings.h b/src/models/qwen3_5/program/ring_kv_bindings.h
+index 392aec2..3efa88b 100644
+--- a/src/models/qwen3_5/program/ring_kv_bindings.h
++++ b/src/models/qwen3_5/program/ring_kv_bindings.h
+@@ -47,7 +47,10 @@ ring_decoder_bindings(const PagedKVCache& cache, const StateImageDevicePool& ima
+                 const auto pages = static_cast<std::int32_t>(k.ne[2]);
+                 const auto heads = static_cast<std::int32_t>(k.ne[3]);
+                 layer.k_scale    = view.k_scale_pages.view({rows, pages, heads});
+-                layer.v_scale    = view.v_scale_pages.view({rows, pages, heads});
++                // Gemma 4's shared values keep no V scale plane (Gemma4KvLayer::v_from_k).
++                if (view.v_scale_pages.data != nullptr) {
++                    layer.v_scale = view.v_scale_pages.view({rows, pages, heads});
++                }
+             }
+             out.push_back(layer);
+         } else {
+diff --git a/src/ops/gemma4_fused/gemma4_fused.cu b/src/ops/gemma4_fused/gemma4_fused.cu
+index 9ca8f56..ff41070 100644
+--- a/src/ops/gemma4_fused/gemma4_fused.cu
++++ b/src/ops/gemma4_fused/gemma4_fused.cu
+@@ -54,6 +54,11 @@ struct QkvParams {
+     std::uint8_t* v_codes;
+     float* k_scale;
+     float* v_scale;
++    // Gemma4KvLayer's shared values (D = 512 FP8 planes): the K row's scale covers its rotated
++    // pairs' norms, its rotated dimensions' unrotated codes go to v_codes (kGemma4SharedValueDims
++    // per row; none without a V plane, kGemma4SharedValueDimsRope), and the V rows store nothing.
++    bool shared_values;
++    bool shared_value_plane;
+ };
+ 
+ constexpr int kQkvThreads = 256;
+@@ -145,6 +150,9 @@ __global__ void __launch_bounds__(kQkvThreads) gemma4_qkv_prepare_kernel(QkvPara
+         __nv_bfloat16* out = nullptr;
+         std::uint8_t* codes = nullptr; // FP8 cache: the row's codes and scale
+         float* scale        = nullptr;
++        // Shared values: a K row's rotated dimensions, unrotated, in the V plane.
++        [[maybe_unused]] std::uint8_t* value_codes = nullptr;
++        [[maybe_unused]] bool shared_key           = false;
+         bool rotate = true;
+         bool store  = true;
+         if (r < p.q_heads) {
+@@ -165,7 +173,16 @@ __global__ void __launch_bounds__(kQkvThreads) gemma4_qkv_prepare_kernel(QkvPara
+                 const int slot    = detail::gemma4_kv_slot(p.kv, binding, p.positions[t]);
+                 const std::int64_t row = detail::gemma4_kv_plane_offset(p.kv, binding) / D +
+                                          static_cast<std::int64_t>(g) * p.kv_capacity + slot;
+-                if (p.k_scale != nullptr) {
++                if (D == 512 && p.shared_values) {
++                    // The V rows of a shared layer store nothing: their K row carries them.
++                    if (!key) { continue; }
++                    codes      = p.k_codes + row * D;
++                    scale      = p.k_scale + row;
++                    shared_key = true;
++                    if (p.shared_value_plane) {
++                        value_codes = p.v_codes + row * kGemma4SharedValueDims;
++                    }
++                } else if (p.k_scale != nullptr) {
+                     codes = (key ? p.k_codes : p.v_codes) + row * D;
+                     scale = (key ? p.k_scale : p.v_scale) + row;
+                 } else {
+@@ -192,6 +209,25 @@ __global__ void __launch_bounds__(kQkvThreads) gemma4_qkv_prepare_kernel(QkvPara
+                 if (weight != nullptr) { x[j] *= __bfloat162float(weight[lane * E + j]); }
+             }
+         }
++        // Shared values (warp-uniform): the unrotated row is c * V, and its scale is taken over
++        // the rotated pairs' norms (RoPE keeps them), so the rotated K and the unrotated V
++        // dimensions both fit it.
++        [[maybe_unused]] float unrotated[D == 512 ? E : 1];
++        [[maybe_unused]] float shared_absmax = 0.0f;
++        if constexpr (D == 512) {
++            if (shared_key) {
++#pragma unroll
++                for (int j = 0; j < E; ++j) {
++                    unrotated[j]        = x[j];
++                    const float partner = __shfl_xor_sync(kFullWarpMask, x[j], 16);
++                    const int pair      = (lane & 15) * E + j;
++                    shared_absmax       = fmaxf(shared_absmax,
++                                                pair < p.rotary_pairs ? sqrtf(fmaf(x[j], x[j], partner * partner))
++                                                                      : fabsf(x[j]));
++                }
++                shared_absmax = warp_max(shared_absmax);
++            }
++        }
+         if (rotate) {
+ #pragma unroll
+             for (int j = 0; j < E; ++j) {
+@@ -202,6 +238,22 @@ __global__ void __launch_bounds__(kQkvThreads) gemma4_qkv_prepare_kernel(QkvPara
+                 x[j] = high ? fmaf(x[j], c, partner * s) : fmaf(x[j], c, -partner * s);
+             }
+         }
++        if constexpr (D == 512) {
++            if (store && shared_key) {
++                float row_scale, inverse;
++                detail::gemma4_fp8_row_scale(shared_absmax, row_scale, inverse);
++                detail::gemma4_fp8_store<E>(codes + lane * E, x, inverse);
++                if (lane == 0) { *scale = row_scale; }
++                // Lanes 0..3 hold dimensions [0, 64), lanes 16..19 [256, 320): the V plane's
++                // first and second half.
++                if (value_codes != nullptr && (lane & 15) * E < p.rotary_pairs) {
++                    detail::gemma4_fp8_store<E>(
++                        value_codes + (lane >> 4) * p.rotary_pairs + (lane & 15) * E, unrotated,
++                        inverse);
++                }
++                continue;
++            }
++        }
+         if (store && codes != nullptr) {
+             detail::gemma4_fp8_store_row<E>(codes, scale, x, lane);
+         } else if (store) {
+@@ -746,16 +798,25 @@ void launch_prepare(const PrepareCall& c, const Tensor& positions, cudaStream_t
+                 p.k_out = static_cast<__nv_bfloat16*>(ck.data);
+                 p.v_out = static_cast<__nv_bfloat16*>(cv.data);
+             }
++            if (binding.shared) {
++                // Gemma4KvLayer's shared values: the K row is written with the rotated
++                // dimensions' unrotated codes beside it; the V rows write nothing.
++                check(d == 512 && c.rotary_pairs * 2 == kGemma4SharedValueDims && c.v_norm,
++                      "shared values need D512 keys with 64 rotated pairs and a normed V");
++                p.shared_values      = true;
++                p.shared_value_plane = cv.ne[0] == kGemma4SharedValueDims;
++            }
+             const std::int64_t plane_rows =
+                 static_cast<std::int64_t>(ck.ne[1]) * ck.ne[2] * ck.ne[3];
+             check(plane_rows <= std::numeric_limits<std::int32_t>::max(),
+                   "cache planes exceed int32 rows");
+             outputs.push_back(ck.view({d, static_cast<std::int32_t>(plane_rows)}));
+-            outputs.push_back(cv.view({d, static_cast<std::int32_t>(plane_rows)}));
++            outputs.push_back(cv.view({static_cast<std::int32_t>(cv.ne[0]),
++                                       static_cast<std::int32_t>(plane_rows)}));
+             if (binding.fp8) {
+                 const auto rows = static_cast<std::int32_t>(plane_rows);
+                 outputs.push_back(c.cache->k_scale.view({1, rows}));
+-                outputs.push_back(c.cache->v_scale.view({1, rows}));
++                if (!binding.shared) { outputs.push_back(c.cache->v_scale.view({1, rows})); }
+             }
+         } else {
+             require_out(c.k_out, kv_heads, "k_out");
+diff --git a/src/ops/softmax_attention/gemma4/gemma4_attention.cpp b/src/ops/softmax_attention/gemma4/gemma4_attention.cpp
+index d4e4d91..215bbf2 100644
+--- a/src/ops/softmax_attention/gemma4/gemma4_attention.cpp
++++ b/src/ops/softmax_attention/gemma4/gemma4_attention.cpp
+@@ -133,21 +133,35 @@ namespace detail {
+ 
+ Gemma4KvBinding gemma4_kv_binding(const Gemma4KvLayer& cache, std::int32_t head_dim,
+                                   std::int32_t kv_heads, const char* op) {
+-    const Tensor& k = cache.k;
+-    const Tensor& v = cache.v;
+-    const bool fp8  = k.dtype == DType::FP8_E4M3FN;
++    const Tensor& k   = cache.k;
++    const Tensor& v   = cache.v;
++    const bool fp8    = k.dtype == DType::FP8_E4M3FN;
++    const bool shared = cache.v_from_k != 0.0f;
+     for (const Tensor* plane : {&k, &v}) {
+         if (plane->dtype != (fp8 ? DType::FP8_E4M3FN : DType::BF16) || !plane->is_contiguous() ||
+             plane->data == nullptr) {
+             fail(op, "cache planes must be contiguous non-null BF16, or both FP8_E4M3FN");
+         }
+     }
+-    for (int i = 0; i < 4; ++i) {
++    if (shared) {
++        // Gemma4KvLayer's shared values: FP8 D512 keys, a V plane of the rotated dimensions only,
++        // read straight from codes (the FP8 hardware's direct V route).
++        const bool rope = v.ne[0] == kGemma4SharedValueDimsRope;
++        if (!fp8 || head_dim != 512 || (v.ne[0] != kGemma4SharedValueDims && !rope) ||
++            !std::isfinite(cache.v_from_k) ||
++            (rope && !(std::isfinite(cache.rope_theta) && cache.rope_theta > 1.0f))) {
++            fail(op, "shared values need FP8 D512 planes and a V plane of the rotated dimensions "
++                     "(or of one code per row and the RoPE base)");
++        }
++        if (cache.v_scale.data != nullptr) { fail(op, "shared values take no V scale plane"); }
++    }
++    for (int i = shared ? 1 : 0; i < 4; ++i) {
+         if (k.ne[i] != v.ne[i]) { fail(op, "cache k and v planes differ in shape"); }
+     }
+     if (k.ne[0] != head_dim) { fail(op, "cache planes do not match head_dim"); }
+     if (fp8) {
+         for (const Tensor* scale : {&cache.k_scale, &cache.v_scale}) {
++            if (shared && scale == &cache.v_scale) { continue; }
+             if (scale->dtype != DType::FP32 || !scale->is_contiguous() || scale->data == nullptr ||
+                 scale->ne[0] != k.ne[1] || scale->ne[1] != k.ne[2] || scale->ne[2] != k.ne[3] ||
+                 scale->ne[3] != 1) {
+@@ -159,7 +173,8 @@ Gemma4KvBinding gemma4_kv_binding(const Gemma4KvLayer& cache, std::int32_t head_
+         fail(op, "BF16 cache planes take no scales");
+     }
+     Gemma4KvBinding binding;
+-    binding.fp8 = fp8;
++    binding.fp8    = fp8;
++    binding.shared = shared;
+     if (cache.rows.data != nullptr) {
+         const Tensor& rows = cache.rows;
+         if (rows.dtype != DType::I32 || rows.ne[0] < 1 || rows.ne[1] != 1 || rows.ne[2] != 1 ||
+@@ -221,6 +236,7 @@ void gemma4_kv_append(const Tensor& k, const Tensor& v, const Tensor& positions,
+     const std::int32_t tokens = k.ne[2];
+     if (tokens < 1) { fail(op, "T must be positive"); }
+     const detail::Gemma4KvBinding binding = detail::gemma4_kv_binding(cache, k.ne[0], k.ne[1], op);
++    if (binding.shared) { fail(op, "shared values are written by gemma4_qkv_prepare only"); }
+     require_bf16_batch(k, k.ne[0], k.ne[1], tokens, binding.batch, op, "k");
+     require_bf16_batch(v, k.ne[0], k.ne[1], tokens, binding.batch, op, "v");
+     require_positions(positions, tokens, binding.batch, op);
+@@ -343,7 +359,10 @@ void gemma4_attention(const Tensor& q, const Tensor& positions, const Gemma4KvLa
+                                                out,
+                                                sinks,
+                                                binding.fp8 ? &cache.k_scale : nullptr,
+-                                               binding.fp8 ? &cache.v_scale : nullptr};
++                                               binding.fp8 && !binding.shared ? &cache.v_scale
++                                                                              : nullptr,
++                                               cache.v_from_k,
++                                               cache.rope_theta};
+     // The invariant route profile (prefill_routes.h): every call takes the prefill kernel, whose
+     // row blocks and key tiles sit on the absolute-position grid, so a prompt cut anywhere, a
+     // verify call and the decode steps of its columns give each token the same bytes. The decode
+diff --git a/src/ops/softmax_attention/gemma4/kernel.cuh b/src/ops/softmax_attention/gemma4/kernel.cuh
+index 879628a..1af7828 100644
+--- a/src/ops/softmax_attention/gemma4/kernel.cuh
++++ b/src/ops/softmax_attention/gemma4/kernel.cuh
+@@ -176,6 +176,16 @@ struct Gemma4AttentionArgs {
+     float4* chain_state;        // [Hkv * chain_blocks][(PVN + 1) * Threads]: the folded state
+     std::int32_t chain_blocks;  // row blocks per KV head (the plain launch's grid.x)
+     std::int32_t chain_spans;   // spans wanted per row block (a call with fewer keys takes fewer)
++    // Shared values (Gemma4KvLayer::v_from_k, D = 512 FP8 only): nonzero, V's rotated dimensions
++    // come from cache_v ([kGemma4SharedValueDims, capacity, Hkv]), its others from the K codes,
++    // every row under its K scale, and the output is scaled by v_from_k.
++    float v_from_k;
++    // Shared values without a V plane: nonzero, the V tile's rotated pairs are the K codes turned
++    // back by their RoPE angle, pos * f_i = (pos >> 10) * rope_block[i] + (pos & 1023) * f_i with
++    // rope_block[i] = 1024 f_i mod 2 pi (formed in FP64 on the host), so FP32 keeps the angle.
++    std::int32_t shared_rope;
++    float rope_frequency[kGemma4SharedValueDims / 2];
++    float rope_block[kGemma4SharedValueDims / 2];
+ };
+ 
+ // Batch row b of a decode launch: its tokens' q, positions and out, its binding, and its own
+@@ -515,9 +525,20 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+             // Codes into the upper half of the plane's tile, row r at r * D; scales beside.
+             unsigned char* dst =
+                 gemma4_smem + (value_plane ? Tile::PlaneBytes : 0) + Tile::CodeOffset;
+-            const auto* head =
+-                static_cast<const std::uint8_t*>(value_plane ? args.cache_v : args.cache_k) + plane;
+-            const float* scales = (value_plane ? args.v_scale : args.k_scale) + plane / D;
++            // Shared values: the V tile is the K rows' codes and scales, with the rotated
++            // dimensions' 16-byte chunks (0..3 and 16..19) taken from the V plane, whose rows are
++            // the kGemma4SharedValueDims codes of those chunks in order.
++            const bool shared_v = D == 512 && value_plane && args.v_from_k != 0.0f;
++            // Without a V plane every chunk is the K codes' (turned back after landing).
++            const bool value_chunks = shared_v && args.shared_rope == 0;
++            const auto* head    = static_cast<const std::uint8_t*>(
++                                   value_plane && !shared_v ? args.cache_v : args.cache_k) +
++                               plane;
++            [[maybe_unused]] const auto* value_head =
++                static_cast<const std::uint8_t*>(args.cache_v) +
++                (plane / D) * kGemma4SharedValueDims;
++            const float* scales =
++                (value_plane && !shared_v ? args.v_scale : args.k_scale) + plane / D;
+             float* scale_dst    = row_scales + (value_plane ? Bc : 0);
+ #pragma unroll
+             for (int i = 0; i < CodeIters; ++i) {
+@@ -529,7 +550,12 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+                     ((value_plane ? VDirect : KDirect) ? code_swizzle(row, col) : col) * 16;
+                 if (row < valid_rows && row >= dead_rows) {
+                     const int slot = slot_of(row);
+-                    cp_async<16, Cache::cg>(d, head + static_cast<std::int64_t>(slot) * D + col * 16);
++                    const std::uint8_t* src = head + static_cast<std::int64_t>(slot) * D + col * 16;
++                    if (value_chunks && (col & 15) < 4) {
++                        src = value_head + static_cast<std::int64_t>(slot) * kGemma4SharedValueDims +
++                              ((col >> 4) * 4 + (col & 15)) * 16;
++                    }
++                    cp_async<16, Cache::cg>(d, src);
+                 } else {
+                     store_vec(d, make_int4(0, 0, 0, 0));
+                 }
+@@ -853,6 +879,59 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+         }
+     };
+ 
++    // Shared values without a V plane: the landed V tile holds the K codes; turn its rotated pairs
++    // (i, i + 256), i < 64, back by their angle at the row's position k0 + row, in code units under
++    // the row's K scale (the writer took that scale over the pairs' norms, so the turned codes fit).
++    // One item is one row's four consecutive pairs: a 32-bit word of each half.
++    [[maybe_unused]] const auto unrope_value_tile = [&](int k0) {
++        if constexpr (D == 512 && VDirect) {
++            unsigned char* base = gemma4_smem + Tile::PlaneBytes + Tile::CodeOffset;
++            constexpr int Words = kGemma4SharedValueDims / 2 / 4;
++            for (int item = tid; item < Bc * Words; item += Threads) {
++                const int row  = item / Words;
++                const int word = item - row * Words;
++                const int pos  = k0 + row;
++                const int byte = (word & 3) * 4;
++                auto* lo = reinterpret_cast<unsigned*>(base + row * D +
++                                                       code_swizzle(row, word >> 2) * 16 + byte);
++                auto* hi = reinterpret_cast<unsigned*>(
++                    base + row * D + code_swizzle(row, 16 + (word >> 2)) * 16 + byte);
++                const unsigned wa = *lo;
++                const unsigned wb = *hi;
++                const float2 a01  = __half22float2(detail::e4m3x2_to_half2(wa & 0xffffu));
++                const float2 a23  = __half22float2(detail::e4m3x2_to_half2(wa >> 16));
++                const float2 b01  = __half22float2(detail::e4m3x2_to_half2(wb & 0xffffu));
++                const float2 b23  = __half22float2(detail::e4m3x2_to_half2(wb >> 16));
++                const float ka[4] = {a01.x, a01.y, a23.x, a23.y};
++                const float kb[4] = {b01.x, b01.y, b23.x, b23.y};
++                float va[4], vb[4];
++                const float block = static_cast<float>(pos >> 10);
++                const float local = static_cast<float>(pos & 1023);
++#pragma unroll
++                for (int j = 0; j < 4; ++j) {
++                    const int pair = word * 4 + j;
++                    float angle    = fmaf(block, args.rope_block[pair],
++                                          local * args.rope_frequency[pair]);
++                    angle = fmaf(-6.28318530717958648f, rintf(angle * 0.159154943091895336f), angle);
++                    float s, c;
++                    __sincosf(angle, &s, &c);
++                    // RoPE wrote k_a = c v_a - s v_b, k_b = c v_b + s v_a.
++                    va[j] = fmaf(c, ka[j], s * kb[j]);
++                    vb[j] = fmaf(c, kb[j], -s * ka[j]);
++                }
++                const auto pack = [](const float (&v)[4]) {
++                    const unsigned p0 = __nv_cvt_float2_to_fp8x2(make_float2(v[0], v[1]),
++                                                                 __NV_SATFINITE, __NV_E4M3);
++                    const unsigned p1 = __nv_cvt_float2_to_fp8x2(make_float2(v[2], v[3]),
++                                                                 __NV_SATFINITE, __NV_E4M3);
++                    return p0 | (p1 << 16);
++                };
++                *lo = pack(va);
++                *hi = pack(vb);
++            }
++        }
++    };
++
+     if (t1 > t0) {
+         stage(false, range_lo + t0 * Bc, first_dead);
+         cp_commit();
+@@ -875,6 +954,12 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+         softmax_tile(k0, s, pa);
+         cp_wait<1>(); // V(kb) landed; K(kb+1) may still be in flight
+         __syncthreads();
++        if constexpr (D == 512 && VDirect) {
++            if (args.shared_rope != 0) {
++                unrope_value_tile(k0);
++                __syncthreads();
++            }
++        }
+         if constexpr (!VDirect) { widen(true); }
+         value_tile(pa);
+         __syncthreads(); // every warp is done reading V(kb)
+@@ -902,6 +987,16 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+ 
+     l_run[0] = warp_sum<4>(l_run[0]);
+     l_run[1] = warp_sum<4>(l_run[1]);
++    // Shared values: the tile held c * V (the K codes and scales); 1 / c once on the output.
++    if (D == 512 && args.v_from_k != 0.0f) {
++#pragma unroll
++        for (int n = 0; n < PVN; ++n) {
++            acc[n][0] *= args.v_from_k;
++            acc[n][1] *= args.v_from_k;
++            acc[n][2] *= args.v_from_k;
++            acc[n][3] *= args.v_from_k;
++        }
++    }
+ 
+ #pragma unroll
+     for (int r = 0; r < 2; ++r) {
+diff --git a/src/ops/softmax_attention/gemma4/kv_address.h b/src/ops/softmax_attention/gemma4/kv_address.h
+index f5e77de..bcb8098 100644
+--- a/src/ops/softmax_attention/gemma4/kv_address.h
++++ b/src/ops/softmax_attention/gemma4/kv_address.h
+@@ -72,6 +72,7 @@ struct Gemma4KvBinding {
+     std::int32_t visible_rows = 0; // positions a binding row can hold: capacity, or 64 * pages
+     bool paged                = false;
+     bool fp8                  = false; // FP8_E4M3FN planes with FP32 row scales
++    bool shared               = false; // Gemma4KvLayer's shared values (v_from_k != 0)
+ };
+ 
+ [[nodiscard]] Gemma4KvBinding gemma4_kv_binding(const Gemma4KvLayer& cache, std::int32_t head_dim,
+diff --git a/src/ops/softmax_attention/gemma4/launch.cu b/src/ops/softmax_attention/gemma4/launch.cu
+index d03119d..f78252c 100644
+--- a/src/ops/softmax_attention/gemma4/launch.cu
++++ b/src/ops/softmax_attention/gemma4/launch.cu
+@@ -1,3 +1,4 @@
++#include <cmath>
+ #include "ops/softmax_attention/gemma4/launch.h"
+ #include "core/per_device.h"
+ 
+@@ -282,8 +283,24 @@ std::int32_t kv_heads_of(const Gemma4AttentionLaunch& launch) {
+     return launch.address.tables != nullptr ? launch.cache_k.ne[3] : launch.cache_k.ne[2];
+ }
+ 
++// Shared values without a V plane: the rotated pairs' frequencies theta^(-2i/512) and their
++// 1024-position steps mod 2 pi, formed in FP64 so the kernel's FP32 angle stays exact enough.
++void set_rope_tables(Gemma4AttentionArgs& args, float theta) {
++    constexpr double kTwoPi = 6.28318530717958648;
++    const double log_theta  = std::log(static_cast<double>(theta));
++    for (int i = 0; i < kGemma4SharedValueDims / 2; ++i) {
++        const double f         = std::exp(-(2.0 * i / 512.0) * log_theta);
++        args.rope_frequency[i] = static_cast<float>(f);
++        args.rope_block[i]     = static_cast<float>(std::fmod(1024.0 * f, kTwoPi));
++    }
++}
++
+ Gemma4AttentionArgs make_args(const Gemma4AttentionLaunch& launch) {
+-    return {
++    if (launch.v_from_k != 0.0f && !kGemma4Fp8Hardware) {
++        throw std::invalid_argument(
++            "gemma4_attention: shared values need the direct FP8 V route (sm_89 and newer)");
++    }
++    Gemma4AttentionArgs args{
+         .q       = static_cast<const __nv_bfloat16*>(launch.q.data),
+         .cache_k = launch.cache_k.data,
+         .cache_v = launch.cache_v.data,
+@@ -312,9 +329,14 @@ Gemma4AttentionArgs make_args(const Gemma4AttentionLaunch& launch) {
+         .chain_state  = nullptr,
+         .chain_blocks = 0,
+         .chain_spans  = 0,
++        .v_from_k     = launch.v_from_k,
++        .shared_rope  = launch.v_from_k != 0.0f && launch.cache_v.ne[0] == kGemma4SharedValueDimsRope,
+     };
++    if (args.shared_rope != 0) { set_rope_tables(args, launch.rope_theta); }
++    return args;
+ }
+ 
++
+ // Batch row b of a batched call: its slice of q, positions and out, and its binding.
+ Gemma4AttentionArgs row_args(Gemma4AttentionArgs args, std::int32_t b, std::int32_t head_dim) {
+     const std::int64_t columns = static_cast<std::int64_t>(b) * args.tokens;
+diff --git a/src/ops/softmax_attention/gemma4/launch.h b/src/ops/softmax_attention/gemma4/launch.h
+index bcf9a34..88257c7 100644
+--- a/src/ops/softmax_attention/gemma4/launch.h
++++ b/src/ops/softmax_attention/gemma4/launch.h
+@@ -40,6 +40,8 @@ struct Gemma4AttentionLaunch {
+     const Tensor* sinks   = nullptr; // optional FP32 [Hq] sink logits
+     const Tensor* k_scale = nullptr; // FP8 planes: FP32 row scales (Gemma4KvLayer)
+     const Tensor* v_scale = nullptr;
++    float v_from_k        = 0.0f; // shared values (Gemma4KvLayer::v_from_k)
++    float rope_theta      = 0.0f; // shared values without a V plane (Gemma4KvLayer::rope_theta)
+ };
+ 
+ // Which prefill tile a 512-wide, group-8 call takes: 32 rows on 2 x 4 warps of 128 columns
+-- 
+2.43.0
+

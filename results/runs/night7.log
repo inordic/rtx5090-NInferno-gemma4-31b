@@ -1,0 +1,52 @@
+=== 00:48:05 idle: taking the GPU
+=== 00:48:06 C2 candidate: final2, K7, 155K chunk1024
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+PP 2048: 3140.9 tok/s (n=1658) [3140.9430982485883]
+PP 8192: 4141.6 tok/s (n=6573) [4141.635320831327]
+PP 32768: 3432.6 tok/s (n=28692) [3432.580802310541]
+PP 65536: 2583.2 tok/s (n=58518) [2583.192650062144]
+TG@2048 greedy: 129.3 tok/s [129.27127388483316] spec=['mtp K=7']
+TG@2048 sampled: 120.9 tok/s [120.8570957136854] spec=['mtp K=7']
+TG@8192 greedy: 116.1 tok/s [116.0694611198359] spec=['mtp K=7']
+TG@8192 sampled: 117.9 tok/s [117.8836062091131] spec=['mtp K=7']
+CHAT C=1 greedy: 117.2 tok/s (4864 tok) spec=mtp K=7
+CHAT C=1 sampled: 113.2 tok/s (4814 tok) spec=mtp K=7
+ROW {"label": "C2 candidate final2 K7 155K chunk1024", "ts": "2026-10-26 00:48:33", "pp2048_ntok": 1658, "pp2048": 3140.9, "pp8192_ntok": 6573, "pp8192": 4141.6, "pp32768_ntok": 28692, "pp32768": 3432.6, "pp65536_ntok": 58518, "pp65536": 2583.2, "tg2048g": 129.3, "tg2048s": 120.9, "tg8192g": 116.1, "tg8192s": 117.9, "chatg": 117.2, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 113.2, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+models ['C2-final2-k7']
+chat '391' 0.14s
+stream chunks 7 done True first 0.112s total 0.28s
+turn 0: prompt 17606 cache 0 prompt_ms 4464.0625549999995 wall 5.17s decode 95.37390292463252
+turn 1: prompt 90 cache 17599 prompt_ms 295.747058 wall 0.61s decode 112.45309338678385
+turn 2: prompt 57 cache 17682 prompt_ms 280.613338 wall 0.51s decode 188.15376649466276
+{"L": 32000, "depth": 0.1, "ok": true, "ptok": 31904, "pp": 3335.5, "tg": 109.2, "wall": 9.7, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 32000, "depth": 0.5, "ok": true, "ptok": 30452, "pp": 3346.0, "tg": 191.3, "wall": 9.2, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+{"L": 32000, "depth": 0.9, "ok": true, "ptok": 27887, "pp": 3440.0, "tg": 122.1, "wall": 8.2, "ans": "cobalt-heron-5557", "want": "cobalt-heron-5557"}
+{"L": 72000, "depth": 0.1, "ok": true, "ptok": 67286, "pp": 2369.0, "tg": 169.0, "wall": 28.5, "ans": "violet-falcon-2519", "want": "violet-falcon-2519"}
+{"L": 72000, "depth": 0.5, "ok": true, "ptok": 67021, "pp": 2371.9, "tg": 83.8, "wall": 28.4, "ans": "amber-heron-9785", "want": "amber-heron-9785"}
+{"L": 72000, "depth": 0.9, "ok": true, "ptok": 67095, "pp": 2373.3, "tg": 96.2, "wall": 28.4, "ans": "cobalt-falcon-1750", "want": "cobalt-falcon-1750"}
+{"L": 140000, "depth": 0.1, "ok": true, "ptok": 129570, "pp": 1574.9, "tg": 94.4, "wall": 82.5, "ans": "saffron-lynx-3664", "want": "saffron-lynx-3664"}
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 130820, "pp": 1565.1, "tg": 89.6, "wall": 83.9, "ans": "cobalt-otter-8573", "want": "cobalt-otter-8573"}
+{"L": 140000, "depth": 0.9, "ok": true, "ptok": 131769, "pp": 1554.4, "tg": 81.5, "wall": 85.0, "ans": "violet-heron-5386", "want": "violet-heron-5386"}
+NEEDLE C2 candidate needles 9/9
+=== 00:57:08 quality: candidate (4 lanes)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | qat-nvfp4.r31 | total 14.7s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 8 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1014.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.19 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+gsm8k: 198/200 (198s)
+mmlupro: 147/280 (58s)
+humaneval: 161/164 (148s)
+ROW {"label": "nvfp4-final2-k7", "ts": "2026-10-26 00:57:24", "gsm8k": "198/200", "gsm8k_secs": 198, "mmlupro": "147/280", "mmlupro_secs": 58, "humaneval": "161/164", "humaneval_secs": 148}
+=== 01:04:10 restoring the deployed unit
+active
+=== 01:04:39 NIGHT7 DONE

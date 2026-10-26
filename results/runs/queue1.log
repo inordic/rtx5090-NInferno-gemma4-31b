@@ -1,0 +1,40 @@
+=== 15:18:55 C3 mode2 plain 262K chunk1024
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 46.8s | weights 16.1 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve warm_up) | free 7.20 GiB after 16.08 GiB of weights | 1.60 GiB more would serve rung 2, 3.16 GiB the top | planned in 0 ms; the run
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 1.60 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.16 GiB the top rung (262,144 tokens x 1 context (262
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 7.09 GiB | free 80.6 MiB
+speculation | serves plain (explicit) | fallback none | --spec
+PP 2048: 1405.9 tok/s (n=1706) [1373.0331634289817, 1438.7816724698062]
+PP 8192: 1540.5 tok/s (n=7468) [1543.1662495803575, 1537.7417351834254]
+PP 24576: 1364.8 tok/s (n=20964) [1368.0240189047227, 1361.5699714816287]
+TG@2048 greedy: 36.2 tok/s [36.23876085849445, 36.23883603244896] spec=['plain', 'plain']
+TG@2048 sampled: 36.2 tok/s [36.23139888666768, 36.227779100948766] spec=['plain', 'plain']
+TG@8192 greedy: 35.8 tok/s [35.81977264904723, 35.8778891621872] spec=['plain', 'plain']
+TG@8192 sampled: 35.8 tok/s [35.81635658561914, 35.84667318305263] spec=['plain', 'plain']
+ROW {"label": "C3 QAT-UD plain shared2 262K", "ts": "2026-10-25 15:19:44", "pp2048_ntok": 1706, "pp2048": 1405.9, "pp8192_ntok": 7468, "pp8192": 1540.5, "pp24576_ntok": 20964, "pp24576": 1364.8, "tg2048g": 36.2, "tg2048s": 36.2, "tg8192g": 35.8, "tg8192s": 35.8}
+{"L": 250000, "depth": 0.1, "ok": true, "ptok": 231491, "pp": 468.5, "tg": 25.7, "wall": 494.7, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 250000, "depth": 0.5, "ok": true, "ptok": 232363, "pp": 452.5, "tg": 26.0, "wall": 514.3, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+NEEDLE C3 shared2 262K 2/2
+=== 15:39:36 C4 mode2 MTP3 262K chunk512
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 35.7s | weights 16.4 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 6.90 GiB after 16.38 GiB of weights | 1.00 GiB more would serve rung 2, 2.17 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 1.00 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 512), 2.17 GiB the top rung (262,144 tokens x 1 context (262,
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.56 GiB | free 310.6 MiB
+speculation | serves mtp K=3 (explicit) | fallback none | --spec
+PP 2048: 1413.0 tok/s (n=1706) [1379.6026821825958, 1446.3301672484913]
+PP 8192: 1498.1 tok/s (n=7468) [1508.6198946670709, 1487.5429206900897]
+PP 24576: 1273.0 tok/s (n=20964) [1284.9165419808148, 1260.997106957568]
+TG@2048 greedy: 57.4 tok/s [57.039231800180325, 57.77568108763284] spec=['mtp K=3', 'mtp K=3']
+TG@2048 sampled: 57.8 tok/s [57.09253263389027, 58.49239694997259] spec=['mtp K=3', 'mtp K=3']
+TG@8192 greedy: 50.2 tok/s [51.180030238874544, 49.16307383644642] spec=['mtp K=3', 'mtp K=3']
+TG@8192 sampled: 52.5 tok/s [52.579518433027324, 52.42188219656395] spec=['mtp K=3', 'mtp K=3']
+CHAT C=1 greedy: 57.1 tok/s (4824 tok) spec=mtp K=3
+CHAT C=1 sampled: 57.2 tok/s (4839 tok) spec=mtp K=3
+ROW {"label": "C4 QAT-UD MTP3 shared2 262K chunk512", "ts": "2026-10-25 15:40:15", "pp2048_ntok": 1706, "pp2048": 1413.0, "pp8192_ntok": 7468, "pp8192": 1498.1, "pp24576_ntok": 20964, "pp24576": 1273.0, "tg2048g": 57.4, "tg2048s": 57.8, "tg8192g": 50.2, "tg8192s": 52.5, "chatg": 57.1, "chatg_spec": {"config": "mtp K=3", "fallback": "none", "reason": "--spec"}, "chats": 57.2, "chats_spec": {"config": "mtp K=3", "fallback": "none", "reason": "--spec"}}
+{"L": 250000, "depth": 0.9, "ok": true, "ptok": 231491, "pp": 380.4, "tg": 23.6, "wall": 609.3, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+NEEDLE C4 shared2 MTP 262K 1/1
+=== 15:55:45 abl Q4_0 + MTP tune

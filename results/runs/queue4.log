@@ -1,0 +1,97 @@
+=== 16:13:15 QAT drafter Q4_0 (lossless) depth sweep on QAT-UD
+[qatasst_deep] spec-tune plain     math        37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+[qatasst_deep] spec-tune plain     code        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1223/1223
+[qatasst_deep] spec-tune plain     prose       37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+[qatasst_deep] spec-tune plain     thinking    37.7 tok/s   1.00 tok/round  acc 0.000  identical 2048/2048
+[qatasst_deep] spec-tune mtp:3     math       103.7 tok/s   3.66 tok/round  acc 0.888  identical 902/1280
+[qatasst_deep] spec-tune mtp:3     code       104.8 tok/s   3.74 tok/round  acc 0.915  identical 1194/1207
+[qatasst_deep] spec-tune mtp:3     prose       63.1 tok/s   2.22 tok/round  acc 0.407  identical 630/1280
+[qatasst_deep] spec-tune mtp:3     thinking   103.4 tok/s   3.65 tok/round  acc 0.883  identical 1221/2048
+[qatasst_deep] spec-tune mtp:4     math       116.0 tok/s   4.47 tok/round  acc 0.868  identical 902/1280
+[qatasst_deep] spec-tune mtp:4     code       119.6 tok/s   4.63 tok/round  acc 0.907  identical 1194/1207
+[qatasst_deep] spec-tune mtp:4     prose       60.6 tok/s   2.32 tok/round  acc 0.331  identical 630/1280
+[qatasst_deep] spec-tune mtp:4     thinking   114.4 tok/s   4.40 tok/round  acc 0.851  identical 1221/2048
+[qatasst_deep] spec-tune mtp:5     math       129.6 tok/s   5.14 tok/round  acc 0.828  identical 902/1280
+[qatasst_deep] spec-tune mtp:5     code       137.9 tok/s   5.47 tok/round  acc 0.894  identical 1194/1207
+[qatasst_deep] spec-tune mtp:5     prose       60.8 tok/s   2.40 tok/round  acc 0.279  identical 630/1280
+[qatasst_deep] spec-tune mtp:5     thinking   125.7 tok/s   4.97 tok/round  acc 0.794  identical 1221/2048
+[qatasst_deep] spec-tune mtp:6     math       143.0 tok/s   5.76 tok/round  acc 0.793  identical 902/1280
+[qatasst_deep] spec-tune mtp:6     code       156.0 tok/s   6.29 tok/round  acc 0.881  identical 1194/1207
+[qatasst_deep] spec-tune mtp:6     prose       61.4 tok/s   2.44 tok/round  acc 0.240  identical 630/1280
+[qatasst_deep] spec-tune mtp:6     thinking   140.7 tok/s   5.60 tok/round  acc 0.766  identical 1221/2048
+[qatasst_deep] spec-tune mtp:8     math       151.3 tok/s   6.52 tok/round  acc 0.690  identical 1015/1280
+[qatasst_deep] spec-tune mtp:8     code       175.5 tok/s   7.54 tok/round  acc 0.817  identical 1194/1207
+[qatasst_deep] spec-tune mtp:8     prose       58.8 tok/s   2.49 tok/round  acc 0.186  identical 625/1280
+[qatasst_deep] spec-tune mtp:8     thinking   155.5 tok/s   6.65 tok/round  acc 0.707  identical 1527/2048
+[qatasst_deep] spec-tune mtp:4:2   math       113.5 tok/s   4.29 tok/round  acc 0.882  identical 902/1280
+[qatasst_deep] spec-tune mtp:4:2   code       116.3 tok/s   4.47 tok/round  acc 0.912  identical 1194/1207
+[qatasst_deep] spec-tune mtp:4:2   prose       60.8 tok/s   2.16 tok/round  acc 0.420  identical 630/1280
+[qatasst_deep] spec-tune mtp:4:2   thinking   111.6 tok/s   4.20 tok/round  acc 0.864  identical 1221/2048
+[qatasst_deep] spec-tune mtp:6:2   math       133.6 tok/s   5.29 tok/round  acc 0.810  identical 902/1280
+[qatasst_deep] spec-tune mtp:6:2   code       148.3 tok/s   5.93 tok/round  acc 0.875  identical 1194/1207
+[qatasst_deep] spec-tune mtp:6:2   prose       61.1 tok/s   2.19 tok/round  acc 0.398  identical 630/1280
+[qatasst_deep] spec-tune mtp:6:2   thinking   130.7 tok/s   5.19 tok/round  acc 0.789  identical 1221/2048
+[qatasst_deep] spec-tune mtp:8:2   math       148.4 tok/s   6.07 tok/round  acc 0.754  identical 811/1280
+[qatasst_deep] spec-tune mtp:8:2   code       176.7 tok/s   7.40 tok/round  acc 0.863  identical 1223/1223
+[qatasst_deep] spec-tune mtp:8:2   prose       61.4 tok/s   2.21 tok/round  acc 0.391  identical 630/1280
+[qatasst_deep] spec-tune mtp:8:2   thinking   147.5 tok/s   6.03 tok/round  acc 0.746  identical 1327/2048
+[qatasst_deep] spec-tune mtp:10:3  math       148.0 tok/s   6.41 tok/round  acc 0.700  identical 873/1280
+[qatasst_deep] spec-tune mtp:10:3  code       179.1 tok/s   7.97 tok/round  acc 0.798  identical 1223/1223
+[qatasst_deep] spec-tune mtp:10:3  prose       61.8 tok/s   2.26 tok/round  acc 0.346  identical 630/1280
+[qatasst_deep] spec-tune mtp:10:3  thinking   146.8 tok/s   6.28 tok/round  acc 0.692  identical 1221/2048
+[qatasst_deep] choice default      mtp:10:3   x3.000  113.2 tok/s  floor 1.50 tok/round
+[qatasst_deep] choice served default mtp:8      x2.965  111.9 tok/s  floor 1.59 tok/round
+[qatasst_deep] {"profile":"/root/gbench/qatasst_deep.tune.json","tune_seconds":851.2,"gpu_class":"gb203:82sm","default":"mtp:10:3","skipped":0}
+=== 16:27:30 Pajari Q4_0_V2 with QAT drafter
+[pajari_qatasst] spec-tune plain     math        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+[pajari_qatasst] spec-tune plain     code        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1223/1223
+[pajari_qatasst] spec-tune plain     prose       37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+[pajari_qatasst] spec-tune plain     thinking    37.7 tok/s   1.00 tok/round  acc 0.000  identical 2048/2048
+[pajari_qatasst] spec-tune mtp:4     math       115.6 tok/s   4.46 tok/round  acc 0.866  identical 767/1280
+[pajari_qatasst] spec-tune mtp:4     code       118.8 tok/s   4.60 tok/round  acc 0.901  identical 1223/1223
+[pajari_qatasst] spec-tune mtp:4     prose       59.1 tok/s   2.26 tok/round  acc 0.314  identical 728/1280
+[pajari_qatasst] spec-tune mtp:4     thinking   115.1 tok/s   4.44 tok/round  acc 0.860  identical 1223/2048
+[pajari_qatasst] choice default      mtp:4      x2.485  93.7 tok/s  floor 1.44 tok/round
+[pajari_qatasst] {"profile":"/root/gbench/pajari_qatasst.tune.json","tune_seconds":384.5,"gpu_class":"gb203:82sm","default":"mtp:4","skipped":0}
+=== 16:34:06 C5 serve: QAT-UD + QAT drafter K=4 + shared2 262K chunk512
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 34.2s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.94 GiB more would serve rung 2, 2.11 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 0.95 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 512), 2.12 GiB the top rung (262,144 tokens x 1 context (262,
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.56 GiB | free 366.6 MiB
+speculation | serves mtp K=4 (explicit) | fallback none | --spec
+PP 2048: 1439.9 tok/s (n=1706) [1441.022229394036, 1438.837243136125]
+PP 8192: 1499.3 tok/s (n=7468) [1507.893728083336, 1490.6419697770461]
+PP 24576: 1285.4 tok/s (n=20964) [1287.7822521345342, 1283.0543649259052]
+TG@2048 greedy: 93.1 tok/s [86.97839296038623, 99.17724319393855] spec=['mtp K=4', 'mtp K=4']
+TG@2048 sampled: 90.5 tok/s [90.8253143726964, 90.21580358008615] spec=['mtp K=4', 'mtp K=4']
+TG@8192 greedy: 91.7 tok/s [98.90015870196865, 84.52096653121946] spec=['mtp K=4', 'mtp K=4']
+TG@8192 sampled: 85.4 tok/s [85.2888189051606, 85.49144092802541] spec=['mtp K=4', 'mtp K=4']
+CHAT C=1 greedy: 91.2 tok/s (4824 tok) spec=mtp K=4
+CHAT C=1 sampled: 87.5 tok/s (4832 tok) spec=mtp K=4
+ROW {"label": "C5 QAT-UD QATdrafter K4 shared2 262K", "ts": "2026-10-25 16:34:42", "pp2048_ntok": 1706, "pp2048": 1439.9, "pp8192_ntok": 7468, "pp8192": 1499.3, "pp24576_ntok": 20964, "pp24576": 1285.4, "tg2048g": 93.1, "tg2048s": 90.5, "tg8192g": 91.7, "tg8192s": 85.4, "chatg": 91.2, "chatg_spec": {"config": "mtp K=4", "fallback": "none", "reason": "--spec"}, "chats": 87.5, "chats_spec": {"config": "mtp K=4", "fallback": "none", "reason": "--spec"}}
+=== 16:38:31 C6 serve: QAT-UD + QAT drafter K=3 + shared2 262K chunk512
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 34.9s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.94 GiB more would serve rung 2, 2.11 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 0.95 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 512), 2.12 GiB the top rung (262,144 tokens x 1 context (262,
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.56 GiB | free 366.6 MiB
+speculation | serves mtp K=3 (explicit) | fallback none | --spec
+TG@2048 greedy: 88.7 tok/s [87.18815726801955, 90.25773431984564] spec=['mtp K=3', 'mtp K=3']
+TG@2048 sampled: 80.0 tok/s [76.08568529262259, 83.92354119797349] spec=['mtp K=3', 'mtp K=3']
+TG@8192 greedy: 85.1 tok/s [82.63409150743502, 87.57809461666211] spec=['mtp K=3', 'mtp K=3']
+TG@8192 sampled: 79.7 tok/s [76.67263231961526, 82.65544951836569] spec=['mtp K=3', 'mtp K=3']
+CHAT C=1 greedy: 86.4 tok/s (4824 tok) spec=mtp K=3
+CHAT C=1 sampled: 83.3 tok/s (4833 tok) spec=mtp K=3
+ROW {"label": "C6 QAT-UD QATdrafter K3 shared2 262K", "ts": "2026-10-25 16:39:08", "tg2048g": 88.7, "tg2048s": 80.0, "tg8192g": 85.1, "tg8192s": 79.7, "chatg": 86.4, "chatg_spec": {"config": "mtp K=3", "fallback": "none", "reason": "--spec"}, "chats": 83.3, "chats_spec": {"config": "mtp K=3", "fallback": "none", "reason": "--spec"}}
+=== 16:42:22 quality matrix (QAT drafter)
+choice | no candidate holds 4096 tokens for each of 6 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 24.9s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 57 of 58: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 6 lanes (step survival chunk, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 1.06 GiB more would serve rung 56, 23.11 GiB the top | planned in 23 ms; t
+plan | rung 57: below the top rung of the asked --max-context 4,096; a survival rung | 1.06 GiB more free memory would serve rung 56 (4,096 tokens x 1 context (4,096 KV tokens for 6 lanes), 0 cached states, chunk 512), 23.12 GiB the top rung (4,096 tokens x 6 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/384 | runtime 6.28 GiB | free 608.6 MiB
+capacity | KV 4,096 of 24,576 tokens (auto: --max-concurrency 6 x --max-context 4,096 does not fit the 6.88 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=3 (explicit) | fallback none | --spec

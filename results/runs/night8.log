@@ -1,0 +1,59 @@
+=== 01:10:41 idle: taking the GPU
+=== 01:10:43 context 155000
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top
+2026-10-26 01:11:09.585  WARN  plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 
+context cache | 1 active + 0 (auto: the default 2 does not fit in free memory) cached device states | host 7 states, 3.19 GiB KV (auto: the default 18 states, 8.00 GiB KV does not fit the 14.4 GiB this host can pin for it) | priva
+base: prompt 15211 cache 0 prompt_ms 3794.43644 ttft 3.828s wall 3.87s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 280.85017 ttft 0.301s wall 0.34s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 264.632831 ttft 0.285s wall 0.32s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 291.226789 ttft 0.313s wall 0.35s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 325.21734200000003 ttft 0.348s wall 0.38s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 541.1182100000001 ttft 0.565s wall 0.60s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 584.602154 ttft 0.61s wall 0.65s
+=== 01:11:19 context 120000
+choice | no candidate holds 120000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 120,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 120,000 tokens x 1 context (120,000 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.82 GiB more would serve rung 2, 2.38 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 120,000 | 0.83 GiB more free memory would serve rung 2 (120,000 tokens x 1 context (120,000 KV tokens for 1 lane), 1 cached states, chunk 1024), 2.39 GiB the top rung (120,000 tokens x 1 context (120
+capacity | KV 120,000 tokens, fp8, explicit | activations fast | pages 1,875/1,875 | runtime 4.36 GiB | free 890.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+plan | rung 3 of 3: 120,000 tokens x 1 context (120,000 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.82 GiB more would serve rung 2, 2.38 GiB the top
+2026-10-26 01:11:45.585  WARN  plan | rung 3: below the top rung of the asked --max-context 120,000 | 0.83 GiB more free memory would serve rung 2 (120,000 tokens x 1 context (120,000 KV tokens for 1 lane), 1 cached states, chunk 
+context cache | 1 active + 0 (auto: the default 2 does not fit in free memory) cached device states | host 7 states, 3.19 GiB KV (auto: the default 18 states, 8.00 GiB KV does not fit the 14.4 GiB this host can pin for it) | priva
+base: prompt 15211 cache 0 prompt_ms 3829.6719000000003 ttft 3.864s wall 3.90s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 274.326323 ttft 0.295s wall 0.33s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 262.208083 ttft 0.283s wall 0.32s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 289.803281 ttft 0.312s wall 0.34s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 334.117706 ttft 0.357s wall 0.39s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 551.417964 ttft 0.576s wall 0.61s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 573.190672 ttft 0.599s wall 0.64s
+=== 01:11:55 context 100000
+choice | KV fp8, activations fast | 38.0 tok/s decode, 2723 prefill, KLD 0.0245 (estimates) | the model's weights (the one quantization): every stream holds 100000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | qat-nvfp4.r31 | total 24.9s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 100,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 100,000 tokens x 1 context (100,032 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 100,032 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,563/1,563 | runtime 4.79 GiB | free 446.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+plan | rung 1 of 3: 100,000 tokens x 1 context (100,032 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | planned in 0 ms; the rungs are declared, the free mem
+context cache | 1 active + 2 (auto) cached device states | host 11 states, 5.17 GiB KV (auto: the default 18 states, 8.00 GiB KV does not fit the 14.4 GiB this host can pin for it) | private 9 | shared 7 | anchors 2
+base: prompt 15211 cache 0 prompt_ms 3769.913083 ttft 3.803s wall 3.84s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 179.048038 ttft 0.2s wall 0.24s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 213.22761200000002 ttft 0.231s wall 0.27s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 231.19261999999998 ttft 0.253s wall 0.29s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 271.57679099999996 ttft 0.295s wall 0.33s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 498.283768 ttft 0.522s wall 0.56s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 529.2897559999999 ttft 0.555s wall 0.59s
+=== 01:12:31 Q6 head bench
+HEAD T=1          Q6 A16   262144     5376      1    1680.352    1624.096    1843.200      655.5   7
+HEAD T=8          Q6 A16   262144     5376      8    2500.640    2491.392    2507.776      442.0   4
+=== 01:12:32 restoring the deployed unit
+active
+=== 01:13:00 NIGHT8 DONE

@@ -1,0 +1,41 @@
+-rw------- 1 root root 19107566596 Oct 25 20:30 /opt/models/dl2/qat-nvfp4-mse.r31.ninferno
+=== 21:28:39 quality: NVFP4-MSE split (4 lanes)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | qat-nvfp4-mse.r31 | total 24.4s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 8 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1020.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.20 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+gsm8k: 198/200 (208s)
+mmlupro: 152/280 (64s)
+mmlu: 245/285 (55s)
+humaneval: 161/164 (155s)
+ROW {"label": "nvfp4-mse-split", "ts": "2026-10-25 21:29:06", "gsm8k": "198/200", "gsm8k_secs": 208, "mmlupro": "152/280", "mmlupro_secs": 64, "mmlu": "245/285", "mmlu_secs": 55, "humaneval": "161/164", "humaneval_secs": 155}
+=== 21:37:11 score r31 window 32768 (split, shared2)
+PPL score_r31_split_32768.bin: tokens 65534 ppl 76.9600
+=== 21:37:45 score mse window 32768 (split, shared2)
+PPL score_mse_split_32768.bin: tokens 65534 ppl 76.9600
+=== 21:38:25 S1 serve: NVFP4-MSE split, K8, shared2 155K chunk1024
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4-mse.r31 | total 33.8s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 210.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+PP 2048: 2963.1 tok/s (n=1658) [2963.115748163663]
+PP 8192: 3904.5 tok/s (n=6573) [3904.483778725019]
+PP 32768: 2716.8 tok/s (n=28692) [2716.805352756033]
+TG@2048 greedy: 107.4 tok/s [107.40697284083491] spec=['mtp K=8']
+TG@2048 sampled: 107.8 tok/s [107.8395723896484] spec=['mtp K=8']
+TG@8192 greedy: 109.9 tok/s [109.94122495856642] spec=['mtp K=8']
+TG@8192 sampled: 89.3 tok/s [89.31361959519336] spec=['mtp K=8']
+CHAT C=1 greedy: 100.7 tok/s (4850 tok) spec=mtp K=8
+CHAT C=1 sampled: 99.7 tok/s (4794 tok) spec=mtp K=8
+ROW {"label": "S1 QAT-NVFP4-MSE split K8 shared2 155K chunk1024", "ts": "2026-10-25 21:39:00", "pp2048_ntok": 1658, "pp2048": 2963.1, "pp8192_ntok": 6573, "pp8192": 3904.5, "pp32768_ntok": 28692, "pp32768": 2716.8, "tg2048g": 107.4, "tg2048s": 107.8, "tg8192g": 109.9, "tg8192s": 89.3, "chatg": 100.7, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 99.7, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1014.6, "tg": 55.3, "wall": 127.4, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+NEEDLE R140 nvfp4-mse 1/1
+{"L": 140000, "depth": 0.1, "ok": true, "ptok": 128932, "pp": 1008.3, "tg": 53.1, "wall": 128.3, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+=== 21:46:11 QUEUE18 DONE (stopped: MSE weights identical to r31)

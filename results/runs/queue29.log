@@ -1,0 +1,8 @@
+=== 22:29:40 262K unit
+active
+models ['gemma4-31b-262k']
+chat '391' 0.18s
+stream chunks 7 done True first 0.179s total 0.37s
+turn 0: prompt 17606 cache 0 prompt_ms 12240.859478999999 wall 13.07s decode 99.3644716705029
+turn 1: prompt 105 cache 17599 prompt_ms 292.20272600000004 wall 0.73s decode 108.594808778647
+turn 2: prompt 69 cache 17697 prompt_ms 270.336417 wall 0.65s decode 108.44419312085596

@@ -1,0 +1,12 @@
+=== 21:25:17 score qk8x2 window 32768
+PPL score_qk8x2_32768.bin: tokens 65534 ppl 82.6223
+=== 21:25:42 bench qk8x2 prefill 8192
+"prefill_tok_s":4976.6
+
+=== 21:25:52 bench qk8x2 prefill 32768
+"prefill_tok_s":3454.0
+
+=== 21:26:34 bench qk8x2 prefill 65536
+"prefill_tok_s":2483.7
+
+=== 21:28:23 QUEUE22 DONE

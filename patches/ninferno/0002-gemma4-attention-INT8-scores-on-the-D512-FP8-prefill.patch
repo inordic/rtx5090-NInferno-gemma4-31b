@@ -1,0 +1,176 @@
+From 109084bef15db9d092a14120a8a53096fecb5edf Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Sun, 25 Oct 2026 19:49:44 +0000
+Subject: [PATCH 2/7] gemma4 attention: INT8 scores on the D512 FP8 prefill
+ route
+
+Each landed K tile is turned once per CTA, in place, into INT8 against 448/127
+of its row scale, Q into INT8 per row slice, and S = Q K^T runs as m16n8k32 s8
+MMAs. Full layers only: the D256 sliding layers lost perplexity under INT8.
+31B QAT-NVFP4 prefill +3% at 8K, +9% at 32K, +12% at 64K; perplexity within noise.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/ops/softmax_attention/gemma4/kernel.cuh | 118 +++++++++++++++++++-
+ 1 file changed, 117 insertions(+), 1 deletion(-)
+
+diff --git a/src/ops/softmax_attention/gemma4/kernel.cuh b/src/ops/softmax_attention/gemma4/kernel.cuh
+index 1af7828..05ab0af 100644
+--- a/src/ops/softmax_attention/gemma4/kernel.cuh
++++ b/src/ops/softmax_attention/gemma4/kernel.cuh
+@@ -128,6 +128,24 @@ inline constexpr bool kGemma4Fp8Hardware = NINFERNO_BUILD_ARCH >= 89;
+ inline constexpr bool kGemma4Fp8Hardware = true;
+ #endif
+ 
++// INT8 scores on the D = 512 FP8 prefill route (KInt8): each landed K tile is turned once per CTA,
++// in place, from E4M3 codes into INT8 against 448/127 of its row scale, Q into INT8 against each
++// row's absmax over the warp's head-dim slice, and S = Q K^T runs as m16n8k32 s8 MMAs with INT32
++// accumulators (four times the BF16-with-FP32-accumulate rate on GeForce Blackwell, and no
++// per-warp widening of K). Decode and verify (the split-K route) keep the BF16 scores.
++inline constexpr bool kGemma4Int8Scores = true;
++inline constexpr float kGemma4Int8KeyStep = 448.0f / 127.0f; // one INT8 key step, in code units
++
++__device__ __forceinline__ unsigned gemma4_e4m3x4_to_s8x4(unsigned w) {
++    constexpr float k = 127.0f / 448.0f;
++    const float2 a = __half22float2(detail::e4m3x2_to_half2(w & 0xffffu));
++    const float2 b = __half22float2(detail::e4m3x2_to_half2(w >> 16));
++    return (static_cast<unsigned>(__float2int_rn(a.x * k)) & 0xffu) |
++           ((static_cast<unsigned>(__float2int_rn(a.y * k)) & 0xffu) << 8) |
++           ((static_cast<unsigned>(__float2int_rn(b.x * k)) & 0xffu) << 16) |
++           (static_cast<unsigned>(__float2int_rn(b.y * k)) << 24);
++}
++
+ template <class Geo, int WR, int Bc, bool Fp8 = false>
+ struct Gemma4Tile {
+     static constexpr int Warps      = WR * Geo::WC;
+@@ -298,6 +316,7 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+     // head dims of a 16-dim chunk, so the epilogue writes four adjacent dims per lane (26B full
+     // 19.7 -> 19.0 ms, 31B full 37.2 -> 36.2); the D = 256 sliding layers lost 6 % and keep it.
+     constexpr bool VDirect = Fp8 && kGemma4Fp8Hardware && D >= 512;
++    constexpr bool KInt8   = kGemma4Int8Scores && KDirect && D == 512 && !Partial;
+     static_assert(Tile::CodesOnly == (KDirect && VDirect),
+                   "a codes-only tile is read only directly");
+     const float NegInf       = -CUDART_INF_F;
+@@ -417,6 +436,51 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+         }
+     }
+ 
++    // KInt8: the same rows as INT8 A fragments of m16n8k32 (step kk holds 16-dim steps 2kk and
++    // 2kk+1: rows g, g+8 by k halves), each row slice against its own absmax / 127.
++    [[maybe_unused]] unsigned qi[KInt8 ? KS / 2 : 1][4];
++    [[maybe_unused]] float qscale[2] = {0.0f, 0.0f};
++    if constexpr (KInt8) {
++#pragma unroll
++        for (int r = 0; r < 2; ++r) {
++            const int row    = row_base + wr * 16 + gid + 8 * r;
++            const bool valid = row >= 0 && row < row_end;
++            const int token  = group.token(row);
++            const int head   = kv_head * G + group.member(row);
++            const __nv_bfloat16* src = row_.q +
++                                       (static_cast<std::int64_t>(token) * args.q_heads + head) * D +
++                                       wc * Geo::Slice + 4 * tig;
++            float v[KS][4];
++            float amax = 0.0f;
++#pragma unroll
++            for (int ks = 0; ks < KS; ++ks) {
++                const uint2 raw =
++                    valid ? __ldg(reinterpret_cast<const uint2*>(src + ks * 16)) : make_uint2(0u, 0u);
++                const float2 lo = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&raw.x));
++                const float2 hi = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&raw.y));
++                v[ks][0] = lo.x;
++                v[ks][1] = lo.y;
++                v[ks][2] = hi.x;
++                v[ks][3] = hi.y;
++                amax = fmaxf(amax, fmaxf(fmaxf(fabsf(lo.x), fabsf(lo.y)),
++                                         fmaxf(fabsf(hi.x), fabsf(hi.y))));
++            }
++            amax = fmaxf(amax, __shfl_xor_sync(0xffffffffu, amax, 1));
++            amax = fmaxf(amax, __shfl_xor_sync(0xffffffffu, amax, 2));
++            qscale[r]       = amax / 127.0f;
++            const float inv = amax > 0.0f ? 127.0f / amax : 0.0f;
++#pragma unroll
++            for (int ks = 0; ks < KS; ++ks) {
++                unsigned w = 0;
++#pragma unroll
++                for (int i = 0; i < 4; ++i) {
++                    w |= (static_cast<unsigned>(__float2int_rn(v[ks][i] * inv)) & 0xffu) << (8 * i);
++                }
++                qi[ks / 2][(ks & 1) * 2 + r] = w;
++            }
++        }
++    }
++
+     // Under the Block mask every row's last visible key is the call's last position (its oldest
+     // is still its own window's); otherwise it is the row's own position.
+     const bool block  = args.block != 0;
+@@ -678,7 +742,46 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+             for (int nt = 0; nt < QKN; ++nt) {
+                 s[nt][0] = s[nt][1] = s[nt][2] = s[nt][3] = 0.0f;
+             }
+-            if constexpr (KDirect) {
++            if constexpr (KInt8) {
++                // INT8 codes in place of the E4M3 ones (the tile was turned after it landed): the
++                // same ldmatrix gives each lane the s8 B fragment, k halves from chunks ks, ks + 1.
++                static_assert(PartKS % 2 == 0 && QKN % 2 == 0);
++                const int mrow = (lane & 7) + ((lane >> 3) & 1) * 8;
++                const int mks  = (lane >> 4) & 1;
++                int acc[QKN][4];
++#pragma unroll
++                for (int nt = 0; nt < QKN; ++nt) {
++                    acc[nt][0] = acc[nt][1] = acc[nt][2] = acc[nt][3] = 0;
++                }
++#pragma unroll
++                for (int ks = j * PartKS; ks < (j + 1) * PartKS; ks += 2) {
++                    const int col      = wc * (Geo::Slice / 16) + ks + mks;
++                    const unsigned* qa = qi[ks / 2];
++#pragma unroll
++                    for (int nt2 = 0; nt2 < QKN / 2; ++nt2) {
++                        const int key = nt2 * 16 + mrow;
++                        unsigned w0, w1, w2, w3;
++                        ldmatrix_x4(w0, w1, w2, w3,
++                                    code_lane + static_cast<unsigned>(key * D +
++                                                                      code_swizzle(key, col) * 16));
++                        mma_s8(acc[2 * nt2][0], acc[2 * nt2][1], acc[2 * nt2][2], acc[2 * nt2][3],
++                               qa[0], qa[1], qa[2], qa[3], w0, w2);
++                        mma_s8(acc[2 * nt2 + 1][0], acc[2 * nt2 + 1][1], acc[2 * nt2 + 1][2],
++                               acc[2 * nt2 + 1][3], qa[0], qa[1], qa[2], qa[3], w1, w3);
++                    }
++                }
++#pragma unroll
++                for (int nt = 0; nt < QKN; ++nt) {
++                    const float2 sk =
++                        *reinterpret_cast<const float2*>(row_scales + nt * 8 + 2 * tig);
++                    const float k0 = sk.x * kGemma4Int8KeyStep;
++                    const float k1 = sk.y * kGemma4Int8KeyStep;
++                    s[nt][0] = static_cast<float>(acc[nt][0]) * qscale[0] * k0;
++                    s[nt][1] = static_cast<float>(acc[nt][1]) * qscale[0] * k1;
++                    s[nt][2] = static_cast<float>(acc[nt][2]) * qscale[1] * k0;
++                    s[nt][3] = static_cast<float>(acc[nt][3]) * qscale[1] * k1;
++                }
++            } else if constexpr (KDirect) {
+                 static_assert(PartKS % 2 == 0 && QKN % 2 == 0);
+                 const int mrow = (lane & 7) + ((lane >> 3) & 1) * 8;
+                 const int mks  = (lane >> 4) & 1;
+@@ -943,6 +1046,19 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+         cp_wait<1>(); // K(kb) landed; V(kb) may still be in flight
+         __syncthreads();
+         if constexpr (!KDirect) { widen(false); }
++        if constexpr (KInt8) {
++            // The landed K codes as INT8, in place, once for every warp of the CTA.
++            unsigned char* kcodes = gemma4_smem + Tile::CodeOffset;
++            for (int c = tid; c < Bc * D / 16; c += Threads) {
++                uint4 w = *reinterpret_cast<const uint4*>(kcodes + c * 16);
++                w.x     = gemma4_e4m3x4_to_s8x4(w.x);
++                w.y     = gemma4_e4m3x4_to_s8x4(w.y);
++                w.z     = gemma4_e4m3x4_to_s8x4(w.z);
++                w.w     = gemma4_e4m3x4_to_s8x4(w.w);
++                *reinterpret_cast<uint4*>(kcodes + c * 16) = w;
++            }
++            __syncthreads();
++        }
+         float s[QKN][4];
+         score_tile(s);
+         __syncthreads(); // partial scores published; every warp is done reading K(kb)
+-- 
+2.43.0
+

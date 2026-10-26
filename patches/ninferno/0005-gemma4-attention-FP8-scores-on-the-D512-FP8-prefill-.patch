@@ -1,0 +1,134 @@
+From 4e58bc6772811e6cf2c894779a9150476ce1e8f9 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Sun, 25 Oct 2026 20:55:36 +0000
+Subject: [PATCH 5/7] gemma4 attention: FP8 scores on the D512 FP8 prefill
+ route
+
+The E4M3 K codes are the B fragments of m16n8k32 e4m3 MMAs as they landed (exact,
+and no in-place INT8 pass over the tile); Q enters as E4M3 against each row
+slice's absmax / 448. The E4M3 MMA accumulates in reduced precision, so each MMA
+starts from zero and is added to the FP32 sum. Replaces the INT8 scores.
+QAT-NVFP4 31B, lab tool, RTX 5090 Laptop, with FP8 P V: prefill 8K / 32K / 64K
+4,986 / 3,522 / 2,542 -> 5,121 / 3,728 / 2,787 tok/s; 32K-window perplexity
+77.99 -> 77.84 (BF16 attention 76.96; one unpromoted accumulator 81.13).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/ops/softmax_attention/gemma4/kernel.cuh | 68 ++++++++++++++++++---
+ 1 file changed, 60 insertions(+), 8 deletions(-)
+
+diff --git a/src/ops/softmax_attention/gemma4/kernel.cuh b/src/ops/softmax_attention/gemma4/kernel.cuh
+index ee21b6e..ae00c34 100644
+--- a/src/ops/softmax_attention/gemma4/kernel.cuh
++++ b/src/ops/softmax_attention/gemma4/kernel.cuh
+@@ -136,6 +136,13 @@ inline constexpr bool kGemma4Fp8Hardware = true;
+ inline constexpr bool kGemma4Int8Scores = true;
+ inline constexpr float kGemma4Int8KeyStep = 448.0f / 127.0f; // one INT8 key step, in code units
+ 
++// FP8 scores in place of INT8 (KFp8Qk): the landed E4M3 K codes are the B fragments of m16n8k32
++// e4m3 MMAs as they are (exact, and no in-place pass over the tile), Q enters as E4M3 against each
++// row slice's absmax / 448, and S = sum * qscale * the key's code scale. The E4M3 MMA accumulates
++// in reduced precision, so each MMA starts from zero and its result is added to the FP32 sum (one
++// accumulator across the slice moved the 32K perplexity 78.0 -> 81.1; promoted, 77.8).
++inline constexpr bool kGemma4Fp8Scores = true;
++
+ __device__ __forceinline__ unsigned gemma4_e4m3x4_to_s8x4(unsigned w) {
+     constexpr float k = 127.0f / 448.0f;
+     const float2 a = __half22float2(detail::e4m3x2_to_half2(w & 0xffffu));
+@@ -332,7 +339,8 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+     // head dims of a 16-dim chunk, so the epilogue writes four adjacent dims per lane (26B full
+     // 19.7 -> 19.0 ms, 31B full 37.2 -> 36.2); the D = 256 sliding layers lost 6 % and keep it.
+     constexpr bool VDirect = Fp8 && kGemma4Fp8Hardware && D >= 512;
+-    constexpr bool KInt8   = kGemma4Int8Scores && KDirect && D == 512 && !Partial;
++    constexpr bool KInt8   = kGemma4Int8Scores && !kGemma4Fp8Scores && KDirect && D == 512 && !Partial;
++    constexpr bool KFp8Qk  = kGemma4Fp8Scores && KDirect && D == 512 && !Partial;
+     constexpr bool KFp8Pv  = kGemma4Fp8Pv && VDirect && D == 512 && !Partial;
+     static_assert(Tile::CodesOnly == (KDirect && VDirect),
+                   "a codes-only tile is read only directly");
+@@ -454,10 +462,12 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+     }
+ 
+     // KInt8: the same rows as INT8 A fragments of m16n8k32 (step kk holds 16-dim steps 2kk and
+-    // 2kk+1: rows g, g+8 by k halves), each row slice against its own absmax / 127.
+-    [[maybe_unused]] unsigned qi[KInt8 ? KS / 2 : 1][4];
++    // 2kk+1: rows g, g+8 by k halves), each row slice against its own absmax / 127. KFp8Qk: as
++    // E4M3 against absmax / 448.
++    [[maybe_unused]] unsigned qi[KInt8 || KFp8Qk ? KS / 2 : 1][4];
+     [[maybe_unused]] float qscale[2] = {0.0f, 0.0f};
+-    if constexpr (KInt8) {
++    if constexpr (KInt8 || KFp8Qk) {
++        constexpr float QMax = KFp8Qk ? 448.0f : 127.0f;
+ #pragma unroll
+         for (int r = 0; r < 2; ++r) {
+             const int row    = row_base + wr * 16 + gid + 8 * r;
+@@ -484,14 +494,20 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+             }
+             amax = fmaxf(amax, __shfl_xor_sync(0xffffffffu, amax, 1));
+             amax = fmaxf(amax, __shfl_xor_sync(0xffffffffu, amax, 2));
+-            qscale[r]       = amax / 127.0f;
+-            const float inv = amax > 0.0f ? 127.0f / amax : 0.0f;
++            qscale[r]       = amax / QMax;
++            const float inv = amax > 0.0f ? QMax / amax : 0.0f;
+ #pragma unroll
+             for (int ks = 0; ks < KS; ++ks) {
+                 unsigned w = 0;
++                if constexpr (KFp8Qk) {
++                    w = gemma4_f32x4_to_e4m3x4(v[ks][0] * inv, v[ks][1] * inv, v[ks][2] * inv,
++                                               v[ks][3] * inv);
++                } else {
+ #pragma unroll
+-                for (int i = 0; i < 4; ++i) {
+-                    w |= (static_cast<unsigned>(__float2int_rn(v[ks][i] * inv)) & 0xffu) << (8 * i);
++                    for (int i = 0; i < 4; ++i) {
++                        w |= (static_cast<unsigned>(__float2int_rn(v[ks][i] * inv)) & 0xffu)
++                             << (8 * i);
++                    }
+                 }
+                 qi[ks / 2][(ks & 1) * 2 + r] = w;
+             }
+@@ -798,6 +814,42 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+                     s[nt][2] = static_cast<float>(acc[nt][2]) * qscale[1] * k0;
+                     s[nt][3] = static_cast<float>(acc[nt][3]) * qscale[1] * k1;
+                 }
++            } else if constexpr (KFp8Qk) {
++                // The E4M3 K codes as they landed: the same ldmatrix gives each lane the e4m3 B
++                // fragment, k halves from chunks ks, ks + 1.
++                static_assert(PartKS % 2 == 0 && QKN % 2 == 0);
++                const int mrow = (lane & 7) + ((lane >> 3) & 1) * 8;
++                const int mks  = (lane >> 4) & 1;
++#pragma unroll
++                for (int ks = j * PartKS; ks < (j + 1) * PartKS; ks += 2) {
++                    const int col      = wc * (Geo::Slice / 16) + ks + mks;
++                    const unsigned* qa = qi[ks / 2];
++#pragma unroll
++                    for (int nt2 = 0; nt2 < QKN / 2; ++nt2) {
++                        const int key = nt2 * 16 + mrow;
++                        unsigned w0, w1, w2, w3;
++                        ldmatrix_x4(w0, w1, w2, w3,
++                                    code_lane + static_cast<unsigned>(key * D +
++                                                                      code_swizzle(key, col) * 16));
++                        float t0[4] = {0.0f, 0.0f, 0.0f, 0.0f};
++                        float t1[4] = {0.0f, 0.0f, 0.0f, 0.0f};
++                        mma_fp8_e4m3(t0[0], t0[1], t0[2], t0[3], qa[0], qa[1], qa[2], qa[3], w0, w2);
++                        mma_fp8_e4m3(t1[0], t1[1], t1[2], t1[3], qa[0], qa[1], qa[2], qa[3], w1, w3);
++#pragma unroll
++                        for (int i = 0; i < 4; ++i) {
++                            s[2 * nt2][i] += t0[i];
++                            s[2 * nt2 + 1][i] += t1[i];
++                        }
++                    }
++                }
++#pragma unroll
++                for (int nt = 0; nt < QKN; ++nt) {
++                    const float2 sk = *reinterpret_cast<const float2*>(row_scales + nt * 8 + 2 * tig);
++                    s[nt][0] *= qscale[0] * sk.x;
++                    s[nt][1] *= qscale[0] * sk.y;
++                    s[nt][2] *= qscale[1] * sk.x;
++                    s[nt][3] *= qscale[1] * sk.y;
++                }
+             } else if constexpr (KDirect) {
+                 static_assert(PartKS % 2 == 0 && QKN % 2 == 0);
+                 const int mrow = (lane & 7) + ((lane >> 3) & 1) * 8;
+-- 
+2.43.0
+

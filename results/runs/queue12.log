@@ -1,0 +1,56 @@
+=== 20:02:03 knowledge: NVFP4 split (no INT8)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | qat-nvfp4.r31 | total 20.4s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 8 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1020.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.20 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+mmlupro: 152/280 (64s)
+mmlu: 245/285 (55s)
+ROW {"label": "nvfp4-split", "ts": "2026-10-25 20:02:26", "mmlupro": "152/280", "mmlupro_secs": 64, "mmlu": "245/285", "mmlu_secs": 55}
+=== 20:04:28 knowledge: NVFP4 split+INT8 (repeat)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | qat-nvfp4.r31 | total 17.2s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 8 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1020.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.20 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+mmlupro: 150/280 (68s)
+mmlu: 244/285 (55s)
+ROW {"label": "nvfp4-i8c", "ts": "2026-10-25 20:04:48", "mmlupro": "150/280", "mmlupro_secs": 68, "mmlu": "244/285", "mmlu_secs": 55}
+=== 20:06:55 knowledge: Q4 QAT-UD (repeat)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 35.8s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 42 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 512 for 4 lanes (step survival chunk, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.26 GiB more would serve rung 41, 12.99 GiB the top | planned in 15 ms; t
+plan | rung 42: below the top rung of the asked --max-context 4,096; a survival rung | 0.27 GiB more free memory would serve rung 41 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 1024), 13.00 GiB the top rung (4,096 tokens x 4
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 5.14 GiB | free 1.74 GiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 6.88 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+mmlupro: 164/280 (79s)
+mmlu: 248/285 (62s)
+ROW {"label": "qatud", "ts": "2026-10-25 20:07:33", "mmlupro": "164/280", "mmlupro_secs": 79, "mmlu": "248/285", "mmlu_secs": 62}
+=== 20:09:57 PP: NVFP4 split+INT8 at chunk 1024, 155K context
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 24.7s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 210.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+PP 2048: 2871.9 tok/s (n=1658) [2871.9422532162107]
+PP 8192: 3925.3 tok/s (n=6573) [3925.327742083678]
+PP 32768: 2852.7 tok/s (n=28692) [2852.7117429071823]
+PP 65536: 1970.2 tok/s (n=58518) [1970.2321005543167]
+TG@2048 greedy: 108.8 tok/s [108.77790879202932] spec=['mtp K=8']
+TG@2048 sampled: 118.1 tok/s [118.09945977442867] spec=['mtp K=8']
+TG@8192 greedy: 98.9 tok/s [98.93617690868172] spec=['mtp K=8']
+TG@8192 sampled: 95.6 tok/s [95.56307375378708] spec=['mtp K=8']
+ROW {"label": "P7 QAT-NVFP4 split INT8 K8 shared2 155K chunk1024", "ts": "2026-10-25 20:10:23", "pp2048_ntok": 1658, "pp2048": 2871.9, "pp8192_ntok": 6573, "pp8192": 3925.3, "pp32768_ntok": 28692, "pp32768": 2852.7, "pp65536_ntok": 58518, "pp65536": 1970.2, "tg2048g": 108.8, "tg2048s": 118.1, "tg8192g": 98.9, "tg8192s": 95.6}
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1099.2, "tg": 67.6, "wall": 117.6, "ans": "cobalt-otter-3286", "want": "amber-falcon-5506"}
+NEEDLE P7 155K needle 0/1
+=== 20:13:30 QUEUE12 DONE

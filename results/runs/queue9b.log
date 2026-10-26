@@ -1,0 +1,19 @@
+=== 19:18:47 score split window 4096
+ninferno-gemma4: device memory free after the run: 3.098 GiB
+=== 19:19:15 score split window 32768
+ninferno-gemma4: device memory free after the run: 1.995 GiB
+=== 19:19:45 score i8b window 4096
+ninferno-gemma4: device memory free after the run: 3.098 GiB
+=== 19:20:03 score i8b window 32768
+ninferno-gemma4: device memory free after the run: 1.995 GiB
+SCORECMP window 4096: tokens 65520 ppl split 210.3110 i8b 215.0511 top1-agree 77.32% mean|dlogp| 0.82287
+SCORECMP window 32768: tokens 65534 ppl split 76.9600 i8b 85.0479 top1-agree 79.87% mean|dlogp| 0.73386
+=== 19:20:31 F7 serve i8b: NVFP4 + GeGLU split + INT8 scores, QAT drafter K8, shared2 140K chunk2048
+DIED
+2026-10-25 19:20:35.333  INFO  engine start refused | finalizing target | 76.6 ms
+2026-10-25 19:20:35.350  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.28 GiB of Device memory free after the weights (18.02 GiB): its last rung, 140,000 tokens x 1 context (140,032 KV tokens for 1 lane), 0 cached states, chunk 2048, needs 6.01 GiB, 0.74 GiB more. What fits instead (--prefill-chunk 2048, an automatic KV capacity in place of --kv-capacity): --max-concurrency 1 with up to 90752 tokens of context.
+=== 19:20:37 F8 serve split (no INT8): same config, needle + long prefill for reference
+DIED
+2026-10-25 19:20:41.299  INFO  engine start refused | finalizing target | 95.4 ms
+2026-10-25 19:20:41.316  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.28 GiB of Device memory free after the weights (18.02 GiB): its last rung, 140,000 tokens x 1 context (140,032 KV tokens for 1 lane), 0 cached states, chunk 2048, needs 6.01 GiB, 0.74 GiB more. What fits instead (--prefill-chunk 2048, an automatic KV capacity in place of --kv-capacity): --max-concurrency 1 with up to 90752 tokens of context.
+=== 19:20:43 QUEUE9 DONE

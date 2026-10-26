@@ -1,0 +1,40 @@
+From 1a3d564364cc34c613aff10cff3e5c66b4c63004 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 01:20:07 +0000
+Subject: [PATCH 7/7] q6 head: the sliced 8-column tile for the Gemma 4 31B
+ head at T 6..8
+
+An MTP verify of seven drafts runs the tied [262144,5376] head at T=8, which took the
+16-column MMA tile (442 GB/s). The sliced 8-column tile reads the same bytes at
+627 GB/s: RTX 5090 Laptop, linear bench, graph, T=8 2.50 -> 1.76 ms, T=7 2.50 -> 1.77
+ms; SIMT at T=6 was 2.68 ms. Volta keeps its routes.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/ops/linear/q6/shapes/n262144_k5376.cpp | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/ops/linear/q6/shapes/n262144_k5376.cpp b/src/ops/linear/q6/shapes/n262144_k5376.cpp
+index a538d6a..36d0978 100644
+--- a/src/ops/linear/q6/shapes/n262144_k5376.cpp
++++ b/src/ops/linear/q6/shapes/n262144_k5376.cpp
+@@ -5,11 +5,14 @@
+ namespace ninferno::ops::detail {
+ 
+ // Gemma 4 31B tied output head. The SIMT launchers keep decode near the stream rate through
+-// T=6; from seven tokens the 16-column MMA tile is flat to T=16. Each wider tile is chosen at
+-// the T where its last column fills, the band edges the sweep over T measured.
++// T=5; T 6..8 (an MTP verify of up to seven drafts) take the sliced 8-column MMA tile (RTX 5090
++// Laptop, T=8: 1.76 ms against 2.50 on the 16-column tile and 2.68 on SIMT at T=6), and from nine
++// tokens the 16-column MMA tile is flat to T=16. Each wider tile is chosen at the T where its last
++// column fills, the band edges the sweep over T measured.
+ Q6Launch select_q6_n262144_k5376(std::int32_t tokens) {
+     if (tokens <= 4) return launch_q6_a16_simt_r8_t4;
+     if (tokens <= 5) return launch_q6_a16_simt_r8_t5;
++    if (tokens <= 8 && build_features().mma_tensor) return launch_q6_a16_sliced_r16_t8_w4_s2;
+     if (tokens <= 6) return launch_q6_a16_simt_r8_t6;
+     // Without tensor mma.sync (Volta's build) the 16-column tile runs on FP32 FMAs; the sliced
+     // tile's launch takes those widths to the SIMT kernel there.
+-- 
+2.43.0
+

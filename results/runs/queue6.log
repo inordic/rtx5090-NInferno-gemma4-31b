@@ -1,0 +1,173 @@
+=== 16:43:40 C7 serve: QAT drafter, tuned profile (mtp:10:3), shared2 262K chunk512
+DIED
+       [--log-level trace|debug|info|warning|error|critical|off]
+       idle card of its class), and refused before the download when none does.
+       class or drafters) refuses start-up.
+=== 16:43:45 C8 serve: QAT drafter K=8, shared2 262K chunk512
+choice | no candidate holds 262144 tokens for each of 1 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 38.9s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 262,144 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 262,144 tokens x 1 context (262,144 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.94 GiB more would serve rung 2, 2.11 GiB the top | planned in 1 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 0.95 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 512), 2.12 GiB the top rung (262,144 tokens x 1 context (262,
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.56 GiB | free 364.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+TG@2048 greedy: 106.4 tok/s [94.16209068112789, 118.55969144901087] spec=['mtp K=8', 'mtp K=8']
+TG@2048 sampled: 94.2 tok/s [83.720521851069, 104.77236814427968] spec=['mtp K=8', 'mtp K=8']
+TG@8192 greedy: 101.8 tok/s [98.41239394719568, 105.18881922597515] spec=['mtp K=8', 'mtp K=8']
+TG@8192 sampled: 100.4 tok/s [95.46166125355862, 105.43212857777952] spec=['mtp K=8', 'mtp K=8']
+CHAT C=1 greedy: 97.8 tok/s (4824 tok) spec=mtp K=8
+CHAT C=1 sampled: 95.9 tok/s (4900 tok) spec=mtp K=8
+ROW {"label": "C8 QAT-UD QATdrafter K8 shared2 262K", "ts": "2026-10-25 16:44:26", "tg2048g": 106.4, "tg2048s": 94.2, "tg8192g": 101.8, "tg8192s": 100.4, "chatg": 97.8, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 95.9, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+=== 16:47:37 PP sweep: chunk 1024 / 2048 / 4096, dense tuner, exact activations
+choice | KV fp8, activations fast | 38.3 tok/s decode, 1361 prefill, KLD 0.0329 (estimates) | the model's weights (the one quantization): every stream holds 70000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 58.2s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 70,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 70,000 tokens x 1 context (70,016 KV tokens), 2 cached states, chunk 1024 for 1 lane (step top, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 70,016 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,094/1,094 | runtime 4.23 GiB | free 2.68 GiB
+speculation | serves mtp K=4 (explicit) | fallback none | --spec
+PP 2048: 1489.3 tok/s (n=1658) [1489.3260438099446]
+PP 8192: 1523.4 tok/s (n=6573) [1523.380605660595]
+PP 32768: 1271.6 tok/s (n=28692) [1271.5936234907604]
+PP 65536: 1037.6 tok/s (n=58518) [1037.5795126923795]
+ROW {"label": "P1-chunk1024", "ts": "2026-10-25 16:48:37", "pp2048_ntok": 1658, "pp2048": 1489.3, "pp8192_ntok": 6573, "pp8192": 1523.4, "pp32768_ntok": 28692, "pp32768": 1271.6, "pp65536_ntok": 58518, "pp65536": 1037.6}
+choice | KV fp8, activations fast, chunk 2048 | 38.3 tok/s decode, 1361 prefill, KLD 0.0329 (estimates) | the model's weights (the one quantization): every stream holds 70000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 1m 58.7s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 70,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 70,000 tokens x 1 context (70,016 KV tokens), 2 cached states, chunk 2048 for 1 lane (step top, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 70,016 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,094/1,094 | runtime 5.79 GiB | free 1.13 GiB
+speculation | serves mtp K=4 (explicit) | fallback none | --spec
+PP 2048: 1443.9 tok/s (n=1658) [1443.926587556983]
+PP 8192: 1518.4 tok/s (n=6573) [1518.3890307544011]
+PP 32768: 1289.4 tok/s (n=28692) [1289.3616777418038]
+PP 65536: 1042.9 tok/s (n=58518) [1042.9320944240314]
+ROW {"label": "P2-chunk2048", "ts": "2026-10-25 16:52:06", "pp2048_ntok": 1658, "pp2048": 1443.9, "pp8192_ntok": 6573, "pp8192": 1518.4, "pp32768_ntok": 28692, "pp32768": 1289.4, "pp65536_ntok": 58518, "pp65536": 1042.9}
+choice | KV fp8, activations fast, chunk 4096 | 38.3 tok/s decode, 1361 prefill, KLD 0.0329 (estimates) | the model's weights (the one quantization): every stream holds 70000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 2m 41.7s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 70,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 70,000 tokens x 1 context (70,016 KV tokens), 0 cached states, chunk 4096 for 1 lane (step states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.20 GiB more would serve rung 2, 2.18 GiB the top | planned in 0 ms; the rungs ar
+plan | rung 3: below the top rung of the asked --max-context 70,000 | 0.21 GiB more free memory would serve rung 2 (70,000 tokens x 1 context (70,016 KV tokens for 1 lane), 1 cached states, chunk 4096), 2.19 GiB the top rung (70,000 tokens x 1 context (70,016 
+capacity | KV 70,016 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,094/1,094 | runtime 4.98 GiB | free 1.94 GiB
+speculation | serves mtp K=4 (explicit) | fallback none | --spec
+PP 2048: 1338.8 tok/s (n=1658) [1338.7958853980192]
+PP 8192: 1533.0 tok/s (n=6573) [1533.0359507607827]
+PP 32768: 1298.0 tok/s (n=28692) [1298.0495137845512]
+PP 65536: 1053.5 tok/s (n=58518) [1053.5224094729303]
+ROW {"label": "P3-chunk4096", "ts": "2026-10-25 16:56:17", "pp2048_ntok": 1658, "pp2048": 1338.8, "pp8192_ntok": 6573, "pp8192": 1533.0, "pp32768_ntok": 28692, "pp32768": 1298.0, "pp65536_ntok": 58518, "pp65536": 1053.5}
+choice | KV fp8, activations fast, chunk 2048 | 38.3 tok/s decode, 1361 prefill, KLD 0.0329 (estimates) | the model's weights (the one quantization): every stream holds 70000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 2m 24.5s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 70,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 70,000 tokens x 1 context (70,016 KV tokens), 2 cached states, chunk 2048 for 1 lane (step top, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 70,016 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,094/1,094 | runtime 5.79 GiB | free 1.13 GiB
+speculation | serves mtp K=4 (explicit) | fallback none | --spec
+PP 2048: 1445.4 tok/s (n=1658) [1445.350386133942]
+PP 8192: 1516.7 tok/s (n=6573) [1516.6685014479065]
+PP 32768: 1288.4 tok/s (n=28692) [1288.4385770196436]
+PP 65536: 1043.2 tok/s (n=58518) [1043.241522306166]
+ROW {"label": "P4-densetune-chunk2048", "ts": "2026-10-25 17:00:10", "pp2048_ntok": 1658, "pp2048": 1445.4, "pp8192_ntok": 6573, "pp8192": 1516.7, "pp32768_ntok": 28692, "pp32768": 1288.4, "pp65536_ntok": 58518, "pp65536": 1043.2}
+choice | KV fp8, activations fast, chunk 2048 | 38.3 tok/s decode, 1361 prefill, KLD 0.0329 (estimates) | the model's weights (the one quantization): every stream holds 70000 tokens; KV fp8, activations fast: the family's defaults (gb20x has no reference card)
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 1m 58.7s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 70,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 70,000 tokens x 1 context (70,016 KV tokens), 2 cached states, chunk 2048 for 1 lane (step top, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 70,016 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 1,094/1,094 | runtime 5.79 GiB | free 1.13 GiB
+speculation | serves mtp K=4 (explicit) | fallback none | --spec
+PP 2048: 1436.8 tok/s (n=1658) [1436.8024658206336]
+PP 8192: 1519.7 tok/s (n=6573) [1519.6839094090662]
+PP 32768: 1290.3 tok/s (n=28692) [1290.3435152519796]
+PP 65536: 1044.5 tok/s (n=58518) [1044.5135014972116]
+ROW {"label": "P5-densetune-again-chunk2048", "ts": "2026-10-25 17:03:37", "pp2048_ntok": 1658, "pp2048": 1436.8, "pp8192_ntok": 6573, "pp8192": 1519.7, "pp32768_ntok": 28692, "pp32768": 1290.3, "pp65536_ntok": 58518, "pp65536": 1044.5}
+choice | KV fp8, activations exact, chunk 2048 | 28.5 tok/s decode, 351 prefill, KLD 0.0313 (estimates) | the model's weights (the one quantization): every stream holds 70000 tokens; KV fp8, activations exact: the family's defaults (gb20x has no reference card
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 5m 43.9s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 70,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 1 of 3: 70,000 tokens x 1 context (70,016 KV tokens), 2 cached states, chunk 2048 for 1 lane (step top, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | planned in 0 ms; the rungs are declared, the free memory picks one
+capacity | KV 70,016 tokens, fp8, sliding rings fp8, explicit | activations exact | pages 1,094/1,094 | runtime 5.79 GiB | free 1.13 GiB
+speculation | serves mtp K=4 (explicit) | fallback none | --spec
+PP 2048: 498.7 tok/s (n=1658) [498.7106884907998]
+PP 8192: 504.8 tok/s (n=6573) [504.79874233392263]
+PP 32768: 475.5 tok/s (n=28692) [475.4842084268048]
+PP 65536: 441.1 tok/s (n=58518) [441.1099513327498]
+ROW {"label": "P6-exact-chunk2048", "ts": "2026-10-25 17:10:49", "pp2048_ntok": 1658, "pp2048": 498.7, "pp8192_ntok": 6573, "pp8192": 504.8, "pp32768_ntok": 28692, "pp32768": 475.5, "pp65536_ntok": 58518, "pp65536": 441.1}
+=== 17:14:22 llama.cpp bench pp/tg
+| gemma4 31B Q4_0                |  16.09 GiB |    30.70 B | CUDA       | 999 |   1 |           pp512 |      1769.55 ± 73.80 |
+| gemma4 31B Q4_0                |  16.09 GiB |    30.70 B | CUDA       | 999 |   1 |          pp2048 |       1666.17 ± 1.07 |
+| gemma4 31B Q4_0                |  16.09 GiB |    30.70 B | CUDA       | 999 |   1 |          pp8192 |       1559.19 ± 1.08 |
+| gemma4 31B Q4_0                |  16.09 GiB |    30.70 B | CUDA       | 999 |   1 |           tg128 |         37.16 ± 0.05 |
+| gemma4 31B Q4_0                |  16.09 GiB |    30.70 B | CUDA       | 999 |    4096 |     2048 |   1 |          pp2048 |       1698.15 ± 1.32 |
+=== 17:15:15 llama.cpp L1 plain f16 KV 32K
+0.02.189.718 I srv    load_model: initializing, n_slots = 4, n_ctx_slot = 32768, kv_unified = 'true'
+PP 2048: 980.0 tok/s (n=1702) [945.6558188576637, 1014.3263162850626]
+PP 8192: 1334.5 tok/s (n=7471) [1330.351962483529, 1338.5767941918916]
+PP 24576: 1253.5 tok/s (n=20967) [1247.8166891857202, 1259.1874682530654]
+TG@2048 greedy: 33.4 tok/s [33.30806222623918, 33.48534105475155] spec=[None, None]
+TG@8192 greedy: 30.1 tok/s [30.176852299189733, 30.11471821787816] spec=[None, None]
+CHAT C=1 greedy: 36.6 tok/s (5120 tok) spec=None
+ROW {"label": "L1 llama.cpp QAT-UD plain f16kv 32K", "ts": "2026-10-25 17:25:24", "pp2048_ntok": 1702, "pp2048": 980.0, "pp8192_ntok": 7471, "pp8192": 1334.5, "pp24576_ntok": 20967, "pp24576": 1253.5, "tg2048g": 33.4, "tg8192g": 30.1, "chatg": 36.6}
+=== 17:30:13 llama.cpp L2 MTP4 (QAT MTP Q4_0 lossless) f16 KV 32K
+0.02.435.972 I common_speculative_init_result: loading draft model '/opt/models/dl2/qat-assistant-Q4_0-qat.gguf'
+0.02.903.278 I srv    load_model: initializing, n_slots = 4, n_ctx_slot = 32768, kv_unified = 'true'
+TG@2048 greedy: 97.2 tok/s [94.97180954193479, 99.34519656253956] spec=[None, None]
+TG@2048 sampled: 90.5 tok/s [91.35959889024011, 89.7171031874854] spec=[None, None]
+TG@8192 greedy: 88.1 tok/s [86.03006439291396, 90.24080166325629] spec=[None, None]
+TG@8192 sampled: 79.0 tok/s [79.15170438712649, 78.80780903649512] spec=[None, None]
+CHAT C=1 greedy: 101.8 tok/s (5120 tok) spec=None
+CHAT C=1 sampled: 93.9 tok/s (5120 tok) spec=None
+ROW {"label": "L2 llama.cpp QAT-UD MTP4 Q40qat f16kv 32K", "ts": "2026-10-25 17:40:23", "tg2048g": 97.2, "tg2048s": 90.5, "tg8192g": 88.1, "tg8192s": 79.0, "chatg": 101.8, "chats": 93.9}
+=== 17:43:45 llama.cpp L4 DFlash7 f16 KV 32K
+DIED
+0.03.167.630 E llama_model_load_from_file_impl: failed to load model
+0.03.167.631 E common_speculative_init_result: failed to load draft model, '/opt/models/dl2/dflash-Q4_K_M.gguf'
+0.03.167.640 E srv    load_model: failed to load draft model, '/opt/models/dl2/dflash-Q4_K_M.gguf'
+0.03.167.648 I srv    operator(): operator(): cleaning up before exit...
+0.03.168.535 E srv  server_run_i: exiting due to model loading error
+=== 17:43:51 quality matrix (QAT drafter)
+choice | no candidate holds 4096 tokens for each of 6 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 26.3s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 57 of 58: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 6 lanes (step survival chunk, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 1.06 GiB more would serve rung 56, 23.11 GiB the top | planned in 22 ms; t
+plan | rung 57: below the top rung of the asked --max-context 4,096; a survival rung | 1.06 GiB more free memory would serve rung 56 (4,096 tokens x 1 context (4,096 KV tokens for 6 lanes), 0 cached states, chunk 512), 23.12 GiB the top rung (4,096 tokens x 6 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/384 | runtime 6.28 GiB | free 608.6 MiB
+capacity | KV 4,096 of 24,576 tokens (auto: --max-concurrency 6 x --max-context 4,096 does not fit the 6.88 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=3 (explicit) | fallback none | --spec
+gsm8k: 196/200 (209s)
+mmlupro: 165/280 (77s)
+humaneval: 159/164 (172s)
+ROW {"label": "qatud-fp8", "ts": "2026-10-25 17:44:20", "gsm8k": "196/200", "gsm8k_secs": 209, "mmlupro": "165/280", "mmlupro_secs": 77, "humaneval": "159/164", "humaneval_secs": 172}
+choice | no candidate holds 4096 tokens for each of 6 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 24.0s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 57 of 58: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 6 lanes (step survival chunk, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.98 GiB more would serve rung 56, 22.64 GiB the top | planned in 22 ms; t
+plan | rung 57: below the top rung of the asked --max-context 4,096; a survival rung | 0.98 GiB more free memory would serve rung 56 (4,096 tokens x 1 context (4,096 KV tokens for 6 lanes), 0 cached states, chunk 512), 22.65 GiB the top rung (4,096 tokens x 6 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/384 | runtime 6.20 GiB | free 688.6 MiB
+capacity | KV 4,096 of 24,576 tokens (auto: --max-concurrency 6 x --max-context 4,096 does not fit the 6.88 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=3 (explicit) | fallback none | --spec
+gsm8k: 196/200 (211s)
+mmlupro: 164/280 (77s)
+humaneval: 159/164 (170s)
+ROW {"label": "qatud-shared2", "ts": "2026-10-25 17:52:26", "gsm8k": "196/200", "gsm8k_secs": 211, "mmlupro": "164/280", "mmlupro_secs": 77, "humaneval": "159/164", "humaneval_secs": 170}
+choice | no candidate holds 4096 tokens for each of 6 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 19.3s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 57 of 58: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 6 lanes (step survival chunk, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 1.21 GiB more would serve rung 56, 24.04 GiB the top | planned in 22 ms; t
+plan | rung 57: below the top rung of the asked --max-context 4,096; a survival rung | 1.22 GiB more free memory would serve rung 56 (4,096 tokens x 1 context (4,096 KV tokens for 6 lanes), 0 cached states, chunk 512), 24.05 GiB the top rung (4,096 tokens x 6 
+capacity | KV 4,096 tokens, bf16, auto | activations fast | pages 64/384 | runtime 6.44 GiB | free 448.6 MiB
+capacity | KV 4,096 of 24,576 tokens (auto: --max-concurrency 6 x --max-context 4,096 does not fit the 6.88 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=3 (explicit) | fallback none | --spec
+gsm8k: 196/200 (212s)
+mmlupro: 165/280 (77s)
+humaneval: 159/164 (174s)
+ROW {"label": "qatud-bf16", "ts": "2026-10-25 18:00:29", "gsm8k": "196/200", "gsm8k_secs": 212, "mmlupro": "165/280", "mmlupro_secs": 77, "humaneval": "159/164", "humaneval_secs": 174}
+choice | no candidate holds 4096 tokens for each of 6 streams
+engine ready | pajari-Q4_0_V2.gemma4_published | total 28.3s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 57 of 58: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 6 lanes (step survival chunk, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.98 GiB more would serve rung 56, 22.64 GiB the top | planned in 22 ms; t
+plan | rung 57: below the top rung of the asked --max-context 4,096; a survival rung | 0.98 GiB more free memory would serve rung 56 (4,096 tokens x 1 context (4,096 KV tokens for 6 lanes), 0 cached states, chunk 512), 22.65 GiB the top rung (4,096 tokens x 6 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/384 | runtime 6.20 GiB | free 688.6 MiB
+capacity | KV 4,096 of 24,576 tokens (auto: --max-concurrency 6 x --max-context 4,096 does not fit the 6.88 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=3 (explicit) | fallback none | --spec
+gsm8k: 196/200 (211s)
+mmlupro: 164/280 (77s)
+humaneval: 159/164 (172s)
+ROW {"label": "pajari-shared2", "ts": "2026-10-25 18:08:45", "gsm8k": "196/200", "gsm8k_secs": 211, "mmlupro": "164/280", "mmlupro_secs": 77, "humaneval": "159/164", "humaneval_secs": 172}
+DIED
+2026-10-25 18:16:44.096  INFO  engine start refused | finalizing target | 113 ms
+2026-10-25 18:16:44.121  FATAL server failed during startup | no rung of the 58-rung plan ladder fits the 5.66 GiB of Device memory free after the weights (17.64 GiB): its last rung, 4,096 tokens x 1 context (4,096 KV tokens for 6 lanes), 0 cached states, chunk 128, needs 5.79 GiB, 0.14 GiB more. What fits instead (prefill chunk down to 128): --max-concurrency 5 with the asked 4096 tokens of context.
+=== 18:16:45 QUEUE6 DONE

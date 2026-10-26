@@ -1,0 +1,26 @@
+ninferno-gemma4: sized to the device: context 4096, chunk 2048 (6997 MiB free, 196 MiB kept for CUDA graphs, 1 trial sessions)
+spec-tune plain     math        37.9 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+spec-tune plain     code        37.9 tok/s   1.00 tok/round  acc 0.000  identical 1207/1207
+spec-tune plain     prose       37.9 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+spec-tune plain     thinking    37.9 tok/s   1.00 tok/round  acc 0.000  identical 2048/2048
+spec-tune mtp:4     math       116.8 tok/s   4.48 tok/round  acc 0.871  identical 1090/1280
+spec-tune mtp:4     code       118.8 tok/s   4.60 tok/round  acc 0.899  identical 1194/1207
+spec-tune mtp:4     prose       60.0 tok/s   2.29 tok/round  acc 0.323  identical 520/1280
+spec-tune mtp:4     thinking   114.9 tok/s   4.38 tok/round  acc 0.845  identical 1456/2048
+spec-tune mtp:8     math       152.8 tok/s   6.63 tok/round  acc 0.704  identical 1202/1280
+spec-tune mtp:8     code       171.5 tok/s   7.43 tok/round  acc 0.804  identical 1194/1207
+spec-tune mtp:8     prose       58.3 tok/s   2.49 tok/round  acc 0.186  identical 430/1280
+spec-tune mtp:8     thinking   152.7 tok/s   6.57 tok/round  acc 0.696  identical 1435/2048
+spec-tune mtp:10:3  math       158.6 tok/s   6.96 tok/round  acc 0.720  identical 1044/1280
+spec-tune mtp:10:3  code       178.5 tok/s   7.94 tok/round  acc 0.795  identical 1194/1207
+spec-tune mtp:10:3  prose       61.0 tok/s   2.22 tok/round  acc 0.338  identical 520/1280
+spec-tune mtp:10:3  thinking   152.1 tok/s   6.54 tok/round  acc 0.709  identical 1456/2048
+choice non_thinking mtp:10:3   x2.796  106.0 tok/s  floor 1.47 tok/round
+choice thinking     mtp:8      x4.034  152.7 tok/s  floor 1.61 tok/round
+choice default      mtp:10:3   x3.026  114.7 tok/s  floor 1.50 tok/round
+choice served non_thinking mtp:8      x2.681  101.6 tok/s  floor 1.60 tok/round
+choice served thinking mtp:8      x4.034  152.7 tok/s  floor 1.61 tok/round
+choice served default mtp:8      x2.926  110.9 tok/s  floor 1.61 tok/round
+drafter assistant  accepted 
+drafter ngram      untested no configuration measured within the time budget
+{"profile":"/root/gbench/heretic_qatasst.tune.json","tune_seconds":489.2,"gpu_class":"gb203:82sm","default":"mtp:10:3","skipped":0}

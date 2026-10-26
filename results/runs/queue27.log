@@ -1,0 +1,41 @@
+=== 22:18:54 262K unit
+active
+models ['gemma4-31b-262k']
+chat '391' 0.18s
+stream chunks 5 done True first 0.186s total 0.30s
+Traceback (most recent call last):
+  File "/root/gbench/verify.py", line 40, in <module>
+    print(f"turn {turn}: prompt {tm.get(prompt_n)} cache {tm.get(cache_n)} prompt_ms {tm.get(prompt_ms)} "
+                                        ^^^^^^^^
+NameError: name 'prompt_n' is not defined
+=== 22:19:46 fast unit
+active
+PP 2048: 3046.8 tok/s (n=1658) [3046.819169117565]
+PP 8192: 4247.5 tok/s (n=6573) [4247.458394208051]
+PP 32768: 3448.9 tok/s (n=28692) [3448.8794586672075]
+PP 65536: 2591.4 tok/s (n=58518) [2591.447376351554]
+TG@2048 greedy: 117.2 tok/s [117.19988122638355] spec=['mtp K=8']
+TG@2048 sampled: 128.7 tok/s [128.69528906595298] spec=['mtp K=8']
+TG@8192 greedy: 98.1 tok/s [98.11428429519712] spec=['mtp K=8']
+TG@8192 sampled: 103.6 tok/s [103.63932673984439] spec=['mtp K=8']
+CHAT C=1 greedy: 108.6 tok/s (4760 tok) spec=mtp K=8
+CHAT C=1 sampled: 105.6 tok/s (4837 tok) spec=mtp K=8
+ROW {"label": "UF fast unit final (qk8p1 split1 155K chunk1024)", "ts": "2026-10-25 22:20:10", "pp2048_ntok": 1658, "pp2048": 3046.8, "pp8192_ntok": 6573, "pp8192": 4247.5, "pp32768_ntok": 28692, "pp32768": 3448.9, "pp65536_ntok": 58518, "pp65536": 2591.4, "tg2048g": 117.2, "tg2048s": 128.7, "tg8192g": 98.1, "tg8192s": 103.6, "chatg": 108.6, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 105.6, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+models ['gemma4-31b-fast']
+chat '391' 0.15s
+stream chunks 6 done True first 0.117s total 0.27s
+turn 0: prompt 17606 cache 0 prompt_ms 4447.3891380000005 wall 5.23s decode 85.30142374874104
+turn 1: prompt 90 cache 17599 prompt_ms 300.375376 wall 0.58s decode 115.15405390733727
+turn 2: prompt 53 cache 17682 prompt_ms 235.611983 wall 0.50s decode 147.60129869954687
+{"L": 32000, "depth": 0.1, "ok": true, "ptok": 31904, "pp": 3352.8, "tg": 188.0, "wall": 9.6, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 32000, "depth": 0.5, "ok": true, "ptok": 30452, "pp": 3368.4, "tg": 168.6, "wall": 9.1, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+{"L": 32000, "depth": 0.9, "ok": true, "ptok": 27887, "pp": 3493.0, "tg": 108.5, "wall": 8.1, "ans": "cobalt-heron-5557", "want": "cobalt-heron-5557"}
+{"L": 72000, "depth": 0.1, "ok": true, "ptok": 67286, "pp": 2381.1, "tg": 138.6, "wall": 28.4, "ans": "violet-falcon-2519", "want": "violet-falcon-2519"}
+{"L": 72000, "depth": 0.5, "ok": true, "ptok": 67021, "pp": 2383.9, "tg": 154.3, "wall": 28.3, "ans": "amber-heron-9785", "want": "amber-heron-9785"}
+{"L": 72000, "depth": 0.9, "ok": true, "ptok": 67095, "pp": 2382.0, "tg": 154.5, "wall": 28.3, "ans": "cobalt-falcon-1750", "want": "cobalt-falcon-1750"}
+{"L": 140000, "depth": 0.1, "ok": true, "ptok": 129570, "pp": 1581.6, "tg": 75.0, "wall": 82.2, "ans": "saffron-lynx-3664", "want": "saffron-lynx-3664"}
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 130820, "pp": 1568.0, "tg": 62.7, "wall": 83.7, "ans": "cobalt-otter-8573", "want": "cobalt-otter-8573"}
+{"L": 140000, "depth": 0.9, "ok": true, "ptok": 131769, "pp": 1562.2, "tg": 66.4, "wall": 84.6, "ans": "violet-heron-5386", "want": "violet-heron-5386"}
+NEEDLE UF fast unit needles 9/9
+active
+=== 22:28:47 QUEUE27 DONE

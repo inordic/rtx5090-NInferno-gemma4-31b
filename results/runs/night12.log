@@ -1,0 +1,65 @@
+=== 01:43:40 idle: taking the GPU
+=== 01:43:43 K6 final3
+grep: /root/gbench/logs/K6-f3.log: No such file or directory
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=6 (explicit) | fallback none | --spec
+TG@2048 greedy: 122.4 tok/s [122.3595432833165] spec=['mtp K=6']
+TG@2048 sampled: 126.8 tok/s [126.81674114480688] spec=['mtp K=6']
+TG@8192 greedy: 97.0 tok/s [97.03098625871858] spec=['mtp K=6']
+TG@8192 sampled: 112.5 tok/s [112.4660872462125] spec=['mtp K=6']
+CHAT C=1 greedy: 117.0 tok/s (4864 tok) spec=mtp K=6
+CHAT C=1 sampled: 113.0 tok/s (4701 tok) spec=mtp K=6
+ROW {"label": "K6 final3 155K", "ts": "2026-10-26 01:44:09", "tg2048g": 122.4, "tg2048s": 126.8, "tg8192g": 97.0, "tg8192s": 112.5, "chatg": 117.0, "chatg_spec": {"config": "mtp K=6", "fallback": "none", "reason": "--spec"}, "chats": 113.0, "chats_spec": {"config": "mtp K=6", "fallback": "none", "reason": "--spec"}}
+=== 01:46:01 K7 final3
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.2s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@2048 greedy: 116.8 tok/s [116.84151925329714] spec=['mtp K=7']
+TG@2048 sampled: 140.1 tok/s [140.07817363743857] spec=['mtp K=7']
+TG@8192 greedy: 97.1 tok/s [97.13749352601891] spec=['mtp K=7']
+TG@8192 sampled: 100.2 tok/s [100.21690372011969] spec=['mtp K=7']
+CHAT C=1 greedy: 117.9 tok/s (4864 tok) spec=mtp K=7
+CHAT C=1 sampled: 113.7 tok/s (4848 tok) spec=mtp K=7
+ROW {"label": "K7 final3 155K", "ts": "2026-10-26 01:46:27", "tg2048g": 116.8, "tg2048s": 140.1, "tg8192g": 97.1, "tg8192s": 100.2, "chatg": 117.9, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 113.7, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 01:48:19 K6 final3
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=6 (explicit) | fallback none | --spec
+TG@2048 greedy: 126.6 tok/s [126.56647508788096] spec=['mtp K=6']
+TG@2048 sampled: 116.8 tok/s [116.82788266319497] spec=['mtp K=6']
+TG@8192 greedy: 90.3 tok/s [90.34068335321142] spec=['mtp K=6']
+TG@8192 sampled: 110.5 tok/s [110.51440818469067] spec=['mtp K=6']
+CHAT C=1 greedy: 116.8 tok/s (4864 tok) spec=mtp K=6
+CHAT C=1 sampled: 111.7 tok/s (4891 tok) spec=mtp K=6
+ROW {"label": "K6 final3 155K", "ts": "2026-10-26 01:48:46", "tg2048g": 126.6, "tg2048s": 116.8, "tg8192g": 90.3, "tg8192s": 110.5, "chatg": 116.8, "chatg_spec": {"config": "mtp K=6", "fallback": "none", "reason": "--spec"}, "chats": 111.7, "chats_spec": {"config": "mtp K=6", "fallback": "none", "reason": "--spec"}}
+=== 01:50:40 K7 final3
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.3s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@2048 greedy: 117.7 tok/s [117.72178064702949] spec=['mtp K=7']
+TG@2048 sampled: 129.3 tok/s [129.28084408006535] spec=['mtp K=7']
+TG@8192 greedy: 99.1 tok/s [99.0951810998565] spec=['mtp K=7']
+TG@8192 sampled: 120.7 tok/s [120.7360423362884] spec=['mtp K=7']
+CHAT C=1 greedy: 117.9 tok/s (4864 tok) spec=mtp K=7
+CHAT C=1 sampled: 114.5 tok/s (4759 tok) spec=mtp K=7
+ROW {"label": "K7 final3 155K", "ts": "2026-10-26 01:51:06", "tg2048g": 117.7, "tg2048s": 129.3, "tg8192g": 99.1, "tg8192s": 120.7, "chatg": 117.9, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 114.5, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 01:52:57 restoring the deployed unit
+active
+=== 01:53:26 NIGHT12 DONE

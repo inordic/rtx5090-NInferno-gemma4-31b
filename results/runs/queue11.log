@@ -1,0 +1,58 @@
+=== 19:38:17 Q1 quality: NVFP4 + split + INT8 D512 (4 lanes)
+grep: /root/gbench/logs/q-nvfp4-split-i8c-shared2.log: No such file or directory
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | qat-nvfp4.r31 | total 14.1s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 8 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1.01 GiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.21 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=3 (explicit) | fallback none | --spec
+gsm8k: 198/200 (202s)
+mmlupro: 150/280 (62s)
+humaneval: 161/164 (167s)
+ROW {"label": "nvfp4-split-i8c-shared2", "ts": "2026-10-25 19:38:33", "gsm8k": "198/200", "gsm8k_secs": 202, "mmlupro": "150/280", "mmlupro_secs": 62, "humaneval": "161/164", "humaneval_secs": 167}
+=== 19:45:47 M plan: max context at chunk 2048 / 1024 / 512 with MTP K8
+chunk 2048: with up to 92672 tokens
+chunk 1024: with up to 155840 tokens
+chunk 512: with up to 185344 tokens
+=== 19:45:59 F9 serve: NVFP4 + split + INT8, K8, shared2 96K chunk2048
+choice | no candidate holds 90000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 45.8s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 90,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 90,000 tokens x 1 context (90,048 KV tokens), 0 cached states, chunk 2048 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 2.22 GiB more would serve rung 2, 4.56 GiB the top | planned in 0 ms; the rungs ar
+plan | rung 3: below the top rung of the asked --max-context 90,000 | 2.23 GiB more free memory would serve rung 2 (90,000 tokens x 1 context (90,048 KV tokens for 1 lane), 1 cached states, chunk 2048), 4.57 GiB the top rung (90,000 tokens x 1 context (90,048 
+capacity | KV 90,048 tokens, fp8, explicit | activations fast | pages 1,407/1,407 | runtime 4.95 GiB | free 294.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+PP 2048: 2704.5 tok/s (n=1658) [2704.4644709005447]
+PP 8192: 4127.1 tok/s (n=6573) [4127.05895081336]
+PP 32768: 2944.1 tok/s (n=28692) [2944.141734990734]
+PP 65536: 1996.4 tok/s (n=58518) [1996.3705188394163]
+TG@2048 greedy: 105.9 tok/s [105.94034103747359] spec=['mtp K=8']
+TG@2048 sampled: 105.7 tok/s [105.73581141254668] spec=['mtp K=8']
+TG@8192 greedy: 92.3 tok/s [92.2727380443916] spec=['mtp K=8']
+TG@8192 sampled: 93.6 tok/s [93.58670377019409] spec=['mtp K=8']
+CHAT C=1 greedy: 101.1 tok/s (4784 tok) spec=mtp K=8
+CHAT C=1 sampled: 98.0 tok/s (4818 tok) spec=mtp K=8
+ROW {"label": "F9 QAT-NVFP4 split INT8 K8 shared2 90K chunk2048", "ts": "2026-10-25 19:46:46", "pp2048_ntok": 1658, "pp2048": 2704.5, "pp8192_ntok": 6573, "pp8192": 4127.1, "pp32768_ntok": 28692, "pp32768": 2944.1, "pp65536_ntok": 58518, "pp65536": 1996.4, "tg2048g": 105.9, "tg2048s": 105.7, "tg8192g": 92.3, "tg8192s": 93.6, "chatg": 101.1, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 98.0, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+{"L": 32000, "depth": 0.1, "ok": true, "ptok": 31904, "pp": 2774.9, "tg": 169.4, "wall": 11.6, "ans": "amber-lynx-5012", "want": "amber-lynx-5012"}
+{"L": 32000, "depth": 0.5, "ok": true, "ptok": 30452, "pp": 2817.7, "tg": 149.1, "wall": 10.9, "ans": "amber-falcon-4582", "want": "amber-falcon-4582"}
+{"L": 32000, "depth": 0.9, "ok": true, "ptok": 27887, "pp": 2941.2, "tg": 98.2, "wall": 9.6, "ans": "cobalt-heron-5557", "want": "cobalt-heron-5557"}
+{"L": 72000, "depth": 0.1, "ok": true, "ptok": 67286, "pp": 1799.7, "tg": 133.9, "wall": 37.5, "ans": "violet-falcon-2519", "want": "violet-falcon-2519"}
+{"L": 72000, "depth": 0.5, "ok": true, "ptok": 67021, "pp": 1804.5, "tg": 141.8, "wall": 37.3, "ans": "amber-heron-9785", "want": "amber-heron-9785"}
+{"L": 72000, "depth": 0.9, "ok": true, "ptok": 67095, "pp": 1806.6, "tg": 150.7, "wall": 37.3, "ans": "cobalt-falcon-1750", "want": "cobalt-falcon-1750"}
+NEEDLE F9 i8c needle 6/6
+=== 19:52:00 quality abl Q4_K (4 lanes, reference)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | gemma-4-31B-abliterated-Q4_K.gemma4_published | total 38.3s | weights 17.6 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 42 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 512 for 4 lanes (step survival chunk, reserve kept) | free 5.65 GiB after 17.63 GiB of weights | 1.64 GiB more would serve rung 41, 14.61 GiB the top | planned in 14 ms; t
+plan | rung 42: below the top rung of the asked --max-context 4,096; a survival rung | 1.65 GiB more free memory would serve rung 41 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 1024), 14.62 GiB the top rung (4,096 tokens x 4
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 5.22 GiB | free 366.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.57 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=3 (explicit) | fallback none | --spec
+gsm8k: 197/200 (256s)
+mmlupro: 161/280 (86s)
+humaneval: 159/164 (208s)
+ROW {"label": "abl-q4k-fp8", "ts": "2026-10-25 19:52:40", "gsm8k": "197/200", "gsm8k_secs": 256, "mmlupro": "161/280", "mmlupro_secs": 86, "humaneval": "159/164", "humaneval_secs": 208}
+=== 20:01:54 QUEUE11 DONE

@@ -1,0 +1,24 @@
+=== 18:33:30 A1 agent loop: QAT-UD K8 shared2 262K chunk512
+DIED
+=== 18:33:32 A2 agent loop: QAT-UD K8 shared2 131K chunk1024
+DIED
+2026-10-25 18:33:52.617  INFO  engine start refused | planning runtime | 687 ms
+2026-10-25 18:33:53.887  FATAL server failed during startup | the weights need 16.08 GiB of Device memory and 7.07 GiB of 23.42 GiB is free (cudaMalloc failed: cudaErrorMemoryAllocation: out of memory). A smaller quantization of the model needs less.
+44 KV tokens), 0 cached states, chunk 512 for 1 lane (step states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 0.94 GiB more would serve rung 2, 2.11 GiB the top | planned in 0 ms; the rungs a
+plan | rung 3: below the top rung of the asked --max-context 262,144 | 0.95 GiB more free memory would serve rung 2 (262,144 tokens x 1 context (262,144 KV tokens for 1 lane), 1 cached states, chunk 512), 2.12 GiB the top rung (262,144 tokens x 1 context (262,
+capacity | KV 262,144 tokens, fp8, explicit | activations fast | pages 4,096/4,096 | runtime 6.56 GiB | free 364.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+=== 18:41:53 C7 serve (marker: agent loop skipped)
+=== 18:41:59 F0 NVFP4 plan at 262K
+=== 18:42:09 F1 NVFP4 W4A4 plain, shared2 64K chunk2048: prefill
+=== 18:45:30 F2 NVFP4 + QAT drafter K8, shared2 64K chunk2048
+=== 18:49:25 F3 NVFP4 quality (QAT drafter)
+=== 18:55:03 F3 NVFP4 quality (QAT drafter)
+=== 18:55:07 C7 serve: tuned profile (spec auto), shared2 262K chunk512
+=== 18:57:28 F4 NVFP4 W4A4 + GeGLU split (min T 64), shared2 64K chunk2048: prefill
+=== 18:59:08 F5 NVFP4 + GeGLU split + QAT drafter K8: decode
+=== 19:02:32 F6 profile NVFP4 + GeGLU split prefill 6.6K
+=== 19:02:45 C7 serve: tuned profile (spec auto), shared2 262K chunk512
+=== 19:06:15 Heretic QAT-aware: drafter acceptance
+=== 19:14:36 H1 serve: Heretic QAT-aware K=8 shared2 262K chunk512
+=== 19:18:37 QUEUE7 DONE

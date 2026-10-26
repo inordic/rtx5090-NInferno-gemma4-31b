@@ -1,0 +1,17 @@
+[Unit]
+Description=NInferno Gemma 4 31B QAT-NVFP4 (W4A4 prefill) + QAT MTP drafter K7, K-only FP8 KV, FP8 attention, 155K - fast
+After=network.target
+Conflicts=gemma4-31b-262k.service
+
+[Service]
+Type=simple
+Environment=PATH=/usr/local/cuda-13.2/bin:/usr/bin:/bin
+Environment=NINFERNO_GEMMA4_SHARED_VALUES=2
+Environment=NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1
+WorkingDirectory=/opt/models
+ExecStart=/opt/NInferno/build/apps-final3/ninferno-serve /opt/models/dl2/qat-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --max-context 155000 --prefill-chunk 1024 --kv-dtype fp8 --spec mtp --drafter /opt/models/dl2/qat-assistant.q40qat.ninferno --draft-tokens 7
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

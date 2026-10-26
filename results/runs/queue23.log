@@ -1,0 +1,23 @@
+=== 21:48:05 score qk8p1 window 32768
+PPL score_qk8p1_32768.bin: tokens 65534 ppl 77.8445
+=== 21:48:29 bench qk8p1 prefill 8192
+"prefill_tok_s":5121.5
+
+=== 21:48:39 bench qk8p1 prefill 32768
+"prefill_tok_s":3728.2
+
+=== 21:49:18 bench qk8p1 prefill 65536
+"prefill_tok_s":2786.7
+
+=== 21:50:56 score qk8p2 window 32768
+PPL score_qk8p2_32768.bin: tokens 65534 ppl 86.5008
+=== 21:51:22 bench qk8p2 prefill 8192
+"prefill_tok_s":4895.5
+
+=== 21:51:33 bench qk8p2 prefill 32768
+"prefill_tok_s":3345.4
+
+=== 21:52:16 bench qk8p2 prefill 65536
+"prefill_tok_s":2366.5
+
+=== 21:54:10 QUEUE23 DONE

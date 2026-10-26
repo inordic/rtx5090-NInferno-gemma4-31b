@@ -1,0 +1,47 @@
+From 3036f833b21e31f5c57b3331393fc70df3edceea Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 00:47:21 +0000
+Subject: [PATCH 6/7] nvfp4 shapes: four K warps on the Gemma 4 31B qkv
+ eight-token tile
+
+The [16384,5376] and [18432,5376] qkv projections ran their T <= 8 A16 tile with
+two row warps by two K warps; four K warps (the gate+up schedule) keep more
+weight bytes in flight. RTX 5090 Laptop, linear bench, graph, T=8:
+16384x5376 81.9 -> 71.0 us, 18432x5376 90.1 -> 73.7 us; T=1 unchanged
+(65.5 / 75.8 us). An MTP verify of seven drafts runs at T=8.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/ops/linear/nvfp4/shapes/n16384_k5376.cu | 2 +-
+ src/ops/linear/nvfp4/shapes/n18432_k5376.cu | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/ops/linear/nvfp4/shapes/n16384_k5376.cu b/src/ops/linear/nvfp4/shapes/n16384_k5376.cu
+index 40fea91..0ac128f 100644
+--- a/src/ops/linear/nvfp4/shapes/n16384_k5376.cu
++++ b/src/ops/linear/nvfp4/shapes/n16384_k5376.cu
+@@ -8,7 +8,7 @@ using Geometry = Nvfp4N16384K5376;
+ using Gemv = Nvfp4A16GemvSchedule<4, 1, 8, 4, Nvfp4ScaleAccess::StagedRaw, Nvfp4CodeCache::Default, 4>;
+ // A16 speculative verify and chunked A16 prefill: BF16 tensor cores on weights dequantized in
+ // registers, one schedule per token bucket.
+-using A16T8             = Nvfp4A16RegMmaSchedule<2, 2, 1, 8, 16, 2, 2>;
++using A16T8             = Nvfp4A16RegMmaSchedule<1, 4, 1, 8, 16, 2, 2>;
+ using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 16, 2, 2>;
+ using A16T32            = Nvfp4A16RegMmaSchedule<2, 4, 2, 32, 8, 2, 1>;
+ using A16T64            = Nvfp4A16RegMmaSchedule<4, 2, 2, 64, 8, 1, 1>;
+diff --git a/src/ops/linear/nvfp4/shapes/n18432_k5376.cu b/src/ops/linear/nvfp4/shapes/n18432_k5376.cu
+index bc81235..4c9a769 100644
+--- a/src/ops/linear/nvfp4/shapes/n18432_k5376.cu
++++ b/src/ops/linear/nvfp4/shapes/n18432_k5376.cu
+@@ -9,7 +9,7 @@ using Gemv =
+     Nvfp4A16GemvSchedule<8, 1, 8, 4, Nvfp4ScaleAccess::StagedRaw, Nvfp4CodeCache::Default, 2>;
+ // A16 speculative verify and chunked A16 prefill: BF16 tensor cores on weights dequantized in
+ // registers, one schedule per token bucket.
+-using A16T8             = Nvfp4A16RegMmaSchedule<2, 2, 1, 8, 16, 2, 2>;
++using A16T8             = Nvfp4A16RegMmaSchedule<1, 4, 1, 8, 16, 2, 2>;
+ using A16T16            = Nvfp4A16RegMmaSchedule<1, 4, 1, 16, 16, 2, 2>;
+ using A16T32            = Nvfp4A16RegMmaSchedule<2, 4, 2, 32, 8, 2, 1>;
+ using A16T64            = Nvfp4A16RegMmaSchedule<2, 4, 2, 64, 8, 2, 1>;
+-- 
+2.43.0
+

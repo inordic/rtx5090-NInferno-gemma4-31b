@@ -1,0 +1,50 @@
+ninferno-gemma4: sized to the device: context 4096, chunk 2048 (6997 MiB free, 196 MiB kept for CUDA graphs, 1 trial sessions)
+spec-tune plain     math        37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+spec-tune plain     code        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1223/1223
+spec-tune plain     prose       37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+spec-tune plain     thinking    37.7 tok/s   1.00 tok/round  acc 0.000  identical 2048/2048
+spec-tune mtp:3     math       103.7 tok/s   3.66 tok/round  acc 0.888  identical 902/1280
+spec-tune mtp:3     code       104.8 tok/s   3.74 tok/round  acc 0.915  identical 1194/1207
+spec-tune mtp:3     prose       63.1 tok/s   2.22 tok/round  acc 0.407  identical 630/1280
+spec-tune mtp:3     thinking   103.4 tok/s   3.65 tok/round  acc 0.883  identical 1221/2048
+spec-tune mtp:4     math       116.0 tok/s   4.47 tok/round  acc 0.868  identical 902/1280
+spec-tune mtp:4     code       119.6 tok/s   4.63 tok/round  acc 0.907  identical 1194/1207
+spec-tune mtp:4     prose       60.6 tok/s   2.32 tok/round  acc 0.331  identical 630/1280
+spec-tune mtp:4     thinking   114.4 tok/s   4.40 tok/round  acc 0.851  identical 1221/2048
+spec-tune mtp:5     math       129.6 tok/s   5.14 tok/round  acc 0.828  identical 902/1280
+spec-tune mtp:5     code       137.9 tok/s   5.47 tok/round  acc 0.894  identical 1194/1207
+spec-tune mtp:5     prose       60.8 tok/s   2.40 tok/round  acc 0.279  identical 630/1280
+spec-tune mtp:5     thinking   125.7 tok/s   4.97 tok/round  acc 0.794  identical 1221/2048
+spec-tune mtp:6     math       143.0 tok/s   5.76 tok/round  acc 0.793  identical 902/1280
+spec-tune mtp:6     code       156.0 tok/s   6.29 tok/round  acc 0.881  identical 1194/1207
+spec-tune mtp:6     prose       61.4 tok/s   2.44 tok/round  acc 0.240  identical 630/1280
+spec-tune mtp:6     thinking   140.7 tok/s   5.60 tok/round  acc 0.766  identical 1221/2048
+spec-tune mtp:8     math       151.3 tok/s   6.52 tok/round  acc 0.690  identical 1015/1280
+spec-tune mtp:8     code       175.5 tok/s   7.54 tok/round  acc 0.817  identical 1194/1207
+spec-tune mtp:8     prose       58.8 tok/s   2.49 tok/round  acc 0.186  identical 625/1280
+spec-tune mtp:8     thinking   155.5 tok/s   6.65 tok/round  acc 0.707  identical 1527/2048
+spec-tune mtp:4:2   math       113.5 tok/s   4.29 tok/round  acc 0.882  identical 902/1280
+spec-tune mtp:4:2   code       116.3 tok/s   4.47 tok/round  acc 0.912  identical 1194/1207
+spec-tune mtp:4:2   prose       60.8 tok/s   2.16 tok/round  acc 0.420  identical 630/1280
+spec-tune mtp:4:2   thinking   111.6 tok/s   4.20 tok/round  acc 0.864  identical 1221/2048
+spec-tune mtp:6:2   math       133.6 tok/s   5.29 tok/round  acc 0.810  identical 902/1280
+spec-tune mtp:6:2   code       148.3 tok/s   5.93 tok/round  acc 0.875  identical 1194/1207
+spec-tune mtp:6:2   prose       61.1 tok/s   2.19 tok/round  acc 0.398  identical 630/1280
+spec-tune mtp:6:2   thinking   130.7 tok/s   5.19 tok/round  acc 0.789  identical 1221/2048
+spec-tune mtp:8:2   math       148.4 tok/s   6.07 tok/round  acc 0.754  identical 811/1280
+spec-tune mtp:8:2   code       176.7 tok/s   7.40 tok/round  acc 0.863  identical 1223/1223
+spec-tune mtp:8:2   prose       61.4 tok/s   2.21 tok/round  acc 0.391  identical 630/1280
+spec-tune mtp:8:2   thinking   147.5 tok/s   6.03 tok/round  acc 0.746  identical 1327/2048
+spec-tune mtp:10:3  math       148.0 tok/s   6.41 tok/round  acc 0.700  identical 873/1280
+spec-tune mtp:10:3  code       179.1 tok/s   7.97 tok/round  acc 0.798  identical 1223/1223
+spec-tune mtp:10:3  prose       61.8 tok/s   2.26 tok/round  acc 0.346  identical 630/1280
+spec-tune mtp:10:3  thinking   146.8 tok/s   6.28 tok/round  acc 0.692  identical 1221/2048
+choice non_thinking mtp:10:3   x2.786  105.2 tok/s  floor 1.47 tok/round
+choice thinking     mtp:8      x4.127  155.5 tok/s  floor 1.60 tok/round
+choice default      mtp:10:3   x3.000  113.2 tok/s  floor 1.50 tok/round
+choice served non_thinking mtp:8      x2.711  102.3 tok/s  floor 1.59 tok/round
+choice served thinking mtp:8      x4.127  155.5 tok/s  floor 1.60 tok/round
+choice served default mtp:8      x2.965  111.9 tok/s  floor 1.59 tok/round
+drafter assistant  accepted 
+drafter ngram      untested no configuration measured within the time budget
+{"profile":"/root/gbench/qatasst_deep.tune.json","tune_seconds":851.2,"gpu_class":"gb203:82sm","default":"mtp:10:3","skipped":0}

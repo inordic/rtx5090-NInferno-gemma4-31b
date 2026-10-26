@@ -1,0 +1,82 @@
+=== 00:38:05 waiting for 5 idle minutes on 8080
+=== 00:38:05 idle: taking the GPU
+=== 00:38:05 drafter sl64k-q8 (K7)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 24.9s | weights 17.9 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.38 GiB after 17.91 GiB of weights | 1.39 GiB more would serve rung 2, 2.95 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.40 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 2.96 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 306.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@2048 greedy: 121.5 tok/s [121.46085145630869] spec=['mtp K=7']
+TG@2048 sampled: 113.7 tok/s [113.71662950068215] spec=['mtp K=7']
+TG@8192 greedy: 92.4 tok/s [92.42142064585121] spec=['mtp K=7']
+TG@8192 sampled: 108.1 tok/s [108.08452977692171] spec=['mtp K=7']
+CHAT C=1 greedy: 109.4 tok/s (4778 tok) spec=mtp K=7
+CHAT C=1 sampled: 108.8 tok/s (4859 tok) spec=mtp K=7
+ROW {"label": "DR7 sl64k-q8 QAT-NVFP4 final split1 K7 155K", "ts": "2026-10-26 00:38:32", "tg2048g": 121.5, "tg2048s": 113.7, "tg8192g": 92.4, "tg8192s": 108.1, "chatg": 109.4, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 108.8, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 00:40:30 drafter sl96k-q8 (K7)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.2s | weights 17.9 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.36 GiB after 17.92 GiB of weights | 1.41 GiB more would serve rung 2, 2.97 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.41 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 2.98 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 288.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@2048 greedy: 118.0 tok/s [117.99564395365759] spec=['mtp K=7']
+TG@2048 sampled: 124.8 tok/s [124.77031990781619] spec=['mtp K=7']
+TG@8192 greedy: 99.4 tok/s [99.37133643819249] spec=['mtp K=7']
+TG@8192 sampled: 118.4 tok/s [118.44150880924728] spec=['mtp K=7']
+CHAT C=1 greedy: 113.7 tok/s (4778 tok) spec=mtp K=7
+CHAT C=1 sampled: 108.6 tok/s (4816 tok) spec=mtp K=7
+ROW {"label": "DR7 sl96k-q8 QAT-NVFP4 final split1 K7 155K", "ts": "2026-10-26 00:40:57", "tg2048g": 118.0, "tg2048s": 124.8, "tg8192g": 99.4, "tg8192s": 118.4, "chatg": 113.7, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 108.6, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+=== 00:42:51 drafter q40qat (K7)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.2s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+TG@2048 greedy: 116.2 tok/s [116.22043718365745] spec=['mtp K=7']
+TG@2048 sampled: 132.7 tok/s [132.68879649168164] spec=['mtp K=7']
+TG@8192 greedy: 91.8 tok/s [91.76605582092972] spec=['mtp K=7']
+TG@8192 sampled: 118.2 tok/s [118.15835736173901] spec=['mtp K=7']
+CHAT C=1 greedy: 114.2 tok/s (4813 tok) spec=mtp K=7
+CHAT C=1 sampled: 112.3 tok/s (4804 tok) spec=mtp K=7
+ROW {"label": "DR7 q40qat QAT-NVFP4 final split1 K7 155K", "ts": "2026-10-26 00:43:17", "tg2048g": 116.2, "tg2048s": 132.7, "tg8192g": 91.8, "tg8192s": 118.2, "chatg": 114.2, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 112.3, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+SCHED ninferno_linear_bench          NVFP4 A16     5376    21504      8      86.016      83.968      8
+SCHED ninferno_linear_bench          NVFP4 A16     5376    21504      9     104.480      97.824     10
+SCHED ninferno_linear_bench          NVFP4 A16     5376     8192      8      34.784      32.736      3
+SCHED ninferno_linear_bench          NVFP4 A16     5376     8192      9      40.992      38.944      4
+SCHED ninferno_linear_bench          NVFP4 A16     5376    16384      8      63.520      62.784      6
+SCHED ninferno_linear_bench          NVFP4 A16     5376    16384      9      73.760      73.056      7
+SCHED ninferno_linear_bench          NVFP4 A16    16384     5376      8      81.920      77.344      8
+SCHED ninferno_linear_bench          NVFP4 A16    16384     5376      9      73.728      71.040      7
+SCHED lb_v1                          NVFP4 A16     5376    21504      8      83.968      83.072      8
+SCHED lb_v1                          NVFP4 A16     5376    21504      9      95.776      93.504      9
+SCHED lb_v1                          NVFP4 A16     5376     8192      8      34.336      32.768      3
+SCHED lb_v1                          NVFP4 A16     5376     8192      9      46.592      40.960      5
+SCHED lb_v1                          NVFP4 A16     5376    16384      8      63.488      62.784      6
+SCHED lb_v1                          NVFP4 A16     5376    16384      9      94.240      86.048     10
+SCHED lb_v1                          NVFP4 A16    16384     5376      8      83.456      77.856      8
+SCHED lb_v1                          NVFP4 A16    16384     5376      9      96.288      93.728      9
+SCHED lb_v2                          NVFP4 A16     5376    21504      8      83.968      81.920      8
+SCHED lb_v2                          NVFP4 A16     5376    21504      9     108.544     100.352     11
+SCHED lb_v2                          NVFP4 A16     5376     8192      8      34.816      32.256      3
+SCHED lb_v2                          NVFP4 A16     5376     8192      9      45.056      43.008      4
+SCHED lb_v2                          NVFP4 A16     5376    16384      8      63.488      62.784      6
+SCHED lb_v2                          NVFP4 A16     5376    16384      9      81.920      79.264      9
+SCHED lb_v2                          NVFP4 A16    16384     5376      8      81.952      77.824      8
+SCHED lb_v2                          NVFP4 A16    16384     5376      9      73.728      71.712      7
+SCHED lb_v3                          NVFP4 A16     5376    21504      8      83.968      82.944      8
+SCHED lb_v3                          NVFP4 A16     5376    21504      9     106.496     103.968     10
+SCHED lb_v3                          NVFP4 A16     5376     8192      8      34.304      32.736      3
+SCHED lb_v3                          NVFP4 A16     5376     8192      9      45.696      43.040      4
+SCHED lb_v3                          NVFP4 A16     5376    16384      8      63.520      61.440      6
+SCHED lb_v3                          NVFP4 A16     5376    16384      9      88.096      86.016      9
+SCHED lb_v3                          NVFP4 A16    16384     5376      8      81.920      79.872      8
+SCHED lb_v3                          NVFP4 A16    16384     5376      9      75.776      73.184      7
+=== 00:45:22 restoring the fast unit
+active
+=== 00:45:50 NIGHT5 DONE

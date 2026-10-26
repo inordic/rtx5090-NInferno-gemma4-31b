@@ -1,0 +1,15 @@
+{"label": "qatud-fp8", "ts": "2026-10-25 17:44:20", "gsm8k": "196/200", "gsm8k_secs": 209, "mmlupro": "165/280", "mmlupro_secs": 77, "humaneval": "159/164", "humaneval_secs": 172}
+{"label": "qatud-shared2", "ts": "2026-10-25 17:52:26", "gsm8k": "196/200", "gsm8k_secs": 211, "mmlupro": "164/280", "mmlupro_secs": 77, "humaneval": "159/164", "humaneval_secs": 170}
+{"label": "qatud-bf16", "ts": "2026-10-25 18:00:29", "gsm8k": "196/200", "gsm8k_secs": 212, "mmlupro": "165/280", "mmlupro_secs": 77, "humaneval": "159/164", "humaneval_secs": 174}
+{"label": "pajari-shared2", "ts": "2026-10-25 18:08:45", "gsm8k": "196/200", "gsm8k_secs": 211, "mmlupro": "164/280", "mmlupro_secs": 77, "humaneval": "159/164", "humaneval_secs": 172}
+{"label": "nvfp4-split-i8c-shared2", "ts": "2026-10-25 19:38:33", "gsm8k": "198/200", "gsm8k_secs": 202, "mmlupro": "150/280", "mmlupro_secs": 62, "humaneval": "161/164", "humaneval_secs": 167}
+{"label": "abl-q4k-fp8", "ts": "2026-10-25 19:52:40", "gsm8k": "197/200", "gsm8k_secs": 256, "mmlupro": "161/280", "mmlupro_secs": 86, "humaneval": "159/164", "humaneval_secs": 208}
+{"label": "nvfp4-split", "ts": "2026-10-25 20:02:26", "mmlupro": "152/280", "mmlupro_secs": 64, "mmlu": "245/285", "mmlu_secs": 55}
+{"label": "nvfp4-i8c", "ts": "2026-10-25 20:04:48", "mmlupro": "150/280", "mmlupro_secs": 68, "mmlu": "244/285", "mmlu_secs": 55}
+{"label": "qatud", "ts": "2026-10-25 20:07:33", "mmlupro": "164/280", "mmlupro_secs": 79, "mmlu": "248/285", "mmlu_secs": 62}
+{"label": "nvfp4-a8", "ts": "2026-10-25 20:14:06", "mmlupro": "148/280", "mmlupro_secs": 113, "mmlu": "246/285", "mmlu_secs": 83}
+{"label": "nvfp4-exact", "ts": "2026-10-25 20:22:48", "mmlupro": "148/280", "mmlupro_secs": 131, "mmlu": "248/285", "mmlu_secs": 93}
+{"label": "nvfp4-mse-split", "ts": "2026-10-25 21:29:06", "gsm8k": "198/200", "gsm8k_secs": 208, "mmlupro": "152/280", "mmlupro_secs": 64, "mmlu": "245/285", "mmlu_secs": 55, "humaneval": "161/164", "humaneval_secs": 155}
+{"label": "nvfp4-final-verifyA4", "ts": "2026-10-26 00:06:27", "gsm8k": "198/200", "gsm8k_secs": 201, "mmlupro": "147/280", "mmlupro_secs": 59, "humaneval": "162/164", "humaneval_secs": 154}
+{"label": "nvfp4-final2-k7", "ts": "2026-10-26 00:57:24", "gsm8k": "198/200", "gsm8k_secs": 198, "mmlupro": "147/280", "mmlupro_secs": 58, "humaneval": "161/164", "humaneval_secs": 148}
+{"label": "nvfp4-final3-k7", "ts": "2026-10-26 01:30:13", "gsm8k": "198/200", "gsm8k_secs": 200, "mmlupro": "147/280", "mmlupro_secs": 58, "humaneval": "161/164", "humaneval_secs": 149}

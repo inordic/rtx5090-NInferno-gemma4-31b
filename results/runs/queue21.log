@@ -1,0 +1,52 @@
+=== 21:11:06 score qk8 window 32768
+PPL score_qk8_32768.bin: tokens 65534 ppl 81.1312
+=== 21:11:30 bench qk8 prefill 8192
+"prefill_tok_s":5116.3 "decode_tok_s":33.08 
+=== 21:11:40 bench qk8 prefill 32768
+"prefill_tok_s":3760.2 "decode_tok_s":31.92 
+=== 21:12:18 bench qk8 prefill 65536
+"prefill_tok_s":2811.1 "decode_tok_s":30.05 
+=== 21:13:55 bench pv8b prefill 8192 (reference)
+"prefill_tok_s":4985.5
+
+=== 21:14:05 repro P7 miss: i8c
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 23.5s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 210.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1128.5, "tg": 33.4, "wall": 114.7, "ans": "cobalt-otter-3286", "want": "amber-falcon-5506"}
+NEEDLE R140 nvfp4-i8c 0/1
+=== 21:16:30 repro P7 miss: split
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 27.8s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 210.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1010.1, "tg": 67.7, "wall": 128.0, "ans": "cobalt-otter-3286", "want": "amber-falcon-5506"}
+NEEDLE R140 nvfp4-split 0/1
+=== 21:19:10 repro P7 miss: qk8
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 23.5s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 212.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1609.0, "tg": 68.5, "wall": 80.5, "ans": "cobalt-otter-3286", "want": "amber-falcon-5506"}
+NEEDLE R140 nvfp4-qk8 0/1
+=== 21:20:59 repro P7 miss: Q4 QAT-UD
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | gemma-4-31B-it-qat-UD-Q4_K_XL.gemma4_published | total 57.9s | weights 16.3 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 2 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 1 cached state, chunk 1024 for 1 lane (step extra_states, reserve kept) | free 6.95 GiB after 16.33 GiB of weights | 1.40 GiB more would serve rung 1, 1.40 GiB the top | planned in 0 ms; the r
+plan | rung 2: below the top rung of the asked --max-context 155,000 | 1.40 GiB more free memory would serve rung 1 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 2 cached states, chunk 1024), 1.40 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 6.61 GiB | free 308.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 711.9, "tg": 103.5, "wall": 181.4, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+NEEDLE R140 qatud 1/1
+=== 21:25:03 QUEUE21 DONE

@@ -1,0 +1,15 @@
+ninferno-gemma4: sized to the device: context 4096, chunk 2048 (6997 MiB free, 196 MiB kept for CUDA graphs, 1 trial sessions)
+spec-tune plain     math        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+spec-tune plain     code        37.7 tok/s   1.00 tok/round  acc 0.000  identical 1223/1223
+spec-tune plain     prose       37.8 tok/s   1.00 tok/round  acc 0.000  identical 1280/1280
+spec-tune plain     thinking    37.7 tok/s   1.00 tok/round  acc 0.000  identical 2048/2048
+spec-tune mtp:4     math       115.6 tok/s   4.46 tok/round  acc 0.866  identical 767/1280
+spec-tune mtp:4     code       118.8 tok/s   4.60 tok/round  acc 0.901  identical 1223/1223
+spec-tune mtp:4     prose       59.1 tok/s   2.26 tok/round  acc 0.314  identical 728/1280
+spec-tune mtp:4     thinking   115.1 tok/s   4.44 tok/round  acc 0.860  identical 1223/2048
+choice non_thinking mtp:4      x2.339  88.2 tok/s  floor 1.44 tok/round
+choice thinking     mtp:4      x3.057  115.1 tok/s  floor 1.44 tok/round
+choice default      mtp:4      x2.485  93.7 tok/s  floor 1.44 tok/round
+drafter assistant  accepted 
+drafter ngram      untested no configuration measured within the time budget
+{"profile":"/root/gbench/pajari_qatasst.tune.json","tune_seconds":384.5,"gpu_class":"gb203:82sm","default":"mtp:4","skipped":0}

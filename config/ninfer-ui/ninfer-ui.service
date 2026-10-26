@@ -1,0 +1,26 @@
+[Unit]
+Description=NInfer Strata-derived Web UI (Gemma 4 31B on CT116)
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/opt/ninfer-ui/app
+ExecStart=/opt/ninfer-ui/runtime/bin/node /opt/ninfer-ui/app/service/lan.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+UMask=0077
+MemoryMax=256M
+CPUQuota=50%
+TasksMax=64
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

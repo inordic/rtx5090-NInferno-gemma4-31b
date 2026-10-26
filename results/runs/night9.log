@@ -1,0 +1,14 @@
+=== 01:14:00 idle: taking the GPU
+=== 01:14:03 Q6 head sweep
+=== 01:14:04 nsys: cached turns on the candidate
+base: prompt 15211 cache 0 prompt_ms 3853.450322 ttft 3.885s wall 3.92s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 179.391978 ttft 0.197s wall 0.24s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 214.214146 ttft 0.236s wall 0.27s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 235.25487 ttft 0.257s wall 0.30s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 270.720848 ttft 0.293s wall 0.33s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 497.803296 ttft 0.521s wall 0.56s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 532.9999600000001 ttft 0.555s wall 0.59s
+-rw-r--r-- 1 root root 108524508 Oct 26 01:15 /root/gbench/prof_turn_cuda_gpu_trace.csv
+=== 01:15:28 restoring the deployed unit
+active
+=== 01:15:56 NIGHT9 DONE

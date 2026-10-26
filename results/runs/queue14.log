@@ -1,0 +1,29 @@
+=== 20:26:42 profile 32K prefill (INT8 D512, split, shared2)
+[1/1] [0%                          ] prof_i8_32k.nsys-rep[1/1] [0%                          ] prof_i8_32k.nsys-rep[1/1] [12%                         ] prof_i8_32k.nsys-rep[1/1] [10%                         ] prof_i8_32k.nsys-rep[1/1] [8%                          ] prof_i8_32k.nsys-rep[1/1] [7%                          ] prof_i8_32k.nsys-rep[1/1] [14%                         ] prof_i8_32k.nsys-rep[1/1] [12%                         ] prof_i8_32k.nsys-rep[1/1] [11%                         ] prof_i8_32k.nsys-rep[1/1] [10%                         ] prof_i8_32k.nsys-rep[1/1] [9%                          ] prof_i8_32k.nsys-rep[1/1] [8%                          ] prof_i8_32k.nsys-rep[1/1] [12%                         ] prof_i8_32k.nsys-rep[1/1] [=16%                        ] prof_i8_32k.nsys-rep[1/1] [==19%                       ] prof_i8_32k.nsys-rep[1/1] [===23%                      ] prof_i8_32k.nsys-rep[1/1] [====27%                     ] prof_i8_32k.nsys-rep[1/1] [=====31%                    ] prof_i8_32k.nsys-rep[1/1] [======35%                   ] prof_i8_32k.nsys-rep[1/1] [=======39%                  ] prof_i8_32k.nsys-rep[1/1] [=========43%                ] prof_i8_32k.nsys-rep[1/1] [==========47%               ] prof_i8_32k.nsys-rep[1/1] [===========50%              ] prof_i8_32k.nsys-rep[1/1] [========================100%] prof_i8_32k.nsys-rep[1/1] [========================100%] prof_i8_32k.nsys-rep
+Generated:
+	/root/gbench/prof_i8_32k.nsys-rep
+total kernel time 44969.2 ms over 50692 launches
+-- by kernel family
+ 59.7%   26855.1 ms  gemma4_attention_kernel
+ 33.3%   14977.4 ms  nvfp4_a4_tma_kernel
+  5.4%    2413.6 ms  ops
+  1.5%     682.2 ms  nvfp4_a4_quantize_kernel
+  0.0%      10.4 ms  rmma_kernel
+  0.0%       8.8 ms  q6_a16_simt_kernel
+  0.0%       7.1 ms  embed_gather_q8_kernel
+  0.0%       7.1 ms  nvfp4_a16_reg_mma_kernel
+  0.0%       3.9 ms  nvfp4_a16_gemv_kernel
+  0.0%       2.3 ms  gemma4_attention_combine_kernel
+  0.0%       1.3 ms  rmsnorm_cta_bf16x2_kernel
+  0.0%       0.0 ms  fill_i32_positions_kernel
+  0.0%       0.0 ms  sampling_group_finalize_sample_kernel
+  0.0%       0.0 ms  sampling_partial_topk_kernel
+  0.0%       0.0 ms  set_i32_scalar_kernel
+  0.0%       0.0 ms  logit_softcap_bf16x2_kernel
+-- top instantiations
+ 51.6%   23197.5 ms  n=  640  void ninferno::ops::gemma4_attention_kernel<ninferno::ops::Gemma4Geometry<(int)512, (int)8, (int)256>, (int)4, (int)32, (bool)0, (bool)1, (bool)0>(nin
+ 21.0%    9462.8 ms  n= 7680  void ninferno::ops::detail::nvfp4_a4_tma_kernel<ninferno::ops::detail::Nvfp4ScheduleInstance<ninferno::ops::detail::Nvfp4A4TmaMmaSchedule<(int)256, (i
+  8.3%    3750.5 ms  n= 3840  void ninferno::ops::detail::nvfp4_a4_tma_kernel<ninferno::ops::detail::Nvfp4ScheduleInstance<ninferno::ops::detail::Nvfp4A4TmaMmaSchedule<(int)256, (i
+  8.1%    3655.2 ms  n= 3200  void ninferno::ops::gemma4_attention_kernel<ninferno::ops::Gemma4Geometry<(int)256, (int)2, (int)128>, (int)2, (int)32, (bool)0, (bool)1, (bool)0>(nin
+  2.8%    1273.9 ms  n= 3200  void ninferno::ops::detail::nvfp4_a4_tma_kernel<ninferno::ops::detail::Nvfp4ScheduleInstance<ninferno::ops::detail::Nvfp4A4TmaMmaSchedule<(int)256, (i
+=== 20:27:37 QUEUE14 DONE

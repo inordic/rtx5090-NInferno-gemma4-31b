@@ -1,0 +1,41 @@
+=== 20:13:40 knowledge: NVFP4 W4A8 (int8)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | qat-nvfp4.r31 | total 24.0s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 12 ms; t
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations int8 | pages 64/256 | runtime 4.20 GiB | free 1020.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.20 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+mmlupro: 148/280 (113s)
+mmlu: 246/285 (83s)
+ROW {"label": "nvfp4-a8", "ts": "2026-10-25 20:14:06", "mmlupro": "148/280", "mmlupro_secs": 113, "mmlu": "246/285", "mmlu_secs": 83}
+=== 20:17:24 PP: NVFP4 W4A8 + INT8 attention, K8, 90K chunk2048
+choice | no candidate holds 90000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 3m 20.0s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 90,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 90,000 tokens x 1 context (90,048 KV tokens), 0 cached states, chunk 2048 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 2.22 GiB more would serve rung 2, 4.56 GiB the top | planned in 0 ms; the rungs ar
+plan | rung 3: below the top rung of the asked --max-context 90,000 | 2.23 GiB more free memory would serve rung 2 (90,000 tokens x 1 context (90,048 KV tokens for 1 lane), 1 cached states, chunk 2048), 4.57 GiB the top rung (90,000 tokens x 1 context (90,048 
+capacity | KV 90,048 tokens, fp8, explicit | activations int8 | pages 1,407/1,407 | runtime 4.95 GiB | free 294.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+PP 2048: 843.1 tok/s (n=1658) [843.1337850990269]
+PP 8192: 906.8 tok/s (n=6573) [906.819169982429]
+PP 32768: 831.0 tok/s (n=28692) [830.9995696216388]
+TG@2048 greedy: 114.9 tok/s [114.89271741756602] spec=['mtp K=8']
+TG@2048 sampled: 96.0 tok/s [95.98397950669984] spec=['mtp K=8']
+TG@8192 greedy: 109.1 tok/s [109.08170094971146] spec=['mtp K=8']
+TG@8192 sampled: 87.5 tok/s [87.5494890727037] spec=['mtp K=8']
+ROW {"label": "P8 QAT-NVFP4 W4A8 INT8attn K8 shared2 90K chunk2048", "ts": "2026-10-25 20:20:46", "pp2048_ntok": 1658, "pp2048": 843.1, "pp8192_ntok": 6573, "pp8192": 906.8, "pp32768_ntok": 28692, "pp32768": 831.0, "tg2048g": 114.9, "tg2048s": 96.0, "tg8192g": 109.1, "tg8192s": 87.5}
+=== 20:22:16 knowledge: NVFP4 W4A16 (exact)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | qat-nvfp4.r31 | total 30.3s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 7 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations exact | pages 64/256 | runtime 4.20 GiB | free 1008.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.19 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+mmlupro: 148/280 (131s)
+mmlu: 248/285 (93s)
+ROW {"label": "nvfp4-exact", "ts": "2026-10-25 20:22:48", "mmlupro": "148/280", "mmlupro_secs": 131, "mmlu": "248/285", "mmlu_secs": 93}
+=== 20:26:36 QUEUE13 DONE

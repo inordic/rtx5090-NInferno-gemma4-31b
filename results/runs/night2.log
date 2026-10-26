@@ -1,0 +1,39 @@
+=== 00:14:13 waiting for 15 idle minutes on 8080
+=== 00:14:14 idle: taking the GPU
+LAB q40ws=0 8192 "prefill_tok_s":1644.0 "decode_tok_s":35.53 
+LAB q40ws=0 32768 "prefill_tok_s":1470.2 "decode_tok_s":34.05 
+=== 00:16:21 score q4 q40ws=0 window 32768
+PPL score_q4_ws0_32768.bin: tokens 65534 ppl 90.9304
+=== 00:17:12 profile q4 q40ws=0 prefill 6.6K
+total kernel time 17264.8 ms over 52305 launches
+-- by kernel family
+ 78.3%   13515.8 ms  mul_mat_q
+  8.2%    1422.8 ms  gemma4_attention_kernel
+  6.4%    1100.4 ms  generic
+  3.1%     538.7 ms  ops
+  2.4%     419.1 ms  mul_mat_q_stream_k_fixup
+  1.4%     239.3 ms  detail
+  0.1%      21.3 ms  r8_kernel
+  0.0%       5.8 ms  rmma_kernel
+  0.0%       1.2 ms  gemma4_attention_combine_kernel
+  0.0%       0.3 ms  rmsnorm_cta_bf16x2_kernel
+LAB q40ws=1 8192 "prefill_tok_s":1805.6 "decode_tok_s":35.77 
+LAB q40ws=1 32768 "prefill_tok_s":1589.6 "decode_tok_s":33.86 
+=== 00:19:23 score q4 q40ws=1 window 32768
+PPL score_q4_ws1_32768.bin: tokens 65534 ppl 92.8101
+=== 00:20:10 profile q4 q40ws=1 prefill 6.6K
+total kernel time 15004.7 ms over 13185 launches
+-- by kernel family
+ 85.5%   12822.0 ms  w4a8_ws_kernel
+  9.7%    1460.1 ms  gemma4_attention_kernel
+  3.4%     515.3 ms  ops
+  1.2%     177.3 ms  generic
+  0.1%      21.2 ms  r8_kernel
+  0.0%       5.8 ms  rmma_kernel
+  0.0%       1.5 ms  detail
+  0.0%       1.1 ms  gemma4_attention_combine_kernel
+  0.0%       0.3 ms  rmsnorm_cta_bf16x2_kernel
+  0.0%       0.0 ms  sampling_group_finalize_sample_kernel
+=== 00:20:31 restoring the fast unit
+active
+=== 00:21:03 NIGHT2 DONE

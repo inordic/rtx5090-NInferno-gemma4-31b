@@ -1,0 +1,173 @@
+From 11876859770ec2c52e7e073cc50a744bbf51ca17 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Sun, 25 Oct 2026 20:55:36 +0000
+Subject: [PATCH 4/7] gemma4 attention: FP8 P V on the D512 FP8 prefill route
+
+The landed V codes reach m16n8k32 e4m3 MMAs as they are; P enters as E4M3 after
+its key's V scale and a gain (2^13, 2^16 under shared values) are folded in, and
+the output takes 1 / gain. Half the BF16 MMA count and no per-warp widening of V.
+QAT-NVFP4 31B, lab tool, RTX 5090 Laptop: prefill 32K 2,992 -> 3,522 tok/s,
+64K 2,034 -> 2,542; 32K-window perplexity 78.56 -> 77.99.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/ops/softmax_attention/gemma4/kernel.cuh | 105 ++++++++++++++++++--
+ 1 file changed, 98 insertions(+), 7 deletions(-)
+
+diff --git a/src/ops/softmax_attention/gemma4/kernel.cuh b/src/ops/softmax_attention/gemma4/kernel.cuh
+index 05ab0af..ee21b6e 100644
+--- a/src/ops/softmax_attention/gemma4/kernel.cuh
++++ b/src/ops/softmax_attention/gemma4/kernel.cuh
+@@ -146,6 +146,22 @@ __device__ __forceinline__ unsigned gemma4_e4m3x4_to_s8x4(unsigned w) {
+            (static_cast<unsigned>(__float2int_rn(b.y * k)) << 24);
+ }
+ 
++// FP8 P V on the D = 512 FP8 prefill route (KFp8Pv): the landed V codes reach m16n8k32 e4m3 MMAs
++// as they are, and P enters as E4M3 after its key's V scale and a gain are folded in. V rows are
++// RMS-normalized, so a V scale stays under sqrt(512) / 448 (shared values: c sqrt(512) / 448 <
++// 2^-8), and the gain keeps a scaled P under 448: 2^13, or 2^16 under shared values. The output
++// takes 1 / gain (with 1 / c). One MMA covers a 32-key tile per 8 dims, half the BF16 count, and
++// the per-warp widening of V is gone. Decode and verify (the split-K route) keep the BF16 product.
++inline constexpr bool kGemma4Fp8Pv             = true;
++inline constexpr float kGemma4Fp8PvGain        = 8192.0f;
++inline constexpr float kGemma4Fp8PvSharedGain  = 65536.0f;
++
++__device__ __forceinline__ unsigned gemma4_f32x4_to_e4m3x4(float k0, float k1, float k2, float k3) {
++    const unsigned lo = __nv_cvt_float2_to_fp8x2(make_float2(k0, k1), __NV_SATFINITE, __NV_E4M3);
++    const unsigned hi = __nv_cvt_float2_to_fp8x2(make_float2(k2, k3), __NV_SATFINITE, __NV_E4M3);
++    return lo | (hi << 16);
++}
++
+ template <class Geo, int WR, int Bc, bool Fp8 = false>
+ struct Gemma4Tile {
+     static constexpr int Warps      = WR * Geo::WC;
+@@ -317,6 +333,7 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+     // 19.7 -> 19.0 ms, 31B full 37.2 -> 36.2); the D = 256 sliding layers lost 6 % and keep it.
+     constexpr bool VDirect = Fp8 && kGemma4Fp8Hardware && D >= 512;
+     constexpr bool KInt8   = kGemma4Int8Scores && KDirect && D == 512 && !Partial;
++    constexpr bool KFp8Pv  = kGemma4Fp8Pv && VDirect && D == 512 && !Partial;
+     static_assert(Tile::CodesOnly == (KDirect && VDirect),
+                   "a codes-only tile is read only directly");
+     const float NegInf       = -CUDART_INF_F;
+@@ -901,6 +918,13 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+             bl1 += p10 + p11;
+             pa[nt >> 1][(nt & 1) * 2]     = mma_a_bf16(pack_bf16x2(p00, p01));
+             pa[nt >> 1][(nt & 1) * 2 + 1] = mma_a_bf16(pack_bf16x2(p10, p11));
++            if constexpr (KFp8Pv) {
++                // FP32 P for the E4M3 product (value_tile): s is dead past here.
++                s[nt][0] = p00;
++                s[nt][1] = p01;
++                s[nt][2] = p10;
++                s[nt][3] = p11;
++            }
+         }
+         l_run[0] = __fmaf_rn(l_run[0], alpha0, bl0);
+         l_run[1] = __fmaf_rn(l_run[1], alpha1, bl1);
+@@ -914,8 +938,70 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+     };
+ 
+     // O += P V over this warp's slice.
+-    const auto value_tile = [&](const unsigned (&pa)[PVK][4]) {
++    const auto value_tile = [&](const unsigned (&pa)[PVK][4], const float (&p)[QKN][4]) {
+         const unsigned base = v_lane;
++        if constexpr (KFp8Pv) {
++            {
++                const float gain =
++                    args.v_from_k != 0.0f ? kGemma4Fp8PvSharedGain : kGemma4Fp8PvGain;
++                // P as E4M3 A fragments of m16n8k32: register 2 pk + r holds row gid + 8 r over the
++                // keys 2t, 2t+1, 2t+8, 2t+9 of 16-key step pk, the order the byte permutes below
++                // give V's codes in, so each product pairs the same key.
++                static_assert(PVK == 2 && PVN % 4 == 0, "one m16n8k32 step per 32-key tile");
++                const unsigned code_lane =
++                    smem_base + static_cast<unsigned>(Tile::PlaneBytes + Tile::CodeOffset);
++                const float* vscale = row_scales + Bc;
++                unsigned pa8[4];
++#pragma unroll
++                for (int pk = 0; pk < PVK; ++pk) {
++                    const float2 s_lo =
++                        *reinterpret_cast<const float2*>(vscale + pk * 16 + 2 * tig);
++                    const float2 s_hi =
++                        *reinterpret_cast<const float2*>(vscale + pk * 16 + 8 + 2 * tig);
++                    const float g_lo0 = s_lo.x * gain;
++                    const float g_lo1 = s_lo.y * gain;
++                    const float g_hi0 = s_hi.x * gain;
++                    const float g_hi1 = s_hi.y * gain;
++#pragma unroll
++                    for (int r = 0; r < 2; ++r) {
++                        pa8[2 * pk + r] = gemma4_f32x4_to_e4m3x4(
++                            p[2 * pk][2 * r] * g_lo0, p[2 * pk][2 * r + 1] * g_lo1,
++                            p[2 * pk + 1][2 * r] * g_hi0, p[2 * pk + 1][2 * r + 1] * g_hi1);
++                    }
++                }
++                const int mkey   = (lane & 7) + ((lane >> 3) & 1) * 8;
++                const int mchunk = (lane >> 4) & 1;
++#pragma unroll
++                for (int n4 = 0; n4 < PVN / 4; ++n4) {
++                    const int col = wc * (Geo::Slice / 16) + 2 * n4 + mchunk;
++                    unsigned lo0[PVK], hi0[PVK], lo1[PVK], hi1[PVK];
++#pragma unroll
++                    for (int pk = 0; pk < PVK; ++pk) {
++                        const int key = pk * 16 + mkey;
++                        ldmatrix_x4_t(lo0[pk], hi0[pk], lo1[pk], hi1[pk],
++                                      code_lane + static_cast<unsigned>(
++                                                      key * D + code_swizzle(key, col) * 16));
++                    }
++                    float (&a0)[4] = acc[4 * n4];
++                    float (&a1)[4] = acc[4 * n4 + 1];
++                    float (&a2)[4] = acc[4 * n4 + 2];
++                    float (&a3)[4] = acc[4 * n4 + 3];
++                    mma_fp8_e4m3(a0[0], a0[1], a0[2], a0[3], pa8[0], pa8[1], pa8[2], pa8[3],
++                                 __byte_perm(lo0[0], hi0[0], 0x6420),
++                                 __byte_perm(lo0[1], hi0[1], 0x6420));
++                    mma_fp8_e4m3(a1[0], a1[1], a1[2], a1[3], pa8[0], pa8[1], pa8[2], pa8[3],
++                                 __byte_perm(lo0[0], hi0[0], 0x7531),
++                                 __byte_perm(lo0[1], hi0[1], 0x7531));
++                    mma_fp8_e4m3(a2[0], a2[1], a2[2], a2[3], pa8[0], pa8[1], pa8[2], pa8[3],
++                                 __byte_perm(lo1[0], hi1[0], 0x6420),
++                                 __byte_perm(lo1[1], hi1[1], 0x6420));
++                    mma_fp8_e4m3(a3[0], a3[1], a3[2], a3[3], pa8[0], pa8[1], pa8[2], pa8[3],
++                                 __byte_perm(lo1[0], hi1[0], 0x7531),
++                                 __byte_perm(lo1[1], hi1[1], 0x7531));
++                }
++                return;
++            }
++        }
+         if constexpr (VDirect) {
+             // FP8: V stays codes in shared memory. One ldmatrix.x4.trans reads, as 8x8 b16
+             // matrices of (key, dim pair), keys (lo 8, hi 8) of the step x dim chunks (c, c+1); a
+@@ -1077,7 +1163,7 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+             }
+         }
+         if constexpr (!VDirect) { widen(true); }
+-        value_tile(pa);
++        value_tile(pa, s);
+         __syncthreads(); // every warp is done reading V(kb)
+         if (kb + 1 < t1) {
+             stage(true, k0 + Bc, kWideBlock ? max(0, first_dead - (k0 + Bc - range_lo)) : 0);
+@@ -1104,13 +1190,18 @@ __launch_bounds__(Gemma4Tile<Geo, WR, Bc, Fp8>::Threads, 1) __global__
+     l_run[0] = warp_sum<4>(l_run[0]);
+     l_run[1] = warp_sum<4>(l_run[1]);
+     // Shared values: the tile held c * V (the K codes and scales); 1 / c once on the output.
+-    if (D == 512 && args.v_from_k != 0.0f) {
++    // KFp8Pv: and 1 / the E4M3 product's gain, shared values or not.
++    if (KFp8Pv || (D == 512 && args.v_from_k != 0.0f)) {
++        const float v_scale =
++            !KFp8Pv              ? args.v_from_k
++            : args.v_from_k != 0 ? args.v_from_k / kGemma4Fp8PvSharedGain
++                                 : 1.0f / kGemma4Fp8PvGain;
+ #pragma unroll
+         for (int n = 0; n < PVN; ++n) {
+-            acc[n][0] *= args.v_from_k;
+-            acc[n][1] *= args.v_from_k;
+-            acc[n][2] *= args.v_from_k;
+-            acc[n][3] *= args.v_from_k;
++            acc[n][0] *= v_scale;
++            acc[n][1] *= v_scale;
++            acc[n][2] *= v_scale;
++            acc[n][3] *= v_scale;
+         }
+     }
+ 
+-- 
+2.43.0
+

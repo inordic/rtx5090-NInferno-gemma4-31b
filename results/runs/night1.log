@@ -1,0 +1,51 @@
+=== 22:38:13 waiting for 45 idle minutes on 8080
+=== 00:01:14 idle: taking the GPU
+=== 00:01:15 V0 decode: verify A4=0
+grep: /root/gbench/logs/V0-verify.log: No such file or directory
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 27.4s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+PP 2048: 3076.9 tok/s (n=1658) [3076.898460593368]
+TG@2048 greedy: 147.0 tok/s [146.96961143570144] spec=['mtp K=8']
+TG@2048 sampled: 87.7 tok/s [87.70602758620741] spec=['mtp K=8']
+TG@8192 greedy: 110.9 tok/s [110.92970079337316] spec=['mtp K=8']
+TG@8192 sampled: 94.4 tok/s [94.39720668032354] spec=['mtp K=8']
+CHAT C=1 greedy: 108.8 tok/s (4760 tok) spec=mtp K=8
+CHAT C=1 sampled: 108.0 tok/s (4797 tok) spec=mtp K=8
+ROW {"label": "V0 QAT-NVFP4 final, verify A4=0, K8 155K", "ts": "2026-10-26 00:01:45", "pp2048_ntok": 1658, "pp2048": 3076.9, "tg2048g": 147.0, "tg2048s": 87.7, "tg8192g": 110.9, "tg8192s": 94.4, "chatg": 108.8, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 108.0, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+=== 00:03:44 V1 decode: verify A4=1
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 25.8s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 200.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+PP 2048: 3024.5 tok/s (n=1658) [3024.5348166488775]
+TG@2048 greedy: 150.6 tok/s [150.55699915672494] spec=['mtp K=8']
+TG@2048 sampled: 95.3 tok/s [95.27993077247375] spec=['mtp K=8']
+TG@8192 greedy: 113.7 tok/s [113.7030668143156] spec=['mtp K=8']
+TG@8192 sampled: 104.8 tok/s [104.79108774102244] spec=['mtp K=8']
+CHAT C=1 greedy: 108.3 tok/s (4760 tok) spec=mtp K=8
+CHAT C=1 sampled: 105.5 tok/s (4844 tok) spec=mtp K=8
+ROW {"label": "V1 QAT-NVFP4 final, verify A4=1, K8 155K", "ts": "2026-10-26 00:04:11", "pp2048_ntok": 1658, "pp2048": 3024.5, "tg2048g": 150.6, "tg2048s": 95.3, "tg8192g": 113.7, "tg8192s": 104.8, "chatg": 108.3, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 105.5, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+=== 00:06:11 quality with W4A4 verify (4 lanes)
+choice | no candidate holds 4096 tokens for each of 4 streams
+engine ready | qat-nvfp4.r31 | total 14.9s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 4,096 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 43 of 44: 4,096 tokens x 1 context (4,096 KV tokens), 0 cached states, chunk 256 for 4 lanes (step survival chunk, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 0.15 GiB more would serve rung 42, 14.65 GiB the top | planned in 8 ms; th
+plan | rung 43: below the top rung of the asked --max-context 4,096; a survival rung | 0.15 GiB more free memory would serve rung 42 (4,096 tokens x 1 context (4,096 KV tokens for 4 lanes), 0 cached states, chunk 512), 14.66 GiB the top rung (4,096 tokens x 4 
+capacity | KV 4,096 tokens, fp8, auto | activations fast | pages 64/256 | runtime 4.20 GiB | free 1010.6 MiB
+capacity | KV 4,096 of 16,384 tokens (auto: --max-concurrency 4 x --max-context 4,096 does not fit the 5.19 GiB free after weights; the most that does, at least one context): a request waits while the pool is full
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+gsm8k: 198/200 (201s)
+mmlupro: 147/280 (59s)
+humaneval: 162/164 (154s)
+ROW {"label": "nvfp4-final-verifyA4", "ts": "2026-10-26 00:06:27", "gsm8k": "198/200", "gsm8k_secs": 201, "mmlupro": "147/280", "mmlupro_secs": 59, "humaneval": "162/164", "humaneval_secs": 154}
+=== 00:13:24 restoring the fast unit
+active
+=== 00:13:53 NIGHT1 DONE

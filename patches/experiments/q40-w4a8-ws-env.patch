@@ -1,0 +1,32 @@
+diff --git a/src/ops/generic/generic_gemm.cpp b/src/ops/generic/generic_gemm.cpp
+index 5f577cd..7a27151 100644
+--- a/src/ops/generic/generic_gemm.cpp
++++ b/src/ops/generic/generic_gemm.cpp
+@@ -500,7 +500,18 @@ bool mmq_prefill_device() {
+     return measured::measured_gate(kMmqPrefillPays, std::numeric_limits<double>::max());
+ }
+ 
++// Experiment: NINFERNO_Q40_W4A8_WS=1 sends GGML Q4_0 prefill on sm_120 to the producer-warp W4A8
++// tile (w4a8_ws_wins) instead of ggml's MMQ.
++bool q40_w4a8_ws() {
++    static const bool on = [] {
++        const char* e = std::getenv("NINFERNO_Q40_W4A8_WS");
++        return e != nullptr && e[0] == '1';
++    }();
++    return on;
++}
++
+ bool mmq_prefill_wins(const Problem& p, const Weight& w) {
++    if (p.qtype == QType::GGML_Q4_0 && q40_w4a8_ws()) return false;
+     return mmq_prefill_device() && ggml_mmq_format(p.qtype) &&
+            (p.n % ggml_mmq::kRowMultiple) == 0 && mmq_admits(w, p.policy);
+ }
+@@ -1021,7 +1032,7 @@ bool w4a8_ws_wins(const Problem& p, const Weight& w) {
+     case QType::GGML_Q4_K:
+         return blackwell;
+     case QType::GGML_Q4_0:
+-        return ada && p.n >= 5376 && p.k >= 5376;
++        return (ada && p.n >= 5376 && p.k >= 5376) || (blackwell && q40_w4a8_ws());
+     // ISTA GSQ IQ3_S mix, 24K prefill against ninfer-all's MMQ (RTX 5060 Ti nsys, same
+     // tokens): the classic-tile formats carried the whole gap - IQ4_XS 16.1 s against 10.99,
+     // Q2_K 3.10 / 2.51, IQ2_XS 2.81 / 2.32, IQ2_XXS 1.00 / 0.79 - while the producer-warp formats

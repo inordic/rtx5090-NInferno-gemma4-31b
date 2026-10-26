@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*.nsys-rep
+*.sqlite
+.DS_Store

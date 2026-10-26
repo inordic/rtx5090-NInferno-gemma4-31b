@@ -1,0 +1,35 @@
+=== 21:54:24 D64 decode: GeGLU split at T >= 64 (qk8p1)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 23.4s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 212.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+PP 2048: 2888.2 tok/s (n=1658) [2888.2498706698148]
+PP 8192: 4187.2 tok/s (n=6573) [4187.190909440742]
+TG@2048 greedy: 95.0 tok/s [95.04940635591213] spec=['mtp K=8']
+TG@2048 sampled: 111.1 tok/s [111.10595266876892] spec=['mtp K=8']
+TG@8192 greedy: 96.2 tok/s [96.19992952957938] spec=['mtp K=8']
+TG@8192 sampled: 103.9 tok/s [103.93690472732426] spec=['mtp K=8']
+CHAT C=1 greedy: 101.9 tok/s (4792 tok) spec=mtp K=8
+CHAT C=1 sampled: 97.8 tok/s (4735 tok) spec=mtp K=8
+ROW {"label": "D64 QAT-NVFP4 qk8p1 GeGLU split T>=64 K8 155K chunk1024", "ts": "2026-10-25 21:54:49", "pp2048_ntok": 1658, "pp2048": 2888.2, "pp8192_ntok": 6573, "pp8192": 4187.2, "tg2048g": 95.0, "tg2048s": 111.1, "tg8192g": 96.2, "tg8192s": 103.9, "chatg": 101.9, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 97.8, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+=== 21:56:57 D1 decode: GeGLU split at T >= 1 (qk8p1)
+choice | no candidate holds 155000 tokens for each of 1 streams
+engine ready | qat-nvfp4.r31 | total 22.8s | weights 18.0 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 155,000 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 155,000 tokens x 1 context (155,008 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.27 GiB after 18.01 GiB of weights | 1.50 GiB more would serve rung 2, 3.06 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 155,000 | 1.50 GiB more free memory would serve rung 2 (155,000 tokens x 1 context (155,008 KV tokens for 1 lane), 1 cached states, chunk 1024), 3.06 GiB the top rung (155,000 tokens x 1 context (155
+capacity | KV 155,008 tokens, fp8, explicit | activations fast | pages 2,422/2,422 | runtime 5.03 GiB | free 212.6 MiB
+speculation | serves mtp K=8 (explicit) | fallback none | --spec
+PP 2048: 3115.6 tok/s (n=1658) [3115.6102368662223]
+PP 8192: 4254.2 tok/s (n=6573) [4254.202530765477]
+TG@2048 greedy: 97.0 tok/s [97.03549526419738] spec=['mtp K=8']
+TG@2048 sampled: 121.7 tok/s [121.73272733682658] spec=['mtp K=8']
+TG@8192 greedy: 101.4 tok/s [101.43729210799185] spec=['mtp K=8']
+TG@8192 sampled: 112.2 tok/s [112.19422641520134] spec=['mtp K=8']
+CHAT C=1 greedy: 108.6 tok/s (4760 tok) spec=mtp K=8
+CHAT C=1 sampled: 106.2 tok/s (4825 tok) spec=mtp K=8
+ROW {"label": "D1 QAT-NVFP4 qk8p1 GeGLU split T>=1 K8 155K chunk1024", "ts": "2026-10-25 21:57:22", "pp2048_ntok": 1658, "pp2048": 3115.6, "pp8192_ntok": 6573, "pp8192": 4254.2, "tg2048g": 97.0, "tg2048s": 121.7, "tg8192g": 101.4, "tg8192s": 112.2, "chatg": 108.6, "chatg_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}, "chats": 106.2, "chats_spec": {"config": "mtp K=8", "fallback": "none", "reason": "--spec"}}
+=== 21:59:22 QUEUE24 DONE

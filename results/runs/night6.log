@@ -1,0 +1,20 @@
+=== 00:45:51 idle: taking the GPU
+Q8SCHED lb_base        NVFP4 A16    16384     5376      1      65.536      62.976      6
+Q8SCHED lb_base        NVFP4 A16    16384     5376      8      81.952      77.856      8
+Q8SCHED lb_base        NVFP4 A16    18432     5376      1      75.776      73.216      7
+Q8SCHED lb_base        NVFP4 A16    18432     5376      8      90.112      87.584      9
+Q8SCHED lb_q8          NVFP4 A16    16384     5376      1      65.056      63.008      6
+Q8SCHED lb_q8          NVFP4 A16    16384     5376      8      70.976      67.584      7
+Q8SCHED lb_q8          NVFP4 A16    18432     5376      1      75.776      73.024      7
+Q8SCHED lb_q8          NVFP4 A16    18432     5376      8      73.760      73.728      7
+Q8SCHED lb_base        NVFP4 A16    16384     5376      1      65.536      62.912      6
+Q8SCHED lb_base        NVFP4 A16    16384     5376      8      81.920      77.824      8
+Q8SCHED lb_base        NVFP4 A16    18432     5376      1      75.776      73.024      7
+Q8SCHED lb_base        NVFP4 A16    18432     5376      8      90.112      87.008      9
+Q8SCHED lb_q8          NVFP4 A16    16384     5376      1      65.568      62.592      6
+Q8SCHED lb_q8          NVFP4 A16    16384     5376      8      71.104      68.832      7
+Q8SCHED lb_q8          NVFP4 A16    18432     5376      1      75.776      72.960      7
+Q8SCHED lb_q8          NVFP4 A16    18432     5376      8      73.728      71.680      7
+=== 00:45:58 restoring the fast unit
+active
+=== 00:46:26 NIGHT6 DONE
