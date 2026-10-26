@@ -1,0 +1,120 @@
+From 12bafc3661d3932d3fda426f72828ab4f35d0e3d Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 26 Oct 2026 21:43:27 +0000
+Subject: [PATCH] serve: /v1/models carries capabilities.images
+
+The model object says whether a request may carry images (true under --vision), an explicit
+per-model flag: the NInfer web UI reads capabilities.images before it lets a chat send one, and
+otherwise reports the capability as unverified.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/serve/http_server.cpp   |  6 ++++--
+ src/serve/openai_common.cpp | 17 +++++++++++------
+ src/serve/openai_common.h   |  8 +++++---
+ 3 files changed, 20 insertions(+), 11 deletions(-)
+
+diff --git a/src/serve/http_server.cpp b/src/serve/http_server.cpp
+index 63f3fd7..9a2b021 100644
+--- a/src/serve/http_server.cpp
++++ b/src/serve/http_server.cpp
+@@ -721,7 +721,8 @@ void HttpServer::register_routes() {
+ 
+ void HttpServer::handle_models(const httplib::Request&, httplib::Response& res) const {
+     res.set_content(make_models_list(public_model_id_, model_created_, options_.max_context,
+-                                     model_metadata_, &startup_speculation_),
++                                     model_metadata_, &startup_speculation_,
++                                     options_.enable_vision),
+                     "application/json");
+ }
+ 
+@@ -737,7 +738,8 @@ void HttpServer::handle_model(const httplib::Request& req, httplib::Response& re
+         return;
+     }
+     res.set_content(make_model_object(public_model_id_, model_created_, options_.max_context,
+-                                      model_metadata_, &startup_speculation_),
++                                      model_metadata_, &startup_speculation_,
++                                      options_.enable_vision),
+                     "application/json");
+ }
+ 
+diff --git a/src/serve/openai_common.cpp b/src/serve/openai_common.cpp
+index 331af08..d7b9c81 100644
+--- a/src/serve/openai_common.cpp
++++ b/src/serve/openai_common.cpp
+@@ -33,7 +33,7 @@ namespace {
+ // training context. ftype is the registered weights profile (the NInferno quantization name).
+ Json make_model_object_json(const std::string& model_id, std::int64_t created,
+                             std::uint32_t max_model_len, const ninferno::ModelMetadata& metadata,
+-                            const StartupSpeculation* speculation) {
++                            const StartupSpeculation* speculation, bool images) {
+     Json meta{{"n_vocab", metadata.vocab_size},
+               {"n_ctx", max_model_len},
+               {"n_ctx_train", metadata.native_context},
+@@ -90,6 +90,9 @@ Json make_model_object_json(const std::string& model_id, std::int64_t created,
+                 {"created", created},
+                 {"owned_by", "ninferno"},
+                 {"max_model_len", max_model_len},
++                // What a request may carry beyond text, as an explicit per-model flag (clients such
++                // as the NInfer web UI read capabilities.images before they send an image).
++                {"capabilities", Json{{"images", images}}},
+                 {"meta", std::move(meta)}};
+ }
+ 
+@@ -269,14 +272,15 @@ Json speculation_summary_json(const GenerationMetrics& metrics) {
+ 
+ std::string make_models_list(const std::string& model_id, std::int64_t created,
+                              std::uint32_t max_model_len, const ninferno::ModelMetadata& metadata,
+-                             const StartupSpeculation* speculation) {
++                             const StartupSpeculation* speculation, bool images) {
+     // vLLM/llama.cpp-compatible discovery metadata for the configured per-request context limit.
+     // Codex also decodes a required top-level `models` array of its own backend's ModelInfo
+     // (slug, shell_type, truncation_policy, ...). Nothing here can truthfully fill one, so it
+     // is empty: the catalog refresh decodes and Codex keeps its fallback metadata.
+     const Json payload = {{"object", "list"},
+-                          {"data", Json::array({make_model_object_json(
+-                                       model_id, created, max_model_len, metadata, speculation)})},
++                          {"data", Json::array({make_model_object_json(model_id, created,
++                                                                       max_model_len, metadata,
++                                                                       speculation, images)})},
+                           {"models", Json::array()}};
+     return payload.dump();
+ }
+@@ -384,8 +388,9 @@ std::string make_prometheus_metrics(const ninferno::RuntimeStats& stats,
+ 
+ std::string make_model_object(const std::string& model_id, std::int64_t created,
+                               std::uint32_t max_model_len, const ninferno::ModelMetadata& metadata,
+-                              const StartupSpeculation* speculation) {
+-    return make_model_object_json(model_id, created, max_model_len, metadata, speculation).dump();
++                              const StartupSpeculation* speculation, bool images) {
++    return make_model_object_json(model_id, created, max_model_len, metadata, speculation, images)
++        .dump();
+ }
+ 
+ std::string make_error_body(const ApiError& error) {
+diff --git a/src/serve/openai_common.h b/src/serve/openai_common.h
+index 796d724..76235fa 100644
+--- a/src/serve/openai_common.h
++++ b/src/serve/openai_common.h
+@@ -36,13 +36,15 @@ struct OpenAIPromptCachePolicy {
+ [[nodiscard]] OpenAIPromptCachePolicy parse_openai_prompt_cache_policy(const RequestJson& body);
+ void apply_openai_prompt_cache_policy(GenerationRequest& request, OpenAIPromptCachePolicy policy);
+ 
+-// `speculation`, when given, is meta.speculation: what the server runs since startup.
++// `speculation`, when given, is meta.speculation: what the server runs since startup. `images` is
++// capabilities.images: whether a request may carry images (--vision).
+ std::string make_models_list(const std::string& model_id, std::int64_t created,
+                              std::uint32_t max_model_len, const ninferno::ModelMetadata& metadata,
+-                             const StartupSpeculation* speculation = nullptr);
++                             const StartupSpeculation* speculation = nullptr, bool images = false);
+ std::string make_model_object(const std::string& model_id, std::int64_t created,
+                               std::uint32_t max_model_len, const ninferno::ModelMetadata& metadata,
+-                              const StartupSpeculation* speculation = nullptr);
++                              const StartupSpeculation* speculation = nullptr,
++                              bool images = false);
+ // The speculation a request ran (GenerationMetrics' speculative_* choice): config, selection,
+ // reason, fallback (speculation_fallback()) and note when there is one. OpenAI chat
+ // timings.speculation carries it with its counters; Anthropic messages and OpenAI Responses carry
+-- 
+2.43.0
+

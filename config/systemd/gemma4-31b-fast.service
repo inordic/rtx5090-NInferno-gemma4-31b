@@ -1,5 +1,5 @@
 [Unit]
-Description=NInferno Gemma 4 31B QAT-NVFP4 (W4A4 prefill) + QAT MTP drafter K7, K-only FP8 KV, FP8 attention, 155K - fast
+Description=NInferno Gemma 4 31B NVFP4-turbo (BF16-derived, Q/K/V packed) + vision + MTP drafter K7, K-only FP8 KV, FP8 rings, 202K - fast
 After=network.target
 Conflicts=gemma4-31b-262k.service
 
@@ -8,8 +8,10 @@ Type=simple
 Environment=PATH=/usr/local/cuda-13.2/bin:/usr/bin:/bin
 Environment=NINFERNO_GEMMA4_SHARED_VALUES=2
 Environment=NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1
+Environment=NINFERNO_GEMMA4_EMBED_HOST=1
+Environment=NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64
 WorkingDirectory=/opt/models
-ExecStart=/opt/NInferno/build/apps-final7/ninferno-serve /opt/models/dl2/qat-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --max-context 155000 --prefill-chunk 1024 --kv-dtype fp8 --spec mtp --drafter /opt/models/dl2/qat-assistant.q40qat.ninferno --draft-tokens 7 --chat-template /opt/models/templates/gemma4-agent.jinja
+ExecStart=/opt/NInferno/build/apps-final9/ninferno-serve /opt/models/dl2/turbo-qkv-vision-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --vision --max-context 202112 --prefill-chunk 1024 --kv-dtype fp8 --sliding-kv-dtype fp8 --spec mtp --drafter /opt/models/dl2/assistant.q8full.ninferno --draft-tokens 7 --chat-template /opt/models/templates/gemma4-agent.jinja
 Restart=on-failure
 RestartSec=10
 

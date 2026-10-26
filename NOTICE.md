@@ -9,7 +9,7 @@ Our scripts, configs and documents are under the MIT licence ([`LICENSE`](LICENS
 - **[`patches/ninferno/`](patches/ninferno/)** modify [NInferno](https://github.com/Brontir/NInferno) and are under the Apache License, Version 2.0, like NInferno.
   - NInferno is derived from [ninfer](https://github.com/Neroued/ninfer), Copyright 2026 Neroued and contributors, Apache-2.0.
   - It takes kernels from [ninfer-all](https://github.com/iamwavecut/ninfer-all) (Valeriy Selitskiy and contributors, Apache-2.0) and [ninfer-v100-sm70](https://github.com/Flo5k5/ninfer-v100-sm70) (Flo5k5, Apache-2.0). NInferno's own NOTICE lists those files.
-  - Our patches change NInferno's Gemma 4 attention kernel, its Gemma 4 model code, two NVFP4 shape schedules and one Q6 shape route, and one admission entitlement count in its program planner.
+  - Our patches change NInferno's Gemma 4 attention kernel, its Gemma 4 model code, two NVFP4 shape schedules and one Q6 shape route, one admission entitlement count in its program planner, its Gemma 4 vision placement under MTP, its NVFP4 converter's packing rule and its `/v1/models` response.
 - **[`config/templates/gemma4-agent.jinja`](config/templates/gemma4-agent.jinja)** is Google's Gemma 4 chat template ([`google/gemma-4-31B-it`](https://huggingface.co/google/gemma-4-31B-it), Apache-2.0) with our changes, under Apache-2.0.
 - **[`patches/llama.cpp/`](patches/llama.cpp/)** modifies [llama.cpp](https://github.com/ggml-org/llama.cpp) (the ggml authors, MIT) and is under MIT, like llama.cpp.
 - **[`patches/experiments/`](patches/experiments/)** are diffs against NInferno, under Apache-2.0.

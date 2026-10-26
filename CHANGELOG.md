@@ -2,11 +2,41 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-10-26 22:43: fast profile on LilaRest NVFP4-turbo with vision, 202K context
+
+- **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) now serves the build recommended by night 2:
+  - **Model:** LilaRest's NVFP4 of Google's BF16 Gemma 4 31B, with its Q/K/V packed (patch 13) and the vision tower of Google's original model (`/opt/models/dl2/turbo-qkv-vision-nvfp4.r31.ninferno`, [BUILD 3b](BUILD.md#3b-the-fast-profiles-target-lilarest-nvfp4-turbo-qkv-packed-with-vision)).
+  - **Drafter:** Google's regular assistant in Q8 (`assistant.q8full.ninferno`), 7 drafts.
+  - **Binary:** `build/apps-final9`, NInferno `12bafc3`: patches 10–14 on top of production's 01–09 ([`patches/ninferno/`](patches/ninferno/)). Patch 14 is new: `/v1/models` reports `capabilities.images`, which the web UI needs before it sends an image.
+  - **Flags:** `--vision --max-context 202112 --sliding-kv-dtype fp8`, `NINFERNO_GEMMA4_EMBED_HOST=1`, `NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64`. Chunk, FP8 KV, K-only KV, the GeGLU split and the agent template are as before.
+  - **Restarts:** 8080 restarted at 22:40 (`apps-final8`) and 22:43 (`apps-final9`), each at a moment with no request in flight.
+  - **Unchanged:** the max-context unit stays on `apps-final7`.
+- **Why:** it is the one build that meets all four goals. Prefill doesn't drop, context grows, quality rises, and vision works ([night 2 §7](research/2026-10-26-night2.md#7-follow-up-the-recommended-build-end-to-end-22102229-cet)).
+- **Measured**, against production in the same session:
+
+  | | Before | After |
+  |---|---|---|
+  | Prefill 2K / 8K / 32K / 64K (tok/s) | 3,126 / 4,345 / 3,469 / 2,571 | 3,676 / 4,361 / 3,450 / 2,562 |
+  | Context | 155,000 | 202,112 with vision |
+  | MMLU-Pro (of 280) | 147–152 | 177–178 |
+  | Images | none | 7/7 |
+  | Chat decode | 118.0 / 115.8 | 109.6 / 110.9 tok/s, 5–7% lower |
+  | Agent turns | 0.28–0.34 s | 0.24–0.28 s |
+
+  After the switch, on the live unit:
+  - [`verify.py`](bench/verify.py) passed: chat, streaming, and agent turns of 0.53 s with 17.6K cached;
+  - a streamed tool call returned `tool_calls`;
+  - [`visiontest.py`](bench/visiontest.py) scored 7/7;
+  - [`agenttest.py`](bench/agenttest.py): 31 steps, 29 calls, no markup as text, no error;
+  - [`textcalltest.py`](bench/textcalltest.py): 0 leaks;
+  - the web UI's `/health` reports `max_context 202112, images true`.
+- **Rollback:** restore `/etc/systemd/system/gemma4-31b-fast.service.bak-20261026-214015` (`apps-final7`, QAT-NVFP4, QAT assistant, 155K), then `systemctl daemon-reload` and [`bench/deploy_fast.sh`](bench/deploy_fast.sh).
+
 ## 2026-10-26 21:45: night 2 tests (running setup unchanged)
 
 - **Ran:** ten batches from 18:43 to 21:45, the fast unit back after each. They covered the context levers, speed levers, n-gram settings, vision, other NVFP4 builds and uncensored builds. Results and candidates are in the [night-2 report](research/2026-10-26-night2.md).
 - **On the box, not serving:**
-  - NInferno commits `633a7e0`, `352aeba`, `28fdaac` and `91d0b18` ([candidate patches 10–13](patches/candidates/));
+  - NInferno commits `633a7e0`, `352aeba`, `28fdaac` and `91d0b18` ([candidate patches 10–13](patches/ninferno/));
   - test builds `apps-final5`, `apps-final6`, `apps-visfix`;
   - the packed LilaRest turbo artifact.
 - **Follow-up, 22:10–22:29:** the recommended build end to end, LilaRest turbo with Q/K/V packed and Google's vision tower, on `apps-final8` ([report §7](research/2026-10-26-night2.md#7-follow-up-the-recommended-build-end-to-end-22102229-cet)).

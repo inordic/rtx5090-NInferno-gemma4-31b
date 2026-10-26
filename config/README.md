@@ -4,11 +4,19 @@
 
 | Unit | Model | Context | Notes |
 |---|---|---|---|
-| [`gemma4-31b-fast.service`](systemd/gemma4-31b-fast.service) | QAT-NVFP4 (`qat-nvfp4.r31.ninferno`) | 155,000, chunk 1024 | production on port 8080 |
-| [`gemma4-31b-262k.service`](systemd/gemma4-31b-262k.service) | QAT-UD Q4 | 262,144, chunk 512 | the max-context and quality option |
+| [`gemma4-31b-fast.service`](systemd/gemma4-31b-fast.service) | LilaRest NVFP4-turbo, Q/K/V packed, with vision (`turbo-qkv-vision-nvfp4.r31.ninferno`) | 202,112, chunk 1024 | production on port 8080 |
+| [`gemma4-31b-262k.service`](systemd/gemma4-31b-262k.service) | QAT-UD Q4 | 262,144, chunk 512 | the max-context option, text only |
+
+The fast unit:
+- runs `build/apps-final9/ninferno-serve` (NInferno `12bafc3`, patches 01–14) with `--vision`;
+- drafts with Google's regular assistant (`assistant.q8full.ninferno`), 7 drafts;
+- keeps its sliding rings in FP8 (`--sliding-kv-dtype fp8`) and its token table in host memory (`NINFERNO_GEMMA4_EMBED_HOST=1`);
+- takes the wide prefill tile from 64 tokens (`NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64`).
+
+The max-context unit runs `build/apps-final7/ninferno-serve` (NInferno `e9203c5`, patches 01–09) with the QAT assistant, 7 drafts.
 
 Both units:
-- run `build/apps-final7/ninferno-serve` (NInferno `e9203c5`) with MTP, 7 drafts, the QAT assistant and FP8 KV;
+- use FP8 KV;
 - render prompts with [`templates/gemma4-agent.jinja`](templates/gemma4-agent.jinja) (`--chat-template /opt/models/templates/gemma4-agent.jinja`);
 - set `NINFERNO_GEMMA4_SHARED_VALUES=2` (K-only KV) and `NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1`;
 - conflict with each other, so starting one stops the other;
