@@ -8,7 +8,7 @@ This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GP
 - **Quality:** GSM8K 198/200, HumanEval 161/164, MMLU-Pro 147–152/280 (direct answer). The max-context profile (QAT Q4) scores MMLU-Pro 164–165/280; see [Quality](#quality).
 - **Long context:** 9/9 needles at 32K, 67K and 130K on the fast profile, and 2/2 at 185K and 231K on the max-context profile.
 
-**Tested, not yet deployed** ([night 2](research/2026-10-26-night2.md#7-follow-up-the-recommended-build-end-to-end-2210-2229-cet)): LilaRest's NVFP4-turbo with Q/K/V packed and Google's vision tower:
+**Tested, not yet deployed** ([night 2](research/2026-10-26-night2.md#7-follow-up-the-recommended-build-end-to-end-22102229-cet)): LilaRest's NVFP4-turbo with Q/K/V packed and Google's vision tower:
 - MMLU-Pro 177/280;
 - prefill equal to production or better;
 - vision at 202K context, or 262K text only;
