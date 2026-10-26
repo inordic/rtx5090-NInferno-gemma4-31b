@@ -12,7 +12,9 @@ Both units:
 - render prompts with [`templates/gemma4-agent.jinja`](templates/gemma4-agent.jinja) (`--chat-template /opt/models/templates/gemma4-agent.jinja`);
 - set `NINFERNO_GEMMA4_SHARED_VALUES=2` (K-only KV) and `NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1`;
 - conflict with each other, so starting one stops the other;
-- are not enabled at boot.
+- restart 10 s after a failure, with no retry limit.
+
+`gemma4-31b-fast` is enabled at boot (`systemctl enable gemma4-31b-fast`); `gemma4-31b-262k` is not, and starting it stops the fast unit until the next boot or `systemctl start gemma4-31b-fast`.
 
 ## `templates/`
 

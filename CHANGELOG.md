@@ -2,6 +2,15 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-10-26 13:05: the fast unit starts at boot
+
+- **Changed:** `systemctl enable gemma4-31b-fast`, so 8080 comes back with the current setup when the container restarts: `apps-final7`, the agent template, 155K context. The web UI (`ninfer-ui`) was already enabled. Every other model unit on the box stays disabled, so nothing else takes 8080 or the GPU at boot.
+- **Boot behaviour:**
+  - the unit starts after `network.target`; the GPU device nodes are passed in from the host and exist when the container starts;
+  - a start that fails (GPU still in use by another container, say) is retried every 10 s; systemd's start limit (5 in 10 s) cannot trip at that interval.
+- **Not tested:** an actual container reboot.
+- **Rollback:** `systemctl disable gemma4-31b-fast`.
+
 ## 2026-10-26 12:49: agent tool calls: an updated chat template, and a crash on resumed conversations fixed
 
 - **Changed, template:** both units pass `--chat-template /opt/models/templates/gemma4-agent.jinja` ([`config/templates/`](config/templates/)). This is Google's Gemma 4 template of 2026-07-09 with two agent changes:

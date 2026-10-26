@@ -116,7 +116,7 @@ Without `--out`, the converter writes to `.ninferno-cache/gemma-4-31B-it-qat-UD-
 1. Copy [`config/systemd/gemma4-31b-fast.service`](config/systemd/gemma4-31b-fast.service) and [`config/systemd/gemma4-31b-262k.service`](config/systemd/gemma4-31b-262k.service) to `/etc/systemd/system/`. Set the paths if yours differ.
 1. Run `systemctl daemon-reload && systemctl start gemma4-31b-fast`.
 
-The two units conflict, so starting one stops the other. They are not enabled at boot; enable the one you want with `systemctl enable`.
+The two units conflict, so starting one stops the other. Enable the one that should come up after a reboot; we enable the fast one: `systemctl enable gemma4-31b-fast`. If the GPU is busy at boot (another container on it), the unit fails and retries every 10 s until it starts.
 
 The first start takes about 25 s: weights, plan and CUDA graphs. The log line `plan | rung 3 of 3: 155,000 tokens x 1 context` confirms the context.
 
