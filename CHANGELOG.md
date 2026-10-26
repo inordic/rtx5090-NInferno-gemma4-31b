@@ -2,6 +2,13 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-10-26 11:08: web UI tool calling switched on
+
+- **Changed, UI:** the global switch under Settings → Tools is on (`tools_enabled` in the UI's database, set with [`config/ninfer-ui/tools-on.mjs`](config/ninfer-ui/tools-on.mjs)). UI chats now get the built-in `current_time` and `calculator`. No restart; a page reload shows "Use tools" in the Sampling drawer.
+- **Why:** 0.1.0 ships with tools off, so UI chats never offered the model a tool.
+- **Not changed, engine:** 8080 already served tool calls. A `get_weather` test returned `finish_reason: tool_calls` with `{"city": "Copenhagen"}`, streamed and not, so agents calling 8080 directly were never affected.
+- **Rollback:** switch it off as admin under Settings → Tools.
+
 ## 2026-10-26 07:39: request counters on `/metrics`, and web UI 0.1.0 (every client on the Monitor)
 
 - **Changed, engine:** `gemma4-31b-fast` and `gemma4-31b-262k` now run `build/apps-final4`: NInferno `6ff9931`, which is `1a3d564` plus [patch 08](patches/ninferno/). Same flags; the fast unit restarted at a moment with no request in flight, and 8080 was down for 36 s ([`bench/deploy_final4.sh`](bench/deploy_final4.sh)).

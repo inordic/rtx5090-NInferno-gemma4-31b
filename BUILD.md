@@ -143,6 +143,8 @@ systemctl daemon-reload && systemctl enable --now ninfer-ui
 
 Stats are on `http://<host-ip>:8081`, and sign-in is on `https://<host-ip>:8443`. The first start creates `admin` with a one-time password in `/var/lib/ninfer-ui/initial-admin-password`, which must be replaced at first sign-in.
 
+**Tools.** The UI's tool calling starts switched off. Turn it on as admin under Settings → Tools, or from the shell with [`config/ninfer-ui/tools-on.mjs`](config/ninfer-ui/tools-on.mjs); no restart is needed, and a reload of the page shows "Use tools" in the Sampling drawer. The built-in `current_time` and `calculator` are then on; an MCP server's tools start off and are switched on one by one. Clients that call 8080 directly (agents) need nothing: the engine accepts OpenAI `tools` and returns `tool_calls`, streamed or not.
+
 **Check:** `curl http://<host-ip>:8081/health` shows `"model":"gemma4-31b-fast","max_context":155000`.
 
 ## 6. Measure
