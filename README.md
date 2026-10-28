@@ -9,7 +9,7 @@ This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GP
 - **Vision:** images in requests (about 290 tokens each), 7/7 on our image questions.
 - **Long context:** needles pass at 140K and 170K on the fast profile, and at 185K and 231K on the max-context profile.
 
-*Production since 2026-10-26 22:43 CET* ([CHANGELOG](CHANGELOG.md); numbers from [`results/results.jsonl`](results/results.jsonl), label `K1 turbo-qkv-vision ctx202112`, measured beside the previous build in one session).
+*Production since 2026-10-26 22:43 CET; since 2026-10-28 06:38 on our patches rebased onto upstream NInferno, with the prompt-cache flags, at the same measured speed* ([CHANGELOG](CHANGELOG.md); numbers from [`results/results.jsonl`](results/results.jsonl), label `K1 turbo-qkv-vision ctx202112`, measured beside the previous build in one session).
 
 Every number here comes from a file in [`results/`](results/), measured on the box described in [What runs](#what-runs). The night-by-night reports are in [`research/`](research/), and the build route, with a check after each step, is in [`BUILD.md`](BUILD.md).
 
@@ -46,7 +46,7 @@ What made the difference, in order of effect:
 
 Decode depends on how predictable the text is. The fast profile now drafts with Google's regular assistant, which matches its BF16-derived weights; the QAT assistant landed only 25–37% of its drafts there.
 
-**Agent turns.** Each turn reuses the cached conversation. With a 17.6K-token system prompt, the first turn takes 5.1 s, and each later turn takes about 0.53 s on the fast profile (0.65–0.73 s on the max-context profile). A turn's time to first token is 0.24–0.28 s for up to 1,000 new characters and 0.47–0.49 s for about 900 new tokens ([`bench/turnprobe.py`](bench/turnprobe.py), [night 1 report](research/2026-10-26-night1-decode.md#agent-turns-hermes-where-the-03-s-goes)).
+**Agent turns.** Each turn reuses the cached conversation. With a 17.6K-token system prompt, the first turn takes 5.1 s, and each later turn takes about 0.53 s on the fast profile (0.65–0.73 s on the max-context profile). A turn's time to first token is 0.24–0.28 s for up to 1,000 new characters and 0.47–0.49 s for about 900 new tokens ([`bench/turnprobe.py`](bench/turnprobe.py), [night 1 report](research/2026-10-26-night1-decode.md#agent-turns-hermes-where-the-03-s-goes)). A new session whose system head and tools are already cached answers in about 0.5 s; with a 24.4K-token head and 20 tools, that took 7–8 s before the prompt-cache flags ([night 3 report](research/2026-10-28-night3.md#2-new-agent-sessions-and-the-prompt-cache-patch-16)).
 
 **Tools.** OpenAI tool calls work, streamed and parallel included ([night 1 report](research/2026-10-26-night1-decode.md#tool-calling-works)). An agent loop with 20 tools ran 93 steps and 89 calls with none returned as text and no error, and replies after histories where the assistant wrote text with its calls came back as clean calls ([`bench/agenttest.py`](bench/agenttest.py), [`bench/textcalltest.py`](bench/textcalltest.py), [CHANGELOG](CHANGELOG.md)).
 
@@ -90,13 +90,14 @@ Perplexity on a 32K window (lower is better) is how the attention kernels were j
 | GPU | NVIDIA GeForce RTX 5090 Laptop GPU (GB203, sm_120, 82 SMs, 24 GB GDDR7, 896 GB/s), driver 595.58.03, VBIOS 98.03.95.00.07 |
 | Host | Proxmox VE, kernel 6.17.13-2-pve. The GPU is also passed to a second container; only one serves at a time |
 | Container | Ubuntu 24.04, 8 cores, 48 GB RAM, CUDA 13.2 |
-| Engine | NInferno ([Brontir/NInferno](https://github.com/Brontir/NInferno)) at `9895ebc` + [our patches](patches/ninferno/): 01–14 for the fast unit, 01–09 for the max-context unit. CUDA arch `120a`, Release |
+| Engine | NInferno ([Brontir/NInferno](https://github.com/Brontir/NInferno)) + [our patches](patches/ninferno/): 01–16 on upstream `8359583` for the fast unit, 01–09 on `9895ebc` for the max-context unit. CUDA arch `120a`, Release |
 | Fast model | [`LilaRest/gemma-4-31B-it-NVFP4-turbo`](https://huggingface.co/LilaRest/gemma-4-31B-it-NVFP4-turbo), Google's BF16 weights in NVFP4 (ModelOpt). Converted with NInferno's `gemma4_31b_nvfp4` recipe (Q8 embedding table, Q6 head), Q/K/V packed into one plane (patch 13). Adds the vision tower of Google's original model ([`unsloth/gemma-4-31B-it-GGUF`](https://huggingface.co/unsloth/gemma-4-31B-it-GGUF) `mmproj-BF16.gguf`): 18.9 GiB |
 | Max-context model | [`unsloth/gemma-4-31B-it-qat-GGUF`](https://huggingface.co/unsloth/gemma-4-31B-it-qat-GGUF) `UD-Q4_K_XL` (all Q4_0 inside, on the QAT grid): 16.1 GiB |
 | Drafters | fast: [`google/gemma-4-31B-it-assistant`](https://huggingface.co/google/gemma-4-31B-it-assistant) in Q8, 0.53 GB. Max context: [`google/gemma-4-31B-it-qat-q4_0-unquantized-assistant`](https://huggingface.co/google/gemma-4-31B-it-qat-q4_0-unquantized-assistant), QAT-aware Q4_0 through [our llama.cpp patch](patches/llama.cpp/), 0.28 GB |
 | Vision | fast profile, `--vision`; `/v1/models` reports `capabilities.images` (patch 14) |
 | Chat template | Google's Gemma 4 template of 2026-07-09 with an agent patch ([`config/templates/`](config/templates/)) |
 | Speculative decoding | MTP, 7 draft tokens |
+| Prompt cache | fast profile: a new session's system head and tool list compete for the cache like a marked prefix (`--auto-tools-shared-prefix --auto-shared-prefix-requested`, patch 16), and the host keeps up to 18 states and 8 GiB of KV (`--host-state-slots 18 --host-kv-mib 8192`) |
 | KV cache | FP8. The full-attention layers store K only (`NINFERNO_GEMMA4_SHARED_VALUES=2`). The fast profile also keeps its sliding-window rings in FP8 (`--sliding-kv-dtype fp8`) and its token table in host memory (`NINFERNO_GEMMA4_EMBED_HOST=1`) |
 | Prefill | W4A4 (fast profile), chunk 1024 (fast) or 512 (max context). GeGLU split at every width (`NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1`); the fast profile takes the wide attention tile from 64 tokens (`NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64`) |
 | Serving | systemd units [`gemma4-31b-fast`](config/systemd/gemma4-31b-fast.service) (port 8080) and [`gemma4-31b-262k`](config/systemd/gemma4-31b-262k.service), which exclude each other |

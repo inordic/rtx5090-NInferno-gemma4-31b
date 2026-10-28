@@ -2,6 +2,28 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-10-28 06:38: fast unit on the rebased build, with the prompt-cache flags
+
+- **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) now runs the night-3 proposal ([report §4](research/2026-10-28-night3.md#4-proposed-production-change)):
+  - **Binary:** `/opt/NInferno-up/build/apps-up1`, branch `kvshare-up` at `afd15fa`: our patches 01–16 on upstream NInferno `8359583`. It includes patch 15, the fix for the engine exit of 27 Oct.
+  - **New flags:**
+    - `--auto-tools-shared-prefix --auto-shared-prefix-requested` (patch 16): a new session's system head and tool list compete for the cache like a marked prefix, instead of only using spare room;
+    - `--host-state-slots 18 --host-kv-mib 8192`: NInferno's default host cache, without the cap at 30% of RAM (11 states before).
+  - **Restart:** 06:38, with no request in flight; 8080 answered again after 30 s. The plan is the same as before: 202,112 tokens × 1 lane.
+  - **Unchanged:** the model, drafter, context, vision, KV settings, environment switches and chat template. The max-context unit stays on `apps-final7`.
+- **Why:** in a replayed agent day with synthetic prompts, new sessions waited 1.5 s instead of 4.4 s on average, and the whole replay took 109 s instead of 192 s. Speed, quality and the regression checks matched production ([night-3 report](research/2026-10-28-night3.md)).
+- **Measured on the live unit after the switch:**
+  - [`verify.py`](bench/verify.py) passed: chat, streaming, and agent turns of 0.52–0.53 s with 17.6K cached;
+  - a streamed tool call returned `tool_calls`;
+  - [`textcalltest.py`](bench/textcalltest.py): 0 leaks;
+  - [`visiontest.py`](bench/visiontest.py): 7/7;
+  - [`agenttest.py`](bench/agenttest.py): 30 steps, 28 calls, no markup as text, no error;
+  - [`headprobe.py`](bench/headprobe.py): new sessions sharing a 24.4K-token system head and 20 tools reused 24,192 tokens each and answered in 0.44–0.50 s. A new session of that size took 7–8 s before;
+  - memory: server RSS 24.3 GiB (about 16 GiB before), 23 GiB still available in the container; GPU 23.9 GB, as before;
+  - the web UI's `/health` reports `max_context 202112, images true`.
+- **To watch:** how often the agent's own new sessions now reuse the cache. Its system heads may also change from run to run, and no cache setting fixes that.
+- **Rollback:** restore `/etc/systemd/system/gemma4-31b-fast.service.bak-20261028-053845` (`apps-final9`, no cache flags), then `systemctl daemon-reload` and [`bench/deploy_fast.sh`](bench/deploy_fast.sh).
+
 ## 2026-10-28 01:49: night 3 tests (running setup unchanged)
 
 - **Ran:** four sessions from 23:52 to 01:49, behind the idle gate, the fast unit back after each. They covered the engine exit of 27 Oct, new agent sessions and the prompt cache, and our patches rebased on upstream NInferno. Results and a proposed change are in the [night-3 report](research/2026-10-28-night3.md).

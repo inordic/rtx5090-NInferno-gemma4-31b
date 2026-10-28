@@ -11,7 +11,7 @@ Environment=NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1
 Environment=NINFERNO_GEMMA4_EMBED_HOST=1
 Environment=NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64
 WorkingDirectory=/opt/models
-ExecStart=/opt/NInferno/build/apps-final9/ninferno-serve /opt/models/dl2/turbo-qkv-vision-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --vision --max-context 202112 --prefill-chunk 1024 --kv-dtype fp8 --sliding-kv-dtype fp8 --spec mtp --drafter /opt/models/dl2/assistant.q8full.ninferno --draft-tokens 7 --chat-template /opt/models/templates/gemma4-agent.jinja
+ExecStart=/opt/NInferno-up/build/apps-up1/ninferno-serve /opt/models/dl2/turbo-qkv-vision-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --vision --max-context 202112 --prefill-chunk 1024 --kv-dtype fp8 --sliding-kv-dtype fp8 --spec mtp --drafter /opt/models/dl2/assistant.q8full.ninferno --draft-tokens 7 --chat-template /opt/models/templates/gemma4-agent.jinja --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192
 Restart=on-failure
 RestartSec=10
 
