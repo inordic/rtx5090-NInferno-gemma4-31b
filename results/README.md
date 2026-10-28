@@ -11,6 +11,7 @@ All measured on the RTX 5090 Laptop GPU described in the [README](../README.md#w
 | [`quality/`](quality/) | `qdetail_<label>.json` | per item: ok, gold, prediction (GSM8K also counts tokens). Pair two runs item by item to compare them |
 | [`edit.jsonl`](edit.jsonl) | one per [`editbench.py`](../bench/editbench.py) run | decode tok/s of three whole-file code edits, and whether each edit was made |
 | [`vision.jsonl`](vision.jsonl) | one per [`visiontest.py`](../bench/visiontest.py) run | 7 image questions: answers, correctness, prompt tokens and time |
+| [`livecache.jsonl`](livecache.jsonl) | one per window and request group, from [`livecache.py`](../bench/livecache.py) over the live serve log | aggregates only: requests, mean prompt, share cached, hits, time to first token, reuse paths ([night 3 §6](../research/2026-10-28-night3.md#6-live-traffic-after-the-switch-28-oct-06501819-cet)) |
 | [`cachereplay.jsonl`](cachereplay.jsonl) | one per [`cachereplay.py`](../bench/cachereplay.py) request, and a summary row per run | a compressed agent day in synthetic prompts: kind, prompt and cached tokens, seconds; the summary gives the whole replay, new sessions and interactive turns |
 | [`hard50.jsonl`](hard50.jsonl) | one per hard50 run (NInferno's `tools/bench/hard_set.py`) | the summary only: right answers by dataset, decode tok/s, rounds, accepted drafts, tokens per round |
 | [`agent.jsonl`](agent.jsonl) | one per [`agenttest.py`](../bench/agenttest.py) run since night 3 | steps, tool calls, calls returned as text, errors |

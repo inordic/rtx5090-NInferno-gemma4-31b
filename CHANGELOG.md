@@ -21,7 +21,10 @@ Every change to the running setup, newest first. Each entry names what changed o
   - [`headprobe.py`](bench/headprobe.py): new sessions sharing a 24.4K-token system head and 20 tools reused 24,192 tokens each and answered in 0.44–0.50 s. A new session of that size took 7–8 s before;
   - memory: server RSS 24.3 GiB (about 16 GiB before), 23 GiB still available in the container; GPU 23.9 GB, as before;
   - the web UI's `/health` reports `max_context 202112, images true`.
-- **To watch:** how often the agent's own new sessions now reuse the cache. Its system heads may also change from run to run, and no cache setting fixes that.
+- **Live, first 11.5 hours** ([night-3 report §6](research/2026-10-28-night3.md#6-live-traffic-after-the-switch-28-oct-06501819-cet)):
+  - new agent sessions with 20K+ token prompts hit the cache 26 times of 33, against 7 of 34 before;
+  - their median time to first token is 2.7 s instead of 7.2 s;
+  - continuing turns are unchanged, and the engine has not exited.
 - **Rollback:** restore `/etc/systemd/system/gemma4-31b-fast.service.bak-20261028-053845` (`apps-final9`, no cache flags), then `systemctl daemon-reload` and [`bench/deploy_fast.sh`](bench/deploy_fast.sh).
 
 ## 2026-10-28 01:49: night 3 tests (running setup unchanged)
