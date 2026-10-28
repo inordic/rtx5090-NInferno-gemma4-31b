@@ -112,7 +112,7 @@ Perplexity on a 32K window (lower is better) is how the attention kernels were j
 | [`config/`](config/) | the systemd units of both profiles, the chat template they serve with, and the web UI's service files |
 | [`bench/`](bench/) | the speed, quality, needle, agent-turn and kernel benchmarks, the model download and conversion scripts, the overnight runners with their idle gate, and every queue that ran |
 | [`results/`](results/) | every measurement: speed and quality rows, per-item quality, needles, kernel profiles, drafter tuning, run logs |
-| [`research/`](research/) | the engine and options research, the day-1, night-1 and night-2 reports, the QAT Q4 prefill design |
+| [`research/`](research/) | the engine and options research, the day-1 and night-1 to night-3 reports, the QAT Q4 prefill design |
 
 ## Lessons from the way here
 

@@ -1,0 +1,49 @@
+From 239b6cff9578ad2731544c699b6901c1559cb4ef Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Tue, 27 Oct 2026 22:45:45 +0000
+Subject: [PATCH 15/16] program: a consumed endpoint takes over the checkpoints
+ pressure leaves it alone
+
+Since patch 09 a consumed endpoint (PrivateEndpoint, ConsumeToActive) is entitled only to the
+optional checkpoints (retained rewrite state, long anchors) it owns alone. When the admission's
+pressure target evicts the other owner of such a checkpoint, the checkpoint becomes the lineage's
+own, but the source protection listed ownership candidates only for rewrite-checkpoint restores,
+so no transfer was projected and start_request threw "materialized sequence does not match its
+active entitlement" (actual host_state 1, expected 0) and the engine exited. The endpoint path now
+lists its retained rewrite state and every long anchor as candidates, as request_plan counts them.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/models/qwen3_5/program/planning/pressure.cpp | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/models/qwen3_5/program/planning/pressure.cpp b/src/models/qwen3_5/program/planning/pressure.cpp
+index c5de9bf..18eaa12 100644
+--- a/src/models/qwen3_5/program/planning/pressure.cpp
++++ b/src/models/qwen3_5/program/planning/pressure.cpp
+@@ -427,7 +427,12 @@ ProgramImpl::materialization_source_protection(const ResourceCandidateState& adm
+                 state_store->checkpoint_references(*protection.state) !=
+                 protection.consumed_state_references;
+ 
+-            if (is_rewrite_checkpoint_restore(admission.reuse)) {
++            // The optional checkpoints a consumed lineage keeps (request_plan) are entitled only
++            // while it owns them alone; one it shares moves into its entitlement when pressure
++            // evicts the other owner. A consumed endpoint keeps every long anchor, a restore only
++            // those at or before its base.
++            const bool endpoint = admission.reuse == ReusePath::PrivateEndpoint;
++            if (endpoint || is_rewrite_checkpoint_restore(admission.reuse)) {
+                 const auto append_optional_state = [&](StateImageHandle state) {
+                     if (!state_store->valid(state) || state_exclusive_to_sequence(source, state) ||
+                         std::any_of(
+@@ -446,7 +451,7 @@ ProgramImpl::materialization_source_protection(const ResourceCandidateState& adm
+                     append_optional_state(*source.rewrite_state);
+                 }
+                 for (const LongAnchorCheckpoint& anchor : source.long_anchors) {
+-                    if (anchor.frontier <= admission.reuse_base) {
++                    if (endpoint || anchor.frontier <= admission.reuse_base) {
+                         append_optional_state(anchor.state);
+                     }
+                 }
+-- 
+2.43.0
+

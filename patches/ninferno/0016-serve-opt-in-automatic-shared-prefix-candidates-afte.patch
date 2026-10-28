@@ -1,0 +1,368 @@
+From 8ab8935644d6e06049baf5754814ac80bbbc6e10 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Tue, 27 Oct 2026 22:46:05 +0000
+Subject: [PATCH 16/16] serve: opt-in automatic shared-prefix candidates after
+ the tools, and as requested evidence
+
+Agent clients send no cache breakpoints. The automatic system-head candidate ends before the tool
+declarations, which Gemma 4 renders after the system text, so every new session reads the tools
+again; and as DefaultAutomatic evidence it is written only into spare capacity, which a cache full
+of agent conversations never has. --auto-tools-shared-prefix adds a candidate after the last tool
+(its own marker, so tool-order stabilization still holds); --auto-shared-prefix-requested gives the
+system and tools candidates RequestedAutomatic evidence, so the planner may evict inactive owners
+for them when its net gain is positive. Both are off by default.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ docs/reference/serving.md              | 10 ++++++
+ src/serve/openai_chat.h                |  4 ++-
+ src/serve/openai_chat_http.cpp         |  5 +--
+ src/serve/openai_chat_request.cpp      | 10 ++++--
+ src/serve/openai_common.cpp            | 18 ++++++++--
+ src/serve/openai_common.h              |  6 ++++
+ src/serve/openai_responses.h           |  4 ++-
+ src/serve/openai_responses_http.cpp    |  5 +--
+ src/serve/openai_responses_request.cpp | 12 ++++---
+ src/serve/request.h                    |  3 ++
+ src/serve/serve_options.cpp            |  7 +++-
+ src/serve/serve_options.h              |  5 +++
+ src/serve/translate.cpp                |  8 +++++
+ tests/test_openai_schema.cpp           | 46 ++++++++++++++++++++++++++
+ 14 files changed, 126 insertions(+), 17 deletions(-)
+
+diff --git a/docs/reference/serving.md b/docs/reference/serving.md
+index c73b0a0..a5d15ed 100644
+--- a/docs/reference/serving.md
++++ b/docs/reference/serving.md
+@@ -1022,6 +1022,14 @@ the four marker slots: when a request also carries the most explicit breakpoints
+ explicit one is dropped, as for the last-content candidate. `prompt_cache_options.mode: "explicit"`
+ never adds it. `--no-auto-system-shared-prefix` turns it off for both protocols.
+ 
++`--auto-tools-shared-prefix` adds one more automatic candidate after the last tool declaration.
++Gemma 4's template renders the tools after the system head, so the system candidate alone leaves
++them to be read again by every new session. It takes a marker slot like the system candidate.
++These automatic candidates are `DefaultAutomatic`: they are written only into spare capacity.
++`--auto-shared-prefix-requested` gives the system and tools candidates `RequestedAutomatic`
++evidence instead, so a full cache may evict inactive owners for them when the planner's net gain
++is positive.
++
+ ## 8. OpenAI Responses Core
+ 
+ NInferno implements the typed-Item and semantic-event core of the OpenAI
+@@ -1646,6 +1654,8 @@ not take at startup.
+ | `--max-shared-prefixes N` | Engine-wide shared stable-prefix descriptor capacity | `max(max-concurrency, 7)` |
+ | `--max-long-anchors-per-continuation N` | private long-anchor limit per continuation | `2` |
+ | `--no-auto-system-shared-prefix` | disable the automatic shared-prefix candidate at the leading system/developer frontier ([section 7](#automatic-systemdeveloper-shared-prefix)) | on |
++| `--auto-tools-shared-prefix` | also an automatic shared-prefix candidate after the last tool declaration | off |
++| `--auto-shared-prefix-requested` | the system and tools candidates may take room under pressure (`RequestedAutomatic`) | off |
+ | `--response-store-max-records N` | maximum locally retained Responses objects | `1024` |
+ | `--response-store-max-mib N` | total local Response envelope/Item/context budget | `256` |
+ 
+diff --git a/src/serve/openai_chat.h b/src/serve/openai_chat.h
+index 7cc305f..92d64ed 100644
+--- a/src/serve/openai_chat.h
++++ b/src/serve/openai_chat.h
+@@ -32,7 +32,9 @@ struct OpenAIChatRequest {
+ 
+ OpenAIChatRequest parse_chat_completion_request(const RequestJson& body,
+                                                 const RequestLimits& limits,
+-                                                bool auto_system_shared_prefix = true);
++                                                bool auto_system_shared_prefix    = true,
++                                                bool auto_tools_shared_prefix     = false,
++                                                bool auto_shared_prefix_requested = false);
+ 
+ struct OpenAIChatResponseIdentity {
+     std::string id;
+diff --git a/src/serve/openai_chat_http.cpp b/src/serve/openai_chat_http.cpp
+index 61371ed..f6e0c2b 100644
+--- a/src/serve/openai_chat_http.cpp
++++ b/src/serve/openai_chat_http.cpp
+@@ -29,8 +29,9 @@ void HttpServer::handle_chat_completions(const httplib::Request& req, httplib::R
+     OpenAIChatRequest request;
+     try {
+         const RequestLimits limits = request_limits();
+-        request                    = parse_chat_completion_request(parse_json_body(req), limits,
+-                                                                   options_.auto_system_shared_prefix);
++        request                    = parse_chat_completion_request(
++            parse_json_body(req), limits, options_.auto_system_shared_prefix,
++            options_.auto_tools_shared_prefix, options_.auto_shared_prefix_requested);
+     } catch (const ApiException& exception) {
+         refuse(req, res, exception.error());
+         return;
+diff --git a/src/serve/openai_chat_request.cpp b/src/serve/openai_chat_request.cpp
+index 97ead46..1bfcec9 100644
+--- a/src/serve/openai_chat_request.cpp
++++ b/src/serve/openai_chat_request.cpp
+@@ -965,7 +965,9 @@ void parse_output_limit(const Json& body, const RequestLimits& limits, OpenAICha
+ } // namespace
+ 
+ OpenAIChatRequest parse_chat_completion_request(const Json& body, const RequestLimits& limits,
+-                                                bool auto_system_shared_prefix) {
++                                                bool auto_system_shared_prefix,
++                                                bool auto_tools_shared_prefix,
++                                                bool auto_shared_prefix_requested) {
+     require_object(body, "request body must be a JSON object");
+     validate_standard_output_controls(body);
+     std::optional<OutputConstraintRequest> constraint = parse_output_constraint(body);
+@@ -978,8 +980,10 @@ OpenAIChatRequest parse_chat_completion_request(const Json& body, const RequestL
+     }
+     output.model = body.at("model").get<std::string>();
+ 
+-    OpenAIPromptCachePolicy cache_policy   = parse_openai_prompt_cache_policy(body);
+-    cache_policy.auto_system_shared_prefix = auto_system_shared_prefix;
++    OpenAIPromptCachePolicy cache_policy      = parse_openai_prompt_cache_policy(body);
++    cache_policy.auto_system_shared_prefix    = auto_system_shared_prefix;
++    cache_policy.auto_tools_shared_prefix     = auto_tools_shared_prefix;
++    cache_policy.auto_shared_prefix_requested = auto_shared_prefix_requested;
+ 
+     parse_tools(body, output.generation);
+     parse_tool_choice(body, output.generation);
+diff --git a/src/serve/openai_common.cpp b/src/serve/openai_common.cpp
+index d7b9c81..800f56c 100644
+--- a/src/serve/openai_common.cpp
++++ b/src/serve/openai_common.cpp
+@@ -221,10 +221,17 @@ void apply_openai_prompt_cache_policy(GenerationRequest& request, OpenAIPromptCa
+         policy.auto_system_shared_prefix && automatic_enabled &&
+         leading_instruction != static_cast<std::size_t>(-1) &&
+         !request.messages[leading_instruction].cache_boundary_after.has_value();
++    // Not when the last tool already carries a boundary (explicit, or the last-content candidate
++    // of a request without content).
++    const bool tools_candidate = policy.auto_tools_shared_prefix && automatic_enabled &&
++                                 !request.tools.empty() &&
++                                 !request.tools.back().cache_boundary_after.has_value() &&
++                                 automatic_target != &request.tools.back().cache_boundary_after;
+     const std::size_t base_slots           = !automatic_enabled || automatic_merges_explicit
+                                                  ? kMaximumExplicitPromptCacheMarkers
+                                                  : kMaximumExplicitPromptCacheMarkers - 1U;
+-    const std::size_t explicit_write_slots = base_slots - (system_candidate ? 1U : 0U);
++    const std::size_t explicit_write_slots =
++        base_slots - (system_candidate ? 1U : 0U) - (tools_candidate ? 1U : 0U);
+     const std::size_t first_selected       = explicit_boundaries.size() > explicit_write_slots
+                                                  ? explicit_boundaries.size() - explicit_write_slots
+                                                  : 0U;
+@@ -249,9 +256,16 @@ void apply_openai_prompt_cache_policy(GenerationRequest& request, OpenAIPromptCa
+         } else {
+             *automatic_target = CacheBoundary{.evidence = evidence};
+         }
++        const ninferno::SharedCandidateEvidence head_evidence =
++            policy.auto_shared_prefix_requested
++                ? ninferno::SharedCandidateEvidence::RequestedAutomatic
++                : ninferno::SharedCandidateEvidence::DefaultAutomatic;
+         if (system_candidate) {
+             request.messages[leading_instruction].cache_boundary_after =
+-                CacheBoundary{.evidence = ninferno::SharedCandidateEvidence::DefaultAutomatic};
++                CacheBoundary{.evidence = head_evidence};
++        }
++        if (tools_candidate) {
++            request.tools_boundary_after = CacheBoundary{.evidence = head_evidence};
+         }
+     }
+     // OpenAI already defines the automatic/explicit write policy for every request. Existing
+diff --git a/src/serve/openai_common.h b/src/serve/openai_common.h
+index 76235fa..6e3d44b 100644
+--- a/src/serve/openai_common.h
++++ b/src/serve/openai_common.h
+@@ -29,6 +29,12 @@ struct OpenAIPromptCachePolicy {
+     // With automatic writes on, also a shared-prefix candidate at the end of the leading
+     // system/developer run, so sibling sessions share that head without a client marker.
+     bool auto_system_shared_prefix = true;
++    // And one after the last tool declaration: Gemma 4 renders the tools after the system head,
++    // so sibling sessions with the same tools share both (--auto-tools-shared-prefix).
++    bool auto_tools_shared_prefix = false;
++    // The system-head and tools candidates as RequestedAutomatic: they may take room from inactive
++    // owners under pressure, not only spare capacity (--auto-shared-prefix-requested).
++    bool auto_shared_prefix_requested = false;
+ };
+ 
+ [[nodiscard]] bool parse_openai_prompt_cache_breakpoint(const RequestJson& value,
+diff --git a/src/serve/openai_responses.h b/src/serve/openai_responses.h
+index ac14bb5..0b55a85 100644
+--- a/src/serve/openai_responses.h
++++ b/src/serve/openai_responses.h
+@@ -87,7 +87,9 @@ struct BuiltOpenAIResponse {
+ 
+ OpenAIResponsesCreateRequest
+ parse_openai_responses_create_request(const RequestJson& body, const RequestLimits& limits,
+-                                      bool auto_system_shared_prefix = true);
++                                      bool auto_system_shared_prefix    = true,
++                                      bool auto_tools_shared_prefix     = false,
++                                      bool auto_shared_prefix_requested = false);
+ 
+ OpenAIResponsesPromptRequest
+ parse_openai_responses_input_tokens_request(const RequestJson& body, const RequestLimits& limits);
+diff --git a/src/serve/openai_responses_http.cpp b/src/serve/openai_responses_http.cpp
+index 75338c5..ed0516d 100644
+--- a/src/serve/openai_responses_http.cpp
++++ b/src/serve/openai_responses_http.cpp
+@@ -237,8 +237,9 @@ void HttpServer::handle_responses(const httplib::Request& req, httplib::Response
+     const std::string id = new_openai_response_id();
+     try {
+         const RequestLimits limits = request_limits();
+-        request  = parse_openai_responses_create_request(parse_json_body(req), limits,
+-                                                         options_.auto_system_shared_prefix);
++        request  = parse_openai_responses_create_request(
++            parse_json_body(req), limits, options_.auto_system_shared_prefix,
++            options_.auto_tools_shared_prefix, options_.auto_shared_prefix_requested);
+         resolved = resolve_openai_responses_prompt(request.prompt, openai_responses_store_, id,
+                                                    request.store);
+         if (request.store) {
+diff --git a/src/serve/openai_responses_request.cpp b/src/serve/openai_responses_request.cpp
+index 7a82c70..32a7dc8 100644
+--- a/src/serve/openai_responses_request.cpp
++++ b/src/serve/openai_responses_request.cpp
+@@ -1343,14 +1343,16 @@ void validate_common_top_level(const Json& body, bool create) {
+ 
+ } // namespace
+ 
+-OpenAIResponsesCreateRequest parse_openai_responses_create_request(const Json& body,
+-                                                                   const RequestLimits& limits,
+-                                                                   bool auto_system_shared_prefix) {
++OpenAIResponsesCreateRequest parse_openai_responses_create_request(
++    const Json& body, const RequestLimits& limits, bool auto_system_shared_prefix,
++    bool auto_tools_shared_prefix, bool auto_shared_prefix_requested) {
+     require_object(body);
+     validate_common_top_level(body, true);
+     reject_unsupported_platform_fields(body);
+-    OpenAIPromptCachePolicy cache_policy   = parse_openai_prompt_cache_policy(body);
+-    cache_policy.auto_system_shared_prefix = auto_system_shared_prefix;
++    OpenAIPromptCachePolicy cache_policy      = parse_openai_prompt_cache_policy(body);
++    cache_policy.auto_system_shared_prefix    = auto_system_shared_prefix;
++    cache_policy.auto_tools_shared_prefix     = auto_tools_shared_prefix;
++    cache_policy.auto_shared_prefix_requested = auto_shared_prefix_requested;
+ 
+     ParsedPromptFields parsed = parse_prompt_fields(body, limits);
+     apply_openai_prompt_cache_policy(parsed.prompt.generation, cache_policy);
+diff --git a/src/serve/request.h b/src/serve/request.h
+index f361384..a6376ca 100644
+--- a/src/serve/request.h
++++ b/src/serve/request.h
+@@ -243,6 +243,9 @@ struct GenerationRequest {
+     ninferno::PromptContinuationMode continuation =
+         ninferno::PromptContinuationMode::NewAssistantTurn;
+     bool allow_engine_automatic_shared_prefixes = true;
++    // A shared-prefix candidate after the last tool declaration (--auto-tools-shared-prefix). It is
++    // not the tool's own boundary, so the tool order is still stabilized.
++    std::optional<CacheBoundary> tools_boundary_after;
+     SamplingParams sampling;
+ 
+     [[nodiscard]] bool uses_tools() const noexcept {
+diff --git a/src/serve/serve_options.cpp b/src/serve/serve_options.cpp
+index fcbdd57..85ac838 100644
+--- a/src/serve/serve_options.cpp
++++ b/src/serve/serve_options.cpp
+@@ -64,7 +64,8 @@ std::string serve_usage_text(const char* argv0) {
+            "[--repetition-thinking stop|conclude] "
+            "[--vision] [--no-cuda-graph] [--no-prefix-reuse] [--concurrent-prefill] "
+            "[--chat-template FILE] [--lm-head-draft] [--no-thinking] [--preserve-thinking] "
+-           "[--no-auto-system-shared-prefix] [--cors] [--usage-chunk-choice] "
++           "[--no-auto-system-shared-prefix] [--auto-tools-shared-prefix] "
++           "[--auto-shared-prefix-requested] [--cors] [--usage-chunk-choice] "
+            "[--temperature F] [--top-p F] [--top-k N] [--min-p F] [--presence-penalty F] "
+            "[--frequency-penalty F] [--seed N] [--greedy]\n"
+            "       [--log-level trace|debug|info|warning|error|critical|off]\n" +
+@@ -514,6 +515,10 @@ ServeOptions parse_serve_options(int argc, char** argv) {
+             options.preserve_thinking = true;
+         } else if (arg == "--no-auto-system-shared-prefix") {
+             options.auto_system_shared_prefix = false;
++        } else if (arg == "--auto-tools-shared-prefix") {
++            options.auto_tools_shared_prefix = true;
++        } else if (arg == "--auto-shared-prefix-requested") {
++            options.auto_shared_prefix_requested = true;
+         } else if (arg == "--cors") {
+             options.enable_cors = true;
+         } else if (arg == "--usage-chunk-choice") {
+diff --git a/src/serve/serve_options.h b/src/serve/serve_options.h
+index 53836eb..873dcbb 100644
+--- a/src/serve/serve_options.h
++++ b/src/serve/serve_options.h
+@@ -135,6 +135,11 @@ struct ServeOptions {
+     bool concurrent_prefill = false; // --concurrent-prefill
+     // OpenAI requests: a shared-prefix candidate at the end of the leading system/developer run.
+     bool auto_system_shared_prefix = true;
++    // and one after the last tool declaration (--auto-tools-shared-prefix)
++    bool auto_tools_shared_prefix = false;
++    // the two as RequestedAutomatic evidence, which may take room under pressure
++    // (--auto-shared-prefix-requested)
++    bool auto_shared_prefix_requested = false;
+     std::optional<bool> enable_thinking;
+     std::optional<bool> preserve_thinking;
+     std::optional<std::uint32_t> default_thinking_budget;
+diff --git a/src/serve/translate.cpp b/src/serve/translate.cpp
+index 7cd181a..d4beb50 100644
+--- a/src/serve/translate.cpp
++++ b/src/serve/translate.cpp
+@@ -471,6 +471,14 @@ ninferno::PromptInput to_prompt_input(const GenerationRequest& request,
+             });
+         }
+     }
++    if (request.tools_boundary_after && !tools.empty() && !tools.back()->cache_boundary_after) {
++        input.context_cache.markers.push_back(ninferno::PromptCacheMarker{
++            .kind             = request.tools_boundary_after->kind,
++            .evidence         = request.tools_boundary_after->evidence,
++            .location         = ninferno::PromptCacheMarkerLocation::ToolBoundary,
++            .after_tool_count = static_cast<std::uint32_t>(tools.size()),
++        });
++    }
+     input.context_cache.allow_engine_automatic_shared_prefixes =
+         request.allow_engine_automatic_shared_prefixes;
+     return input;
+diff --git a/tests/test_openai_schema.cpp b/tests/test_openai_schema.cpp
+index b52668c..c899cd5 100644
+--- a/tests/test_openai_schema.cpp
++++ b/tests/test_openai_schema.cpp
+@@ -255,6 +255,52 @@ int test_auto_system_shared_prefix() {
+     failures += check(!off.messages[0].cache_boundary_after &&
+                           off.messages[1].content.back().cache_boundary_after,
+                       "--no-auto-system-shared-prefix keeps only the last-content candidate");
++
++    Json with_tools        = base_request();
++    with_tools["messages"] = Json::array(
++        {Json{{"role", "system"}, {"content", "h"}}, Json{{"role", "user"}, {"content", "hi"}}});
++    with_tools["tools"] = Json::array();
++    for (const char* name : {"b_tool", "a_tool"}) {
++        with_tools["tools"].push_back(
++            Json{{"type", "function"},
++                 {"function", Json{{"name", name},
++                                   {"parameters", Json{{"type", "object"},
++                                                       {"properties", Json::object()}}}}}});
++    }
++    const auto plain = parse(with_tools).generation;
++    failures += check(!plain.tools_boundary_after, "the tools candidate is off by default");
++    const auto tooled =
++        parse_chat_completion_request(with_tools, limits(), true, true, false).generation;
++    const auto tooled_prompt = prompt(tooled);
++    const auto tool_marker   = std::find_if(
++        tooled_prompt.context_cache.markers.begin(), tooled_prompt.context_cache.markers.end(),
++        [](const auto& marker) {
++            return marker.location == ninferno::PromptCacheMarkerLocation::ToolBoundary;
++        });
++    failures += check(tooled.tools_boundary_after &&
++                          tooled.tools_boundary_after->evidence == Evidence::DefaultAutomatic &&
++                          !tooled.tools.back().cache_boundary_after &&
++                          tool_marker != tooled_prompt.context_cache.markers.end() &&
++                          tool_marker->after_tool_count == 2 &&
++                          tooled_prompt.context_cache.markers.size() == 3,
++                      "--auto-tools-shared-prefix marks the end of the tools as its own marker");
++    const auto requested =
++        parse_chat_completion_request(with_tools, limits(), true, true, true).generation;
++    failures += check(requested.messages[0].cache_boundary_after->evidence ==
++                              Evidence::RequestedAutomatic &&
++                          requested.tools_boundary_after->evidence == Evidence::RequestedAutomatic &&
++                          requested.messages[1].content.back().cache_boundary_after->evidence ==
++                              Evidence::DefaultAutomatic,
++                      "--auto-shared-prefix-requested raises the system and tools candidates only");
++
++    Json tools_full        = with_tools;
++    tools_full["messages"] = Json::array(
++        {Json{{"role", "system"}, {"content", "head"}}, Json{{"role", "user"}, {"content", four}}});
++    const auto tools_capped =
++        prompt(parse_chat_completion_request(tools_full, limits(), true, true, true).generation);
++    failures += check(tools_capped.context_cache.markers.size() <=
++                          ninferno::kMaximumExplicitPromptCacheMarkers,
++                      "four breakpoints, the system head and the tools stay within the marker cap");
+     return failures;
+ }
+ 
+-- 
+2.43.0
+

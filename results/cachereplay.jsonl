@@ -1,0 +1,525 @@
+{"label": "C0 ", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.95, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25492, "cached": 24414, "seconds": 0.822, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26539, "cached": 25485, "seconds": 0.787, "messages": 6}
+{"label": "C0 ", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.079, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.827, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.803, "messages": 6}
+{"label": "C0 ", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.903, "messages": 2}
+{"label": "C0 ", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.853, "messages": 4}
+{"label": "C0 ", "kind": "inter", "prompt": 26715, "cached": 0, "seconds": 7.822, "messages": 2}
+{"label": "C0 ", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.284, "messages": 4}
+{"label": "C0 ", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.857, "messages": 6}
+{"label": "C0 ", "kind": "A-new", "prompt": 24430, "cached": 0, "seconds": 7.04, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.83, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.887, "messages": 6}
+{"label": "C0 ", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.543, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.826, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.831, "messages": 6}
+{"label": "C0 ", "kind": "B-new", "prompt": 26720, "cached": 0, "seconds": 7.862, "messages": 2}
+{"label": "C0 ", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.851, "messages": 4}
+{"label": "C0 ", "kind": "inter", "prompt": 34684, "cached": 26711, "seconds": 3.674, "messages": 8}
+{"label": "C0 ", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.131, "messages": 10}
+{"label": "C0 ", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.645, "messages": 12}
+{"label": "C0 ", "kind": "A-new", "prompt": 24430, "cached": 0, "seconds": 7.064, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.872, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.82, "messages": 6}
+{"label": "C0 ", "kind": "A-new", "prompt": 24420, "cached": 0, "seconds": 7.374, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.835, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.765, "messages": 6}
+{"label": "C0 ", "kind": "B-new", "prompt": 26732, "cached": 0, "seconds": 7.965, "messages": 2}
+{"label": "C0 ", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.848, "messages": 4}
+{"label": "C0 ", "kind": "inter", "prompt": 43885, "cached": 34680, "seconds": 4.785, "messages": 14}
+{"label": "C0 ", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.645, "messages": 16}
+{"label": "C0 ", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.254, "messages": 18}
+{"label": "C0 ", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.95, "messages": 2}
+{"label": "C0 ", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.504, "messages": 4}
+{"label": "C0 ", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.555, "messages": 2}
+{"label": "C0 ", "kind": "D-turn", "prompt": 10285, "cached": 9565, "seconds": 0.548, "messages": 4}
+{"label": "C0 ", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.513, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25480, "cached": 24416, "seconds": 0.982, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26546, "cached": 25473, "seconds": 0.927, "messages": 6}
+{"label": "C0 ", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.589, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25474, "cached": 24416, "seconds": 0.827, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26537, "cached": 25467, "seconds": 0.918, "messages": 6}
+{"label": "C0 ", "kind": "B-new", "prompt": 26733, "cached": 0, "seconds": 7.935, "messages": 2}
+{"label": "C0 ", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.897, "messages": 4}
+{"label": "C0 ", "kind": "inter", "prompt": 53712, "cached": 43881, "seconds": 5.737, "messages": 20}
+{"label": "C0 ", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.143, "messages": 22}
+{"label": "C0 ", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.731, "messages": 24}
+{"label": "C0 ", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.549, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.83, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.796, "messages": 6}
+{"label": "C0 ", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.593, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.828, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26558, "cached": 25487, "seconds": 0.797, "messages": 6}
+{"label": "C0 ", "kind": "B-new", "prompt": 26735, "cached": 0, "seconds": 8.014, "messages": 2}
+{"label": "C0 ", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.856, "messages": 4}
+{"label": "C0 ", "kind": "inter", "prompt": 63789, "cached": 56690, "seconds": 4.757, "messages": 26}
+{"label": "C0 ", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.257, "messages": 28}
+{"label": "C0 ", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.862, "messages": 30}
+{"label": "C0 ", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.588, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25501, "cached": 24415, "seconds": 0.765, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26563, "cached": 24418, "seconds": 1.193, "messages": 6}
+{"label": "C0 ", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.443, "messages": 2}
+{"label": "C0 ", "kind": "A-turn", "prompt": 25484, "cached": 24192, "seconds": 0.754, "messages": 4}
+{"label": "C0 ", "kind": "A-turn", "prompt": 26539, "cached": 24192, "seconds": 1.268, "messages": 6}
+{"label": "C0 ", "kind": "B-new", "prompt": 26723, "cached": 0, "seconds": 7.864, "messages": 2}
+{"label": "C0 ", "kind": "B-turn", "prompt": 27786, "cached": 0, "seconds": 8.289, "messages": 4}
+{"label": "C0 ", "kind": "inter", "prompt": 73327, "cached": 66636, "seconds": 5.006, "messages": 32}
+{"label": "C0 ", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.919, "messages": 34}
+{"label": "C0 ", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.882, "messages": 36}
+{"label": "C0 ", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.957, "messages": 2}
+{"label": "C0 ", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.638, "messages": 4}
+{"label": "C0 ", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.678, "messages": 2}
+{"label": "C0 ", "kind": "D-turn", "prompt": 10287, "cached": 0, "seconds": 2.725, "messages": 4}
+{"label": "C0 ", "summary": true, "requests": 74, "total_s": 192.2, "new_s": 97.0, "new_mean_s": 4.41, "new_cached_frac": 0.348, "all_cached_frac": 0.78, "wall_s": 192.2, "A_new_mean_s": 3.36, "B_new_mean_s": 7.92, "C_new_mean_s": 1.95, "D_new_mean_s": 2.62, "inter_mean_s": 3.19}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.095, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25492, "cached": 24414, "seconds": 0.835, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26539, "cached": 25485, "seconds": 0.79, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.084, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.83, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.801, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.901, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.854, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 26715, "cached": 0, "seconds": 7.839, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.279, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.851, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24430, "cached": 0, "seconds": 7.073, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.826, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.894, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.542, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.829, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.84, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-new", "prompt": 26720, "cached": 0, "seconds": 7.89, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.854, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 34684, "cached": 26711, "seconds": 3.671, "messages": 8}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.125, "messages": 10}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.649, "messages": 12}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24430, "cached": 0, "seconds": 7.043, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.86, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.811, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24420, "cached": 0, "seconds": 7.09, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25479, "cached": 24192, "seconds": 8.712, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.762, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-new", "prompt": 26732, "cached": 0, "seconds": 7.975, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.843, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 43885, "cached": 34680, "seconds": 4.717, "messages": 14}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.635, "messages": 16}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.246, "messages": 18}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.886, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "C-turn", "prompt": 7831, "cached": 0, "seconds": 2.004, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.553, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "D-turn", "prompt": 10285, "cached": 9536, "seconds": 0.564, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.549, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.783, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.753, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.591, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25474, "cached": 24416, "seconds": 0.823, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26537, "cached": 25467, "seconds": 0.919, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-new", "prompt": 26733, "cached": 0, "seconds": 7.934, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.895, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 53712, "cached": 46361, "seconds": 4.391, "messages": 20}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.145, "messages": 22}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.729, "messages": 24}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.504, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.828, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.839, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.545, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.828, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.791, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-new", "prompt": 26735, "cached": 0, "seconds": 7.895, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.899, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 63789, "cached": 53708, "seconds": 6.494, "messages": 26}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.237, "messages": 28}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.878, "messages": 30}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.587, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.835, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26561, "cached": 25492, "seconds": 0.821, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.422, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.71, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.689, "messages": 6}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-new", "prompt": 26723, "cached": 0, "seconds": 7.846, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.808, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 73327, "cached": 63785, "seconds": 6.901, "messages": 32}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.916, "messages": 34}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.88, "messages": 36}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.92, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.636, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.674, "messages": 2}
+{"label": "C1 --auto-tools-shared-prefix", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.621, "messages": 4}
+{"label": "C1 --auto-tools-shared-prefix", "summary": true, "requests": 74, "total_s": 191.6, "new_s": 95.6, "new_mean_s": 4.35, "new_cached_frac": 0.348, "all_cached_frac": 0.793, "wall_s": 191.6, "A_new_mean_s": 3.26, "B_new_mean_s": 7.91, "C_new_mean_s": 1.9, "D_new_mean_s": 2.61, "inter_mean_s": 3.31}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.108, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25492, "cached": 24414, "seconds": 0.833, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26539, "cached": 25485, "seconds": 0.792, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.594, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.827, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.798, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.839, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.848, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 26715, "cached": 0, "seconds": 7.828, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.286, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.854, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24430, "cached": 0, "seconds": 7.038, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.835, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.892, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.583, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.831, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.839, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-new", "prompt": 26720, "cached": 0, "seconds": 7.931, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.858, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 34684, "cached": 32393, "seconds": 1.37, "messages": 8}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.128, "messages": 10}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.649, "messages": 12}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.513, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.875, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.831, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.552, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.859, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.801, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-new", "prompt": 26732, "cached": 0, "seconds": 7.927, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.855, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 43885, "cached": 34680, "seconds": 4.701, "messages": 14}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.622, "messages": 16}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.231, "messages": 18}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.917, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.483, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.53, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "D-turn", "prompt": 10280, "cached": 9408, "seconds": 0.732, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.544, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.778, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.752, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.508, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25475, "cached": 24416, "seconds": 0.872, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26536, "cached": 25468, "seconds": 0.841, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-new", "prompt": 26733, "cached": 0, "seconds": 7.914, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.902, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 53712, "cached": 43881, "seconds": 5.724, "messages": 20}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.123, "messages": 22}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.708, "messages": 24}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.503, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.832, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.838, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.554, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.829, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.799, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-new", "prompt": 26735, "cached": 0, "seconds": 7.871, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.899, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 63789, "cached": 43881, "seconds": 11.916, "messages": 26}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.251, "messages": 28}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.86, "messages": 30}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.59, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.799, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26561, "cached": 24192, "seconds": 1.337, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.42, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.678, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "A-turn", "prompt": 26539, "cached": 24192, "seconds": 1.286, "messages": 6}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-new", "prompt": 26723, "cached": 0, "seconds": 7.88, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.813, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 73327, "cached": 66636, "seconds": 5.014, "messages": 32}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.92, "messages": 34}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.877, "messages": 36}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.963, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.635, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.681, "messages": 2}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.616, "messages": 4}
+{"label": "C2 --auto-tools-shared-prefix --auto-shared-prefix-requested", "summary": true, "requests": 74, "total_s": 166.3, "new_s": 76.0, "new_mean_s": 3.45, "new_cached_frac": 0.497, "all_cached_frac": 0.825, "wall_s": 166.4, "A_new_mean_s": 1.63, "B_new_mean_s": 7.89, "C_new_mean_s": 1.94, "D_new_mean_s": 2.61, "inter_mean_s": 3.45}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.353, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25492, "cached": 24414, "seconds": 0.824, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26539, "cached": 25485, "seconds": 0.789, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.585, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.824, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.794, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.828, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.857, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 26715, "cached": 0, "seconds": 7.833, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.279, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.845, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24430, "cached": 0, "seconds": 7.036, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.824, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.893, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.546, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.831, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.831, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26720, "cached": 26560, "seconds": 0.492, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.847, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 34684, "cached": 32393, "seconds": 1.365, "messages": 8}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.132, "messages": 10}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.653, "messages": 12}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.507, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.874, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.827, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.513, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.818, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.755, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26732, "cached": 26560, "seconds": 0.531, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.929, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 43885, "cached": 41379, "seconds": 1.583, "messages": 14}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.627, "messages": 16}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.24, "messages": 18}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.934, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.501, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.546, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "D-turn", "prompt": 10280, "cached": 9565, "seconds": 0.718, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.547, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.78, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.761, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.531, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25475, "cached": 24416, "seconds": 0.875, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26536, "cached": 25468, "seconds": 0.832, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26733, "cached": 26560, "seconds": 0.55, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.887, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 53712, "cached": 24192, "seconds": 14.516, "messages": 20}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.132, "messages": 22}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.763, "messages": 24}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.527, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.833, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.839, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.57, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.829, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.801, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26735, "cached": 26560, "seconds": 0.524, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.897, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 63789, "cached": 60572, "seconds": 2.412, "messages": 26}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.277, "messages": 28}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.811, "messages": 30}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.61, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.834, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26561, "cached": 25492, "seconds": 0.828, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.487, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.709, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.758, "messages": 6}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26723, "cached": 26560, "seconds": 0.473, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.812, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 73327, "cached": 70226, "seconds": 2.654, "messages": 32}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.911, "messages": 34}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.879, "messages": 36}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.995, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.667, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.698, "messages": 2}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.639, "messages": 4}
+{"label": "C3 --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "summary": true, "requests": 74, "total_s": 122.6, "new_s": 39.4, "new_mean_s": 1.79, "new_cached_frac": 0.77, "all_cached_frac": 0.889, "wall_s": 122.7, "A_new_mean_s": 1.65, "B_new_mean_s": 1.73, "C_new_mean_s": 1.96, "D_new_mean_s": 2.62, "inter_mean_s": 3.11}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.09, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25492, "cached": 24414, "seconds": 0.837, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26539, "cached": 25485, "seconds": 0.793, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.068, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.828, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.798, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.91, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.832, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 26715, "cached": 0, "seconds": 7.842, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.278, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.858, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24430, "cached": 0, "seconds": 7.074, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.831, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.894, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.543, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.831, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.839, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26720, "cached": 0, "seconds": 7.885, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.85, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 34684, "cached": 32393, "seconds": 1.371, "messages": 8}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.126, "messages": 10}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.652, "messages": 12}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.509, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.867, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.839, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.51, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.824, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.763, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26732, "cached": 26560, "seconds": 0.522, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.931, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 43885, "cached": 41379, "seconds": 1.59, "messages": 14}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.635, "messages": 16}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.248, "messages": 18}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.867, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.511, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.508, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "D-turn", "prompt": 10280, "cached": 9565, "seconds": 0.711, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.538, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.788, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.753, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.509, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25475, "cached": 24416, "seconds": 0.857, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26536, "cached": 25468, "seconds": 0.836, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26733, "cached": 26560, "seconds": 0.5, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.856, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 53712, "cached": 24192, "seconds": 14.554, "messages": 20}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.144, "messages": 22}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.758, "messages": 24}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.535, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.827, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.836, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.547, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.828, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.807, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26735, "cached": 26560, "seconds": 0.501, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.9, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 63789, "cached": 60572, "seconds": 2.428, "messages": 26}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.297, "messages": 28}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.815, "messages": 30}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.602, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.824, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26561, "cached": 25492, "seconds": 0.847, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.418, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.708, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.71, "messages": 6}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26723, "cached": 26560, "seconds": 0.448, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.802, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 73327, "cached": 70226, "seconds": 2.679, "messages": 32}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.899, "messages": 34}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.87, "messages": 36}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.909, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.662, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.662, "messages": 2}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.635, "messages": 4}
+{"label": "C4 --host-state-slots 18 --host-kv-mib 8192", "summary": true, "requests": 74, "total_s": 136.0, "new_s": 52.7, "new_mean_s": 2.39, "new_cached_frac": 0.665, "all_cached_frac": 0.866, "wall_s": 136.0, "A_new_mean_s": 2.16, "B_new_mean_s": 2.96, "C_new_mean_s": 1.89, "D_new_mean_s": 2.58, "inter_mean_s": 3.11}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.165, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25495, "cached": 24414, "seconds": 0.788, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26542, "cached": 25488, "seconds": 0.834, "messages": 6}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.564, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.817, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.794, "messages": 6}
+{"label": "D1 proposed", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.848, "messages": 2}
+{"label": "D1 proposed", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.852, "messages": 4}
+{"label": "D1 proposed", "kind": "inter", "prompt": 26715, "cached": 24192, "seconds": 1.289, "messages": 2}
+{"label": "D1 proposed", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.281, "messages": 4}
+{"label": "D1 proposed", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.862, "messages": 6}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.545, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.828, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.768, "messages": 6}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.54, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.832, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.841, "messages": 6}
+{"label": "D1 proposed", "kind": "B-new", "prompt": 26720, "cached": 26560, "seconds": 0.544, "messages": 2}
+{"label": "D1 proposed", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.853, "messages": 4}
+{"label": "D1 proposed", "kind": "inter", "prompt": 34684, "cached": 32393, "seconds": 1.354, "messages": 8}
+{"label": "D1 proposed", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.126, "messages": 10}
+{"label": "D1 proposed", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.642, "messages": 12}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.526, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.878, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.829, "messages": 6}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.532, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.82, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.749, "messages": 6}
+{"label": "D1 proposed", "kind": "B-new", "prompt": 26732, "cached": 26560, "seconds": 0.506, "messages": 2}
+{"label": "D1 proposed", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.926, "messages": 4}
+{"label": "D1 proposed", "kind": "inter", "prompt": 43885, "cached": 41379, "seconds": 1.574, "messages": 14}
+{"label": "D1 proposed", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.635, "messages": 16}
+{"label": "D1 proposed", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.252, "messages": 18}
+{"label": "D1 proposed", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.933, "messages": 2}
+{"label": "D1 proposed", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.506, "messages": 4}
+{"label": "D1 proposed", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.546, "messages": 2}
+{"label": "D1 proposed", "kind": "D-turn", "prompt": 10280, "cached": 9565, "seconds": 0.726, "messages": 4}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.544, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.783, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.755, "messages": 6}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.526, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25475, "cached": 24416, "seconds": 0.87, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26536, "cached": 25468, "seconds": 0.84, "messages": 6}
+{"label": "D1 proposed", "kind": "B-new", "prompt": 26733, "cached": 26560, "seconds": 0.517, "messages": 2}
+{"label": "D1 proposed", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.855, "messages": 4}
+{"label": "D1 proposed", "kind": "inter", "prompt": 53712, "cached": 24192, "seconds": 14.534, "messages": 20}
+{"label": "D1 proposed", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.137, "messages": 22}
+{"label": "D1 proposed", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.756, "messages": 24}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.532, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.831, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.837, "messages": 6}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.565, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.819, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.795, "messages": 6}
+{"label": "D1 proposed", "kind": "B-new", "prompt": 26735, "cached": 26560, "seconds": 0.516, "messages": 2}
+{"label": "D1 proposed", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.903, "messages": 4}
+{"label": "D1 proposed", "kind": "inter", "prompt": 63789, "cached": 60572, "seconds": 2.423, "messages": 26}
+{"label": "D1 proposed", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.281, "messages": 28}
+{"label": "D1 proposed", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.818, "messages": 30}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.606, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.827, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26561, "cached": 25492, "seconds": 0.835, "messages": 6}
+{"label": "D1 proposed", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.438, "messages": 2}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.702, "messages": 4}
+{"label": "D1 proposed", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.709, "messages": 6}
+{"label": "D1 proposed", "kind": "B-new", "prompt": 26723, "cached": 26560, "seconds": 0.508, "messages": 2}
+{"label": "D1 proposed", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.807, "messages": 4}
+{"label": "D1 proposed", "kind": "inter", "prompt": 73327, "cached": 70226, "seconds": 2.662, "messages": 32}
+{"label": "D1 proposed", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.909, "messages": 34}
+{"label": "D1 proposed", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.864, "messages": 36}
+{"label": "D1 proposed", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 2.0, "messages": 2}
+{"label": "D1 proposed", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.66, "messages": 4}
+{"label": "D1 proposed", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.706, "messages": 2}
+{"label": "D1 proposed", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.65, "messages": 4}
+{"label": "D1 proposed", "summary": true, "requests": 74, "total_s": 109.2, "new_s": 32.7, "new_mean_s": 1.49, "new_cached_frac": 0.819, "all_cached_frac": 0.91, "wall_s": 109.3, "A_new_mean_s": 1.09, "B_new_mean_s": 1.74, "C_new_mean_s": 1.97, "D_new_mean_s": 2.63, "inter_mean_s": 2.74}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.13, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25492, "cached": 24414, "seconds": 0.829, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26539, "cached": 25485, "seconds": 0.799, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.597, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.825, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.791, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.852, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.856, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 26715, "cached": 0, "seconds": 7.869, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.281, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.864, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24430, "cached": 0, "seconds": 7.064, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.836, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.896, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.548, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.83, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.836, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26720, "cached": 26560, "seconds": 0.496, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.856, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 34684, "cached": 32393, "seconds": 1.369, "messages": 8}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.131, "messages": 10}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.67, "messages": 12}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.51, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.875, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.834, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.505, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.821, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.758, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26732, "cached": 26560, "seconds": 0.533, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.93, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 43885, "cached": 41379, "seconds": 1.584, "messages": 14}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.629, "messages": 16}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.244, "messages": 18}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.949, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.51, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.551, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "D-turn", "prompt": 10280, "cached": 9565, "seconds": 0.718, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.547, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.792, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.762, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.533, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25475, "cached": 24416, "seconds": 0.878, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26536, "cached": 25468, "seconds": 0.846, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26733, "cached": 26560, "seconds": 0.552, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.893, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 53712, "cached": 24192, "seconds": 14.561, "messages": 20}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.139, "messages": 22}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.766, "messages": 24}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.542, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.832, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.845, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.564, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.826, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.797, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26735, "cached": 26560, "seconds": 0.523, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.897, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 63789, "cached": 60572, "seconds": 2.414, "messages": 26}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.296, "messages": 28}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.823, "messages": 30}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.598, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.838, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26561, "cached": 25492, "seconds": 0.832, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.494, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.703, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.749, "messages": 6}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-new", "prompt": 26723, "cached": 26560, "seconds": 0.476, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.815, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 73327, "cached": 70226, "seconds": 2.651, "messages": 32}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.915, "messages": 34}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.882, "messages": 36}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.995, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.674, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.707, "messages": 2}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.639, "messages": 4}
+{"label": "C5 --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192", "summary": true, "requests": 74, "total_s": 122.8, "new_s": 39.3, "new_mean_s": 1.78, "new_cached_frac": 0.77, "all_cached_frac": 0.889, "wall_s": 122.8, "A_new_mean_s": 1.64, "B_new_mean_s": 1.74, "C_new_mean_s": 1.97, "D_new_mean_s": 2.63, "inter_mean_s": 3.12}

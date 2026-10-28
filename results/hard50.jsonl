@@ -1,0 +1,2 @@
+{"tag": "n3_final10", "questions": 50, "correct": 42, "by_dataset": {"gsm8k": 17, "math_500": 17, "mmlu_pro": 8}, "tokens": 26848, "tok_s": 145.82905212107428, "rounds": 4887, "accepted": 21911, "copy_rounds": 113, "errors": 0, "tokens_per_round": 5.48352772662165}
+{"tag": "n3_up1", "questions": 50, "correct": 42, "by_dataset": {"gsm8k": 17, "math_500": 17, "mmlu_pro": 8}, "tokens": 26848, "tok_s": 145.7935070808947, "rounds": 4966, "accepted": 21911, "copy_rounds": 113, "errors": 0, "tokens_per_round": 5.412202980265808}

@@ -2,6 +2,15 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-10-28 01:49: night 3 tests (running setup unchanged)
+
+- **Ran:** four sessions from 23:52 to 01:49, behind the idle gate, the fast unit back after each. They covered the engine exit of 27 Oct, new agent sessions and the prompt cache, and our patches rebased on upstream NInferno. Results and a proposed change are in the [night-3 report](research/2026-10-28-night3.md).
+- **On the box, not serving:**
+  - NInferno commits `239b6cf` (patch 15, the fix for the 27 Oct exit) and `8ab8935` (patch 16, two opt-in cache flags) on `kvshare-main`, built as `apps-final10`;
+  - all sixteen patches rebased on upstream `8359583` as branch `kvshare-up` in `/opt/NInferno-up`, built as `apps-up1`.
+- **Proposed, waiting for an OK:** the fast unit on `apps-up1` with `--auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 8192` ([report §4](research/2026-10-28-night3.md#4-proposed-production-change)).
+- **Unchanged:** 8080 runs `apps-final9` as before.
+
 ## 2026-10-26 22:43: fast profile on LilaRest NVFP4-turbo with vision, 202K context
 
 - **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) now serves the build recommended by night 2:

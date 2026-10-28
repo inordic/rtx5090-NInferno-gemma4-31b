@@ -27,6 +27,9 @@ Everything here is stdlib Python or bash, and ran from `/root/gbench` on the con
 | [`visiontest.py`](visiontest.py) | 7 questions on NInferno's example images (`examples/cli/media`), one or two images each | `vision.jsonl` |
 | [`agenttest.py`](agenttest.py) | an agent loop with 20 tools and simulated results; counts tool markup returned as text and HTTP errors | `agent.jsonl` |
 | [`textcalltest.py`](textcalltest.py) | histories where the assistant wrote text with its tool calls; the reply must be a clean call | stdout |
+| [`stress_entitlement.py`](stress_entitlement.py) | `--mode branch`: conversations that branch at a turn anchor and are resumed while unrelated sessions fill the cache; `--mode agent`: tool-call loops into a full cache, each call sent back exactly as returned so the next request resumes the cached endpoint. Stops at the first failed request | stdout (`PASSED` / `FAILED`) |
+| [`cachereplay.py`](cachereplay.py) | a compressed agent day: scheduled sessions with long system heads and 4–20 tools, and an interactive session that grows past 60K tokens; per request the cached tokens and seconds | `results_cachereplay.jsonl` |
+| [`agentsynth.py`](agentsynth.py) | the deterministic synthetic system texts, tool sets and chat client the two scripts above share | |
 | [`ppl.py`](ppl.py), [`scorecmp.py`](scorecmp.py) | perplexity from `ninferno-gemma4 score --dump` files; `scorecmp` compares two | stdout |
 | [`lb.sh`](lb.sh) | NInferno's linear bench (built with `-DNINFERNO_BUILD_BENCHMARKS=ON`) on the six decode GEMM shapes at T 1, 9 and 16 | stdout |
 | [`prof_nv.sh`](prof_nv.sh), [`kerntop.py`](kerntop.py) | an nsys kernel profile of a lab-tool prefill, grouped by kernel family | `prof_*_cuda_gpu_kern_sum.csv` and a summary |
@@ -51,7 +54,7 @@ The `needle.py` haystack is NInferno's own `examples/cli/messages/long_niah_256k
 
 ## Runs
 
-[`runs/`](runs/) keeps every queue that ran, as it ran. [`runs/night2/`](runs/night2/) holds night 2's batch runners (`n2a`–`n2j`), the turbo download and packed conversion, and the milestone watcher. The uncensored batch calls a refusal spot check that is not published.
+[`runs/`](runs/) keeps every queue that ran, as it ran. [`runs/night2/`](runs/night2/) holds night 2's batch runners (`n2a`–`n2j`), the turbo download and packed conversion, and the milestone watcher. The uncensored batch calls a refusal spot check that is not published. [`runs/night3/`](runs/night3/) holds night 3's sessions: `night3_a.sh` (stress, regression, cache replay), `night3_c.sh` (agent-mode stress), `night3_b.sh` (the rebased build against ours) and `night3_d.sh` (the proposed unit end to end).
 - **Day 1, 2026-10-25** ([`runs/day1/`](runs/day1/)): `queue1.sh` to `queue29.sh`, the side builds (`build_*.sh`) and the kernel variant patchers (`patch_*.py`).
 - **Night 1, 2026-10-25/26** ([`runs/night1/`](runs/night1/)): `night1.sh` to `night13.sh`, each behind the idle gate and ending with `deploy_fast.sh`, plus the trace analysis of agent turns (`turnsplit*.py`, `turnbins.py`).
 

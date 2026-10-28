@@ -11,6 +11,9 @@ All measured on the RTX 5090 Laptop GPU described in the [README](../README.md#w
 | [`quality/`](quality/) | `qdetail_<label>.json` | per item: ok, gold, prediction (GSM8K also counts tokens). Pair two runs item by item to compare them |
 | [`edit.jsonl`](edit.jsonl) | one per [`editbench.py`](../bench/editbench.py) run | decode tok/s of three whole-file code edits, and whether each edit was made |
 | [`vision.jsonl`](vision.jsonl) | one per [`visiontest.py`](../bench/visiontest.py) run | 7 image questions: answers, correctness, prompt tokens and time |
+| [`cachereplay.jsonl`](cachereplay.jsonl) | one per [`cachereplay.py`](../bench/cachereplay.py) request, and a summary row per run | a compressed agent day in synthetic prompts: kind, prompt and cached tokens, seconds; the summary gives the whole replay, new sessions and interactive turns |
+| [`hard50.jsonl`](hard50.jsonl) | one per hard50 run (NInferno's `tools/bench/hard_set.py`) | the summary only: right answers by dataset, decode tok/s, rounds, accepted drafts, tokens per round |
+| [`agent.jsonl`](agent.jsonl) | one per [`agenttest.py`](../bench/agenttest.py) run since night 3 | steps, tool calls, calls returned as text, errors |
 | [`needle.jsonl`](needle.jsonl) | one per [`needle.py`](../bench/needle.py) run | per needle: length, depth, ok, prompt tokens, prefill and decode tok/s, answer |
 | [`lb_base.txt`](lb_base.txt) | | NInferno's linear bench on the six decode GEMM shapes at T 1, 9 and 16, before patches 06 and 07 |
 | [`profiles/`](profiles/) | nsys kernel summaries | `prof_nv_split`: NVFP4 prefill at 6.6K with the GeGLU split. `prof_i8_32k`: 32K prefill with INT8 attention. `prof_decode2`: a serve run with CUDA-graph nodes traced. `prof_q4_ws0/1`: Q4 prefill on ggml MMQ against the W4A8 tile |
@@ -44,6 +47,9 @@ All measured on the RTX 5090 Laptop GPU described in the [README](../README.md#w
 | `U …`, `unc-…` | night 2: Heretic QAT Q4 and Huihui QAT-NVFP4 |
 | `K0 …`, `K1 …`, `K2 …` | night 2 follow-up: production baseline, and the recommended build with and without vision |
 | `V2 …`, `J …` | night 2: vision without MTP, and with MTP after patch 12 (with [`vision.jsonl`](vision.jsonl)) |
+| `N3 final10 …`, `N3 up1 …` | night 3: patches 01–16 on our base and rebased on upstream, at production flags and at the 262K unit's flags |
+| `R final10`, `D1 proposed` | night 3: regression checks of patch 15, and the proposed fast unit end to end (vision, agent loop) |
+| `C0 … C5`, `D1 proposed` (in [`cachereplay.jsonl`](cachereplay.jsonl)) | night 3: context-cache settings ([report §2](../research/2026-10-28-night3.md#2-new-agent-sessions-and-the-prompt-cache-patch-16)) |
 
 ## Reading the numbers
 
