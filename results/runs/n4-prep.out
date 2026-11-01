@@ -1,0 +1,35 @@
+=== 18:20:28 room:  135G free
+=== 18:20:29 downloading the BF16 repo and the Q4_K_M GGUF
+got .gitattributes 1570
+got LICENSE 11358
+got README.md 2842
+got SHA256SUMS 877
+got chat_template.jinja 18683
+got config.json 4621
+got generation_config.json 208
+got model-00001-of-00002.safetensors 49784788364
+got model-00002-of-00002.safetensors 12761549884
+got model.safetensors.index.json 120246
+got processor_config.json 1689
+got tokenizer.json 32169626
+got tokenizer_config.json 3082
+got Gemma-4-31B-Humanlike-Chat-Q4_K_M.gguf 18687064128
+got SHA256SUMS 1478
+=== 18:54:13 checking SHA256
+BF16 SHA OK
+GGUF SHA OK
+=== 18:55:04 quantizing to NVFP4 (ModelOpt layout, LilaRest's activation scales)
+wrote model-00004.safetensors: 445 tensors, 2.85 GiB, 407s
+QUANTIZE DONE: 2062 tensors in 407s
+=== 19:01:55 converting the NVFP4 checkpoint (BUILD 3b: Q/K/V packed, Google's vision tower)
+content digests: 1352 objects, 18.87 GiB in 20.03 s
+wrote /opt/models/hl/humanlike-qkv-vision-nvfp4.r31.ninferno: 1352 objects, 1 files, 116.6s (model 20.72s, plan 0.06s, weights 75.58s, finish 20.21s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/hl/humanlike-qkv-vision-nvfp4.r31.ninferno --model-id <repo> attaches them (or convert with --with-drafters)
+formats {'nvfp4': 240, 'bf16': 636, 'q8_g32_fp16': 1, 'q6_g64_fp16': 1, 'fp32': 60}
+components ['text', 'vision']
+-rw------- 1 root root 20259164164 Nov  1 19:03 /opt/models/hl/humanlike-qkv-vision-nvfp4.r31.ninferno
+=== 19:03:52 NVFP4_DONE
+=== 19:03:52 GGUF: converting Q4_K_M (gemma4_published, text)
+GGUF_CONVERT_DONE
+/dev/loop4      492G  447G   23G  96% /
+=== 19:05:39 PREP_DONE

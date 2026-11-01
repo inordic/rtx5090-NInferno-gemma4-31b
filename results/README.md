@@ -13,6 +13,7 @@ All measured on the RTX 5090 Laptop GPU described in the [README](../README.md#w
 | [`vision.jsonl`](vision.jsonl) | one per [`visiontest.py`](../bench/visiontest.py) run | 7 image questions: answers, correctness, prompt tokens and time |
 | [`livecache.jsonl`](livecache.jsonl) | one per window and request group, from [`livecache.py`](../bench/livecache.py) over the live serve log | aggregates only: requests, mean prompt, share cached, hits, time to first token, reuse paths ([night 3 §6](../research/2026-10-28-night3.md#6-live-traffic-after-the-switch-28-oct-06501819-cet)) |
 | [`cachereplay.jsonl`](cachereplay.jsonl) | one per [`cachereplay.py`](../bench/cachereplay.py) request, and a summary row per run | a compressed agent day in synthetic prompts: kind, prompt and cached tokens, seconds; the summary gives the whole replay, new sessions and interactive turns |
+| [`style.jsonl`](style.jsonl) | one per chat of `n4style.py` ([`bench/runs/night4/`](../bench/runs/night4/)) | eight fixed synthetic chats, greedy, no system prompt: kind, prompt, reply, tool calls |
 | [`hard50.jsonl`](hard50.jsonl) | one per hard50 run (NInferno's `tools/bench/hard_set.py`) | the summary only: right answers by dataset, decode tok/s, rounds, accepted drafts, tokens per round |
 | [`agent.jsonl`](agent.jsonl) | one per [`agenttest.py`](../bench/agenttest.py) run since night 3 | steps, tool calls, calls returned as text, errors |
 | [`needle.jsonl`](needle.jsonl) | one per [`needle.py`](../bench/needle.py) run | per needle: length, depth, ok, prompt tokens, prefill and decode tok/s, answer |
@@ -51,6 +52,7 @@ All measured on the RTX 5090 Laptop GPU described in the [README](../README.md#w
 | `N3 final10 …`, `N3 up1 …` | night 3: patches 01–16 on our base and rebased on upstream, at production flags and at the 262K unit's flags |
 | `R final10`, `D1 proposed` | night 3: regression checks of patch 15, and the proposed fast unit end to end (vision, agent loop) |
 | `C0 … C5`, `D1 proposed` (in [`cachereplay.jsonl`](cachereplay.jsonl)) | night 3: context-cache settings ([report §2](../research/2026-10-28-night3.md#2-new-agent-sessions-and-the-prompt-cache-patch-16)) |
+| `N4 A0`, `N4 A1`, `N4 H1`, `N4 G0` (`N4-…`, `n4_…`) | night 4: production as deployed, `apps-up2` (four upstream fixes; exited in the cache replay), Gemma-4-31B-Humanlike-Chat NVFP4 at production flags, the 262K unit's model on `apps-up1` ([report](../research/2026-11-02-night4.md)) |
 
 ## Reading the numbers
 

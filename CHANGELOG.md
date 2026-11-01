@@ -2,6 +2,15 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-02 00:13: night 4 tests (running setup unchanged)
+
+- **Ran:** four batches from 21:30 to 00:13, behind the idle gate, the fast unit back after each. Results in the [night-4 report](research/2026-11-02-night4.md).
+- **On the box, not serving:**
+  - `apps-up2`: four upstream pull requests (#226, #246, #217, #234) on our patches, branch `kvshare-up2` in `/opt/NInferno-up`. Prefill +10.6% at 2K and faster follow-up turns, but the engine exited in the cache replay (`resource subtraction underflow`). Not proposed;
+  - Gemma-4-31B-Humanlike-Chat as NVFP4 with vision (`/opt/models/hl/humanlike-qkv-vision-nvfp4.r31.ninferno`), quantized with [`bench/hlquant.py`](bench/hlquant.py) and converted as production's model. Same prefill, quality, vision and long context as production, a casual chat style. A candidate if that style is wanted;
+  - its Q4_K_M GGUF converted for NInferno; it does not fit the 262K unit's context.
+- **Unchanged:** 8080 runs `apps-up1` with LilaRest NVFP4-turbo as before.
+
 ## 2026-10-28 06:38: fast unit on the rebased build, with the prompt-cache flags
 
 - **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) now runs the night-3 proposal ([report §4](research/2026-10-28-night3.md#4-proposed-production-change)):

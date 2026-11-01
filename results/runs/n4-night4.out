@@ -1,0 +1,26 @@
+=== 20:30:20 B1: idle, taking the GPU
+=== 20:30:22 B1 GPU unit tests of apps-up2
+PASS ninferno_qwen3_5_state_image_test
+PASS ninferno_qwen3_5_context_store_test
+PASS ninferno_linear_nvfp4_a4_test
+PASS ninferno_linear_add_nvfp4_test
+PASS ninferno_linear_gemma4_nvfp4_test
+=== 20:30:48 B1 A0 production as deployed (apps-up1)
+=== 20:51:40 restoring the fast unit
+active
+=== 20:52:13 B2: idle, taking the GPU
+=== 20:52:15 B2 A1 apps-up2 at production flags
+=== 22:30:34 restoring the fast unit
+active
+=== 22:31:18 engine for the model tests: up1
+=== 22:31:18 B3: idle, taking the GPU
+=== 22:31:19 B3 H1 Humanlike NVFP4 on up1 at production flags
+=== 22:55:13 restoring the fast unit
+active
+=== 22:55:54 B4: idle, taking the GPU
+=== 22:55:56 B4 G0 the 262K unit's QAT-UD Q4 on up1
+=== 23:12:54 B4 G1 Humanlike Q4_K_M on up1 at the 262K flags, regular assistant
+=== 23:13:11 restoring the fast unit
+active
+=== 23:13:54 fast unit answering: active
+=== 23:13:54 N4 DONE
