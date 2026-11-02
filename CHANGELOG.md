@@ -2,6 +2,12 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-02 16:45: host memory noted, README engine row corrected (running setup unchanged)
+
+- **Measured:** the fast unit pins 22.3 GiB of host memory at start (14.3 GiB for 18 host states, 8 GiB of host KV) and holds about 26 GB of the container's 48 GB in all. The rest is file cache; no OOM events, no memory pressure, 50 MB of swap in use. No more RAM is needed for this setup.
+- **First hours on apps-up3:** from 13:23 to 16:32, 45 agent requests, none failed, no exit, and no capture taken privately by patch 17 yet.
+- **Corrected:** the README's engine row now names the four upstream fixes and patches 17–18 on the fast unit.
+
 ## 2026-11-02 09:33: fast unit on apps-up3 (four upstream fixes and patch 17)
 
 - **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) runs `/opt/NInferno-up/build/apps-up3`, branch `kvshare-up3` at `e4b9bbd`: patches 01–16 on upstream `8359583`, upstream #226, #246, #217 and #234, and our patches 17 (the fix for the exit #234 caused) and 18 (the error names its call site). Model, flags, drafter, template and environment are unchanged.

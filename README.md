@@ -89,8 +89,8 @@ Perplexity on a 32K window (lower is better) is how the attention kernels were j
 |---|---|
 | GPU | NVIDIA GeForce RTX 5090 Laptop GPU (GB203, sm_120, 82 SMs, 24 GB GDDR7, 896 GB/s), driver 595.58.03, VBIOS 98.03.95.00.07 |
 | Host | Proxmox VE, kernel 6.17.13-2-pve. The GPU is also passed to a second container; only one serves at a time |
-| Container | Ubuntu 24.04, 8 cores, 48 GB RAM, CUDA 13.2 |
-| Engine | NInferno ([Brontir/NInferno](https://github.com/Brontir/NInferno)) + [our patches](patches/ninferno/): 01–16 on upstream `8359583` for the fast unit, 01–09 on `9895ebc` for the max-context unit. CUDA arch `120a`, Release |
+| Container | Ubuntu 24.04, 8 cores, 48 GB RAM, CUDA 13.2. The fast unit pins 22.3 GiB of host memory at start (14.3 GiB for the 18 host states, 8 GiB of host KV) and uses about 26 GB in all; the rest serves as file cache |
+| Engine | NInferno ([Brontir/NInferno](https://github.com/Brontir/NInferno)) + [our patches](patches/ninferno/): 01–16 on upstream `8359583`, four upstream fixes and 17–18 for the fast unit, 01–09 on `9895ebc` for the max-context unit. CUDA arch `120a`, Release |
 | Fast model | [`LilaRest/gemma-4-31B-it-NVFP4-turbo`](https://huggingface.co/LilaRest/gemma-4-31B-it-NVFP4-turbo), Google's BF16 weights in NVFP4 (ModelOpt). Converted with NInferno's `gemma4_31b_nvfp4` recipe (Q8 embedding table, Q6 head), Q/K/V packed into one plane (patch 13). Adds the vision tower of Google's original model ([`unsloth/gemma-4-31B-it-GGUF`](https://huggingface.co/unsloth/gemma-4-31B-it-GGUF) `mmproj-BF16.gguf`): 18.9 GiB |
 | Max-context model | [`unsloth/gemma-4-31B-it-qat-GGUF`](https://huggingface.co/unsloth/gemma-4-31B-it-qat-GGUF) `UD-Q4_K_XL` (all Q4_0 inside, on the QAT grid): 16.1 GiB |
 | Drafters | fast: [`google/gemma-4-31B-it-assistant`](https://huggingface.co/google/gemma-4-31B-it-assistant) in Q8, 0.53 GB. Max context: [`google/gemma-4-31B-it-qat-q4_0-unquantized-assistant`](https://huggingface.co/google/gemma-4-31B-it-qat-q4_0-unquantized-assistant), QAT-aware Q4_0 through [our llama.cpp patch](patches/llama.cpp/), 0.28 GB |
