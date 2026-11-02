@@ -2,6 +2,15 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-02 08:35: night 4's engine exit found and fixed (running setup unchanged)
+
+- **Found:** upstream #234 alone makes the engine exit in the cache replay; the other three upstream fixes pass. Since #234 the shared copy at a turn's end can take pages the request is not entitled to ([night-4 report §5](research/2026-11-02-night4.md#5-update-2-nov-the-exit-found-and-fixed-patch-17)).
+- **Fixed:** [patch 17](patches/ninferno/) publishes such a capture privately; [patch 18](patches/ninferno/) makes the error name its call site and numbers. Branch `kvshare-up3` (`kvshare-up2` + 17 + 18), built as `/opt/NInferno-up/build/apps-up3`.
+- **Measured at production flags:** three cache replays and 300 stress steps without an exit (6 captures taken privately that would have stopped the engine); prefill +10.3% at 2K, agent turns 20–30 ms faster; quality, hard50, vision and decode the same as production.
+- **Proposed, waiting for an OK:** the fast unit on `apps-up3`, nothing else changed.
+- **Decided:** production stays on LilaRest NVFP4-turbo; the Humanlike builds stay on the box.
+- **Unchanged:** 8080 runs `apps-up1` as before; it answered after each test window.
+
 ## 2026-11-02 00:13: night 4 tests (running setup unchanged)
 
 - **Ran:** four batches from 21:30 to 00:13, behind the idle gate, the fast unit back after each. Results in the [night-4 report](research/2026-11-02-night4.md).

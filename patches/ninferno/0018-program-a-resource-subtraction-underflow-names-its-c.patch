@@ -1,0 +1,79 @@
+From e4b9bbd53e403c0025f311ea0f277cb9eb87857e Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 2 Nov 2026 07:01:35 +0000
+Subject: [PATCH 18/18] program: a resource subtraction underflow names its
+ call site and operands
+
+---
+ src/models/qwen3_5/program/context_work.cpp | 17 +++++++++++++++--
+ src/models/qwen3_5/program/context_work.h   |  6 ++++--
+ 2 files changed, 19 insertions(+), 4 deletions(-)
+
+diff --git a/src/models/qwen3_5/program/context_work.cpp b/src/models/qwen3_5/program/context_work.cpp
+index 4b1a2cbd..25903e83 100644
+--- a/src/models/qwen3_5/program/context_work.cpp
++++ b/src/models/qwen3_5/program/context_work.cpp
+@@ -12,6 +12,7 @@
+ #include <optional>
+ #include <span>
+ #include <stdexcept>
++#include <string>
+ 
+ namespace ninferno::models::qwen3_5::detail {
+ 
+@@ -210,14 +211,26 @@ detail::PhysicalResources checked_resource_sum(detail::PhysicalResources left,
+ }
+ 
+ detail::PhysicalResources checked_resource_difference(detail::PhysicalResources value,
+-                                                      detail::PhysicalResources removed) {
++                                                      detail::PhysicalResources removed,
++                                                      std::source_location where) {
+     if (removed.device.active_lanes > value.device.active_lanes ||
+         removed.device.state_slots > value.device.state_slots ||
+         removed.device.main_kv_pages > value.device.main_kv_pages ||
+         removed.device.backend_kv_pages > value.device.backend_kv_pages ||
+         removed.host.state_slots > value.host.state_slots ||
+         removed.host.kv_bytes > value.host.kv_bytes) {
+-        throw std::logic_error("Qwen3.5 resource subtraction underflow");
++        const auto text = [](const detail::PhysicalResources& r) {
++            return "device lanes " + std::to_string(r.device.active_lanes) + " slots " +
++                   std::to_string(r.device.state_slots) + " main " +
++                   std::to_string(r.device.main_kv_pages) + " backend " +
++                   std::to_string(r.device.backend_kv_pages) + " host slots " +
++                   std::to_string(r.host.state_slots) + " bytes " +
++                   std::to_string(r.host.kv_bytes);
++        };
++        throw std::logic_error("Qwen3.5 resource subtraction underflow at " +
++                               std::string(where.file_name()) + ":" +
++                               std::to_string(where.line()) + " | value " + text(value) +
++                               " | removed " + text(removed));
+     }
+     return detail::PhysicalResources{
+         .device =
+diff --git a/src/models/qwen3_5/program/context_work.h b/src/models/qwen3_5/program/context_work.h
+index 25aa864e..378faf4b 100644
+--- a/src/models/qwen3_5/program/context_work.h
++++ b/src/models/qwen3_5/program/context_work.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include "models/qwen3_5/program/program_impl.h"
++#include <source_location>
+ #include <span>
+ 
+ namespace ninferno::models::qwen3_5::execution {
+@@ -57,8 +58,9 @@ std::optional<StateImageHandle> pressure_state_source(qwen3_5::detail::PressureS
+ detail::PhysicalResources checked_resource_sum(detail::PhysicalResources left,
+                                                detail::PhysicalResources right);
+ 
+-detail::PhysicalResources checked_resource_difference(detail::PhysicalResources value,
+-                                                      detail::PhysicalResources removed);
++detail::PhysicalResources checked_resource_difference(
++    detail::PhysicalResources value, detail::PhysicalResources removed,
++    std::source_location where = std::source_location::current());
+ 
+ detail::PhysicalResources positive_resource_difference(detail::PhysicalResources value,
+                                                        detail::PhysicalResources removed) noexcept;
+-- 
+2.43.0
+

@@ -52,6 +52,7 @@ All measured on the RTX 5090 Laptop GPU described in the [README](../README.md#w
 | `N3 final10 …`, `N3 up1 …` | night 3: patches 01–16 on our base and rebased on upstream, at production flags and at the 262K unit's flags |
 | `R final10`, `D1 proposed` | night 3: regression checks of patch 15, and the proposed fast unit end to end (vision, agent loop) |
 | `C0 … C5`, `D1 proposed` (in [`cachereplay.jsonl`](cachereplay.jsonl)) | night 3: context-cache settings ([report §2](../research/2026-10-28-night3.md#2-new-agent-sessions-and-the-prompt-cache-patch-16)) |
+| `CF CF_t234`, `CF CF_t3`, `CF up3`, `CF up3 r1…r3` (`CF-up3`, `cf_up3`) | 2 Nov: production's branch + #234 alone, + the other three upstream fixes, and `apps-up3` with patch 17 ([night 4 §5](../research/2026-11-02-night4.md#5-update-2-nov-the-exit-found-and-fixed-patch-17)); `up3` in [`style.jsonl`](style.jsonl) |
 | `N4 A0`, `N4 A1`, `N4 H1`, `N4 G0` (`N4-…`, `n4_…`) | night 4: production as deployed, `apps-up2` (four upstream fixes; exited in the cache replay), Gemma-4-31B-Humanlike-Chat NVFP4 at production flags, the 262K unit's model on `apps-up1` ([report](../research/2026-11-02-night4.md)) |
 
 ## Reading the numbers

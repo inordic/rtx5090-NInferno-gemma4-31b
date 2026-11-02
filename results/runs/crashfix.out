@@ -1,0 +1,38 @@
+diag applied
+=== 06:43:25 build cf-t234: 8d02671e Merge pull request #234 from Brontir/det/capture-raise-to-tur
+BUILD_OK cf-t234
+diag applied
+=== 06:44:11 build cf-t3: 9a2e290b Merge pull request #217 from Brontir/fix/token-domain-request
+BUILD_OK cf-t3
+diag applied
+=== 06:44:56 build cf-up2: 6c0e52ad Merge pull request #234 from Brontir/det/capture-raise-to-tur
+BUILD_OK cf-up2
+=== 06:45:07 CF_BUILD_DONE
+=== 06:45:46 CF_t234: idle, taking the GPU
+EXITED CF_t234
+ninferno: the Engine failed: Qwen3.5 resource subtraction underflow at /opt/NInferno-up/src/models/qwen3_5/program/transactions/capture.cpp:946 | value device lanes 1 slots 1 main 40 backend 0 host slots 2 bytes 0 | removed device lanes 0 slots 0 main 78 backend 0 host slots 0 bytes 0
+=== 06:51:29 restoring the fast unit
+active
+=== 06:52:03 CF_t3: idle, taking the GPU
+SURVIVED CF_t3
+=== 06:58:51 restoring the fast unit
+active
+=== 06:59:24 fast unit answering: active
+=== 06:59:24 CF_RUN_DONE
+=== 07:02:33 W1: idle, taking the GPU
+PASS ninferno_qwen3_5_state_image_test
+PASS ninferno_qwen3_5_context_store_test
+SURVIVED UP3_W1
+fallbacks: 5
+=== 07:12:15 restoring the fast unit
+active
+=== 07:12:48 W2: idle, taking the GPU
+ROW {"label": "CF-up3", "ts": "2026-11-02 07:13:21", "mmlupro": "178/280", "mmlupro_secs": 53, "mmlu": "249/285", "mmlu_secs": 48, "gsm8k": "197/200", "gsm8k_secs": 311, "humaneval": "161/164", "humaneval_secs": 189}
+{"tag": "cf_up3", "questions": 50, "correct": 42, "by_dataset": {"gsm8k": 17, "math_500": 17, "mmlu_pro": 8}, "tokens": 27065, "decode_ms": 186163.222339, "tok_s": 145.11459170386595, "rounds": 5035, "accepted": 22063, "capped_rounds": 0, "copy_rounds": 104, "errors": 0, "tokens_per_round": 5.381926
+PASSED 300 steps, 320 requests in 425s
+SURVIVED UP3_W2
+fallbacks: 1
+=== 07:33:59 restoring the fast unit
+active
+=== 07:34:31 fast unit answering: active
+=== 07:34:31 CF_FIXRUN_DONE

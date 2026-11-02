@@ -1,0 +1,81 @@
+From ef2a49fc37c8101a596fb251e1899b4fc817d14b Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Mon, 2 Nov 2026 07:01:35 +0000
+Subject: [PATCH 17/18] program: a turn-end capture publishes privately when a
+ shared copy would exceed the active entitlement
+
+Since upstream #234 (DECISIONS 63) the shared candidate after the last message and the turn
+closure's private capture form one group at the closed turn's end. A conversation that continues
+from its own checkpoint keeps that prefix outside its active entitlement (request_plan), so pages of
+it the active sequence alone still references counted as its unique pages: the shared copy moved
+more pages out of the entitlement than it held, and committing the capture stopped the engine
+(resource subtraction underflow, capture.cpp). Such a group now publishes only its private
+checkpoint, as the turn closure did before.
+---
+ .../qwen3_5/program/transactions/capture.cpp  | 36 +++++++++++++++++--
+ 1 file changed, 34 insertions(+), 2 deletions(-)
+
+diff --git a/src/models/qwen3_5/program/transactions/capture.cpp b/src/models/qwen3_5/program/transactions/capture.cpp
+index 2b13f1d8..d28366e7 100644
+--- a/src/models/qwen3_5/program/transactions/capture.cpp
++++ b/src/models/qwen3_5/program/transactions/capture.cpp
+@@ -3,6 +3,8 @@
+ #include "models/qwen3_5/program/planning/pressure_planner.h"
+ #include "core/fnv.h"
+ 
++#include <cstdio>
++#include <atomic>
+ #include <algorithm>
+ #include <array>
+ #include <cstddef>
+@@ -59,8 +61,8 @@ ProgramImpl::inspect_capture(const CaptureOffer& offer, const SharedPrefixHandle
+     const bool publish_private =
+         group.rewrite.has_value() ||
+         (group.long_anchor && context_cache.max_long_anchors_per_continuation.value_or(0) != 0);
+-    const bool publish_shared = group.shared && permit_shared_publication &&
+-                                exact_shared == nullptr && shared_prefix_capacity != 0;
++    bool publish_shared = group.shared && permit_shared_publication && exact_shared == nullptr &&
++                          shared_prefix_capacity != 0;
+ 
+     CaptureAssessment assessment;
+     assessment.shortlist_key   = group.identity->shortlist_key;
+@@ -128,6 +130,36 @@ ProgramImpl::inspect_capture(const CaptureOffer& offer, const SharedPrefixHandle
+             active_removed.device.backend_kv_pages = backend_snapshot_shape->unique_full_pages;
+             added.device.backend_kv_pages          = backend_snapshot_shape->copied_pages();
+         }
++        // A conversation that continues from its own checkpoint keeps the checkpoint's prefix
++        // outside its active entitlement (request_plan: the retained prefix). Since the shared
++        // candidate after the last message joins the turn closure's group at the closed turn's
++        // end (DECISIONS 63), pages of that prefix the active sequence alone still references
++        // (its checkpoint's KV on Host, or released) count among its unique pages; a shared copy
++        // would take more out of the entitlement than it holds. The group publishes privately.
++        const detail::PhysicalResources& entitled = requests[lane].active_resources;
++        if (active_removed.device.main_kv_pages > entitled.device.main_kv_pages ||
++            active_removed.device.backend_kv_pages > entitled.device.backend_kv_pages) {
++            static std::atomic<std::uint64_t> reported{0};
++            const std::uint64_t count = ++reported;
++            if (count <= 20 || count % 1000 == 0) {
++                std::fprintf(stderr,
++                             "ninferno: the capture at %u publishes privately (%llu): a shared "
++                             "copy takes %u main KV pages, the request is entitled to %u\n",
++                             static_cast<unsigned>(group.frontier),
++                             static_cast<unsigned long long>(count),
++                             active_removed.device.main_kv_pages, entitled.device.main_kv_pages);
++            }
++            publish_shared              = false;
++            assessment.publishes_shared = false;
++            active_removed              = {};
++            added                       = {};
++            text_snapshot_shape.reset();
++            backend_snapshot_shape.reset();
++            if (!publish_private) {
++                assessment.physically_feasible = true;
++                return assessment;
++            }
++        }
+     }
+ 
+     detail::PhysicalResources replaced_private;
+-- 
+2.43.0
+

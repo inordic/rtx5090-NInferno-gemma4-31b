@@ -23,3 +23,4 @@
 {"label": "N4-A0", "ts": "2026-11-01 20:37:55", "mmlupro": "178/280", "mmlupro_secs": 58, "mmlu": "249/285", "mmlu_secs": 52, "gsm8k": "197/200", "gsm8k_secs": 312, "humaneval": "161/164", "humaneval_secs": 191}
 {"label": "N4-H1", "ts": "2026-11-01 22:38:03", "mmlupro": "180/280", "mmlupro_secs": 57, "mmlu": "249/285", "mmlu_secs": 53, "gsm8k": "195/200", "gsm8k_secs": 289, "humaneval": "161/164", "humaneval_secs": 196}
 {"label": "N4-G0", "ts": "2026-11-01 22:59:50", "mmlupro": "164/280", "mmlupro_secs": 78, "gsm8k": "196/200", "gsm8k_secs": 322}
+{"label": "CF-up3", "ts": "2026-11-02 07:13:21", "mmlupro": "178/280", "mmlupro_secs": 53, "mmlu": "249/285", "mmlu_secs": 48, "gsm8k": "197/200", "gsm8k_secs": 311, "humaneval": "161/164", "humaneval_secs": 189}

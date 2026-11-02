@@ -673,3 +673,303 @@
 {"label": "N4 H1", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.772, "messages": 2}
 {"label": "N4 H1", "kind": "D-turn", "prompt": 10291, "cached": 9567, "seconds": 0.612, "messages": 4}
 {"label": "N4 H1", "summary": true, "requests": 74, "total_s": 111.7, "new_s": 41.2, "new_mean_s": 1.87, "new_cached_frac": 0.77, "all_cached_frac": 0.904, "wall_s": 111.8, "A_new_mean_s": 1.7, "B_new_mean_s": 1.91, "C_new_mean_s": 1.93, "D_new_mean_s": 2.73, "inter_mean_s": 2.44}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.124, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25492, "cached": 24414, "seconds": 0.791, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26539, "cached": 25485, "seconds": 0.76, "messages": 6}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.548, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.796, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.767, "messages": 6}
+{"label": "CF CF_t3", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.865, "messages": 2}
+{"label": "CF CF_t3", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.819, "messages": 4}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 26715, "cached": 24192, "seconds": 1.44, "messages": 2}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 28827, "cached": 26708, "seconds": 1.136, "messages": 4}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 32406, "cached": 28820, "seconds": 1.746, "messages": 6}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.539, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.795, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.737, "messages": 6}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.529, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.796, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.814, "messages": 6}
+{"label": "CF CF_t3", "kind": "B-new", "prompt": 26720, "cached": 26560, "seconds": 0.497, "messages": 2}
+{"label": "CF CF_t3", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.817, "messages": 4}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 34691, "cached": 32399, "seconds": 1.297, "messages": 8}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 38623, "cached": 34684, "seconds": 2.075, "messages": 10}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 41395, "cached": 38616, "seconds": 1.622, "messages": 12}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.551, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.837, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26557, "cached": 25496, "seconds": 0.759, "messages": 6}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.539, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.837, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.763, "messages": 6}
+{"label": "CF CF_t3", "kind": "B-new", "prompt": 26732, "cached": 0, "seconds": 7.932, "messages": 2}
+{"label": "CF CF_t3", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.818, "messages": 4}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 43895, "cached": 41388, "seconds": 1.574, "messages": 14}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 46376, "cached": 43888, "seconds": 1.602, "messages": 16}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 49866, "cached": 46369, "seconds": 2.177, "messages": 18}
+{"label": "CF CF_t3", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.922, "messages": 2}
+{"label": "CF CF_t3", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.483, "messages": 4}
+{"label": "CF CF_t3", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.527, "messages": 2}
+{"label": "CF CF_t3", "kind": "D-turn", "prompt": 10280, "cached": 9565, "seconds": 0.695, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.505, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25480, "cached": 24416, "seconds": 0.961, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26546, "cached": 25473, "seconds": 0.893, "messages": 6}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.591, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25474, "cached": 24416, "seconds": 0.797, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26537, "cached": 25467, "seconds": 0.894, "messages": 6}
+{"label": "CF CF_t3", "kind": "B-new", "prompt": 26733, "cached": 26560, "seconds": 0.52, "messages": 2}
+{"label": "CF CF_t3", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.812, "messages": 4}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 53725, "cached": 41391, "seconds": 6.956, "messages": 20}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 56708, "cached": 53718, "seconds": 2.072, "messages": 22}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 60594, "cached": 56701, "seconds": 2.738, "messages": 24}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.539, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.803, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.772, "messages": 6}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.568, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.791, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26558, "cached": 25487, "seconds": 0.764, "messages": 6}
+{"label": "CF CF_t3", "kind": "B-new", "prompt": 26735, "cached": 26560, "seconds": 0.564, "messages": 2}
+{"label": "CF CF_t3", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.82, "messages": 4}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 63805, "cached": 60587, "seconds": 2.376, "messages": 26}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 66657, "cached": 63798, "seconds": 2.203, "messages": 28}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 70251, "cached": 66650, "seconds": 2.79, "messages": 30}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24422, "cached": 0, "seconds": 7.125, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25501, "cached": 24415, "seconds": 0.756, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26563, "cached": 25494, "seconds": 0.771, "messages": 6}
+{"label": "CF CF_t3", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.461, "messages": 2}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.677, "messages": 4}
+{"label": "CF CF_t3", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.726, "messages": 6}
+{"label": "CF CF_t3", "kind": "B-new", "prompt": 26723, "cached": 26560, "seconds": 0.489, "messages": 2}
+{"label": "CF CF_t3", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.781, "messages": 4}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 73346, "cached": 70244, "seconds": 2.593, "messages": 32}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 76847, "cached": 73339, "seconds": 2.878, "messages": 34}
+{"label": "CF CF_t3", "kind": "inter", "prompt": 78845, "cached": 76840, "seconds": 1.853, "messages": 36}
+{"label": "CF CF_t3", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.958, "messages": 2}
+{"label": "CF CF_t3", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.632, "messages": 4}
+{"label": "CF CF_t3", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.682, "messages": 2}
+{"label": "CF CF_t3", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.612, "messages": 4}
+{"label": "CF CF_t3", "summary": true, "requests": 74, "total_s": 114.0, "new_s": 46.6, "new_mean_s": 2.12, "new_cached_frac": 0.715, "all_cached_frac": 0.895, "wall_s": 114.1, "A_new_mean_s": 1.63, "B_new_mean_s": 2.98, "C_new_mean_s": 1.94, "D_new_mean_s": 2.6, "inter_mean_s": 2.28}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24421, "cached": 0, "seconds": 7.14, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25495, "cached": 24414, "seconds": 0.748, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26542, "cached": 25488, "seconds": 0.81, "messages": 6}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.527, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.792, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.769, "messages": 6}
+{"label": "CF up3 r1", "kind": "B-new", "prompt": 26726, "cached": 0, "seconds": 7.836, "messages": 2}
+{"label": "CF up3 r1", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.828, "messages": 4}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 26715, "cached": 24192, "seconds": 1.281, "messages": 2}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.246, "messages": 4}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.83, "messages": 6}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.496, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.79, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.853, "messages": 6}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.529, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.801, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.803, "messages": 6}
+{"label": "CF up3 r1", "kind": "B-new", "prompt": 26720, "cached": 26560, "seconds": 0.48, "messages": 2}
+{"label": "CF up3 r1", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.816, "messages": 4}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 34684, "cached": 32393, "seconds": 1.334, "messages": 8}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.099, "messages": 10}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.614, "messages": 12}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.501, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.835, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.809, "messages": 6}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.492, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.79, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.728, "messages": 6}
+{"label": "CF up3 r1", "kind": "B-new", "prompt": 26732, "cached": 26560, "seconds": 0.488, "messages": 2}
+{"label": "CF up3 r1", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.903, "messages": 4}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 43885, "cached": 41379, "seconds": 1.552, "messages": 14}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.584, "messages": 16}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.218, "messages": 18}
+{"label": "CF up3 r1", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.912, "messages": 2}
+{"label": "CF up3 r1", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.481, "messages": 4}
+{"label": "CF up3 r1", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.534, "messages": 2}
+{"label": "CF up3 r1", "kind": "D-turn", "prompt": 10280, "cached": 9565, "seconds": 0.692, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.516, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.75, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.724, "messages": 6}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.49, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25475, "cached": 24416, "seconds": 0.83, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26536, "cached": 25468, "seconds": 0.805, "messages": 6}
+{"label": "CF up3 r1", "kind": "B-new", "prompt": 26733, "cached": 26560, "seconds": 0.494, "messages": 2}
+{"label": "CF up3 r1", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.818, "messages": 4}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 53712, "cached": 43878, "seconds": 5.712, "messages": 20}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.098, "messages": 22}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.688, "messages": 24}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.496, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.8, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.807, "messages": 6}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.534, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.788, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.774, "messages": 6}
+{"label": "CF up3 r1", "kind": "B-new", "prompt": 26735, "cached": 26560, "seconds": 0.491, "messages": 2}
+{"label": "CF up3 r1", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.863, "messages": 4}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 63789, "cached": 60572, "seconds": 2.392, "messages": 26}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.207, "messages": 28}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.829, "messages": 30}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24422, "cached": 0, "seconds": 7.131, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.797, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26561, "cached": 25492, "seconds": 0.813, "messages": 6}
+{"label": "CF up3 r1", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.413, "messages": 2}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.669, "messages": 4}
+{"label": "CF up3 r1", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.686, "messages": 6}
+{"label": "CF up3 r1", "kind": "B-new", "prompt": 26723, "cached": 26560, "seconds": 0.436, "messages": 2}
+{"label": "CF up3 r1", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.775, "messages": 4}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 73327, "cached": 70226, "seconds": 2.589, "messages": 32}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.876, "messages": 34}
+{"label": "CF up3 r1", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.856, "messages": 36}
+{"label": "CF up3 r1", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.96, "messages": 2}
+{"label": "CF up3 r1", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.632, "messages": 4}
+{"label": "CF up3 r1", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.684, "messages": 2}
+{"label": "CF up3 r1", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.607, "messages": 4}
+{"label": "CF up3 r1", "summary": true, "requests": 74, "total_s": 104.8, "new_s": 38.6, "new_mean_s": 1.75, "new_cached_frac": 0.77, "all_cached_frac": 0.908, "wall_s": 104.8, "A_new_mean_s": 1.61, "B_new_mean_s": 1.7, "C_new_mean_s": 1.94, "D_new_mean_s": 2.61, "inter_mean_s": 2.22}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.607, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25495, "cached": 24414, "seconds": 0.76, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26542, "cached": 25488, "seconds": 0.802, "messages": 6}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.541, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.795, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.777, "messages": 6}
+{"label": "CF up3 r2", "kind": "B-new", "prompt": 26726, "cached": 26560, "seconds": 0.442, "messages": 2}
+{"label": "CF up3 r2", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.812, "messages": 4}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 26715, "cached": 24192, "seconds": 1.288, "messages": 2}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.249, "messages": 4}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.825, "messages": 6}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.502, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.796, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.851, "messages": 6}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.536, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.795, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.799, "messages": 6}
+{"label": "CF up3 r2", "kind": "B-new", "prompt": 26720, "cached": 26560, "seconds": 0.481, "messages": 2}
+{"label": "CF up3 r2", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.824, "messages": 4}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 34684, "cached": 26711, "seconds": 3.655, "messages": 8}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.114, "messages": 10}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.613, "messages": 12}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.501, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.841, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.802, "messages": 6}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.49, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.795, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.727, "messages": 6}
+{"label": "CF up3 r2", "kind": "B-new", "prompt": 26732, "cached": 26560, "seconds": 0.49, "messages": 2}
+{"label": "CF up3 r2", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.901, "messages": 4}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 43885, "cached": 41379, "seconds": 1.562, "messages": 14}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.583, "messages": 16}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.214, "messages": 18}
+{"label": "CF up3 r2", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.919, "messages": 2}
+{"label": "CF up3 r2", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.479, "messages": 4}
+{"label": "CF up3 r2", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.534, "messages": 2}
+{"label": "CF up3 r2", "kind": "D-turn", "prompt": 10280, "cached": 9565, "seconds": 0.693, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.526, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.757, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.73, "messages": 6}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.496, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25475, "cached": 24416, "seconds": 0.834, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26536, "cached": 25468, "seconds": 0.812, "messages": 6}
+{"label": "CF up3 r2", "kind": "B-new", "prompt": 26733, "cached": 26560, "seconds": 0.489, "messages": 2}
+{"label": "CF up3 r2", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.814, "messages": 4}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 53712, "cached": 43878, "seconds": 5.719, "messages": 20}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.098, "messages": 22}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.691, "messages": 24}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.494, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.796, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.814, "messages": 6}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.536, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.797, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.769, "messages": 6}
+{"label": "CF up3 r2", "kind": "B-new", "prompt": 26735, "cached": 26560, "seconds": 0.49, "messages": 2}
+{"label": "CF up3 r2", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.859, "messages": 4}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 63789, "cached": 60572, "seconds": 2.376, "messages": 26}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.218, "messages": 28}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.846, "messages": 30}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.573, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.808, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26561, "cached": 25492, "seconds": 0.807, "messages": 6}
+{"label": "CF up3 r2", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.404, "messages": 2}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.674, "messages": 4}
+{"label": "CF up3 r2", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.678, "messages": 6}
+{"label": "CF up3 r2", "kind": "B-new", "prompt": 26723, "cached": 26560, "seconds": 0.427, "messages": 2}
+{"label": "CF up3 r2", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.771, "messages": 4}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 73327, "cached": 70226, "seconds": 2.588, "messages": 32}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.877, "messages": 34}
+{"label": "CF up3 r2", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.844, "messages": 36}
+{"label": "CF up3 r2", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.961, "messages": 2}
+{"label": "CF up3 r2", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.631, "messages": 4}
+{"label": "CF up3 r2", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.686, "messages": 2}
+{"label": "CF up3 r2", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.605, "messages": 4}
+{"label": "CF up3 r2", "summary": true, "requests": 74, "total_s": 86.7, "new_s": 18.1, "new_mean_s": 0.82, "new_cached_frac": 0.924, "all_cached_frac": 0.939, "wall_s": 86.7, "A_new_mean_s": 0.52, "B_new_mean_s": 0.47, "C_new_mean_s": 1.94, "D_new_mean_s": 2.61, "inter_mean_s": 2.35}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.612, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25495, "cached": 24414, "seconds": 0.758, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26542, "cached": 25488, "seconds": 0.806, "messages": 6}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24421, "cached": 24192, "seconds": 0.532, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25467, "cached": 24414, "seconds": 0.787, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26548, "cached": 25460, "seconds": 0.771, "messages": 6}
+{"label": "CF up3 r3", "kind": "B-new", "prompt": 26726, "cached": 26560, "seconds": 0.44, "messages": 2}
+{"label": "CF up3 r3", "kind": "B-turn", "prompt": 27780, "cached": 26719, "seconds": 0.814, "messages": 4}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 26715, "cached": 24192, "seconds": 1.286, "messages": 2}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 28824, "cached": 26708, "seconds": 1.253, "messages": 4}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 32400, "cached": 28817, "seconds": 1.829, "messages": 6}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.501, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25497, "cached": 24423, "seconds": 0.794, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26589, "cached": 25490, "seconds": 0.854, "messages": 6}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.534, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25482, "cached": 24407, "seconds": 0.796, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26541, "cached": 25475, "seconds": 0.809, "messages": 6}
+{"label": "CF up3 r3", "kind": "B-new", "prompt": 26720, "cached": 26560, "seconds": 0.48, "messages": 2}
+{"label": "CF up3 r3", "kind": "B-turn", "prompt": 27772, "cached": 26713, "seconds": 0.818, "messages": 4}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 34684, "cached": 32393, "seconds": 1.338, "messages": 8}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 38615, "cached": 34677, "seconds": 2.107, "messages": 10}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 41386, "cached": 38608, "seconds": 1.616, "messages": 12}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24430, "cached": 24192, "seconds": 0.504, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25503, "cached": 24423, "seconds": 0.832, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26559, "cached": 25496, "seconds": 0.798, "messages": 6}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24420, "cached": 24192, "seconds": 0.489, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25479, "cached": 24413, "seconds": 0.799, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26542, "cached": 25472, "seconds": 0.728, "messages": 6}
+{"label": "CF up3 r3", "kind": "B-new", "prompt": 26732, "cached": 26560, "seconds": 0.485, "messages": 2}
+{"label": "CF up3 r3", "kind": "B-turn", "prompt": 27791, "cached": 26725, "seconds": 0.897, "messages": 4}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 43885, "cached": 41379, "seconds": 1.553, "messages": 14}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 46365, "cached": 43878, "seconds": 1.597, "messages": 16}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 49854, "cached": 46358, "seconds": 2.209, "messages": 18}
+{"label": "CF up3 r3", "kind": "C-new", "prompt": 7120, "cached": 0, "seconds": 1.917, "messages": 2}
+{"label": "CF up3 r3", "kind": "C-turn", "prompt": 7831, "cached": 7113, "seconds": 0.488, "messages": 4}
+{"label": "CF up3 r3", "kind": "D-new", "prompt": 9572, "cached": 0, "seconds": 2.532, "messages": 2}
+{"label": "CF up3 r3", "kind": "D-turn", "prompt": 10280, "cached": 9565, "seconds": 0.689, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.514, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25485, "cached": 24416, "seconds": 0.753, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26544, "cached": 25478, "seconds": 0.72, "messages": 6}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.491, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25475, "cached": 24416, "seconds": 0.834, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26536, "cached": 25468, "seconds": 0.805, "messages": 6}
+{"label": "CF up3 r3", "kind": "B-new", "prompt": 26733, "cached": 26560, "seconds": 0.484, "messages": 2}
+{"label": "CF up3 r3", "kind": "B-turn", "prompt": 27809, "cached": 26726, "seconds": 0.815, "messages": 4}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 53712, "cached": 43878, "seconds": 5.714, "messages": 20}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 56694, "cached": 53705, "seconds": 2.096, "messages": 22}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 60579, "cached": 56687, "seconds": 2.684, "messages": 24}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24424, "cached": 24192, "seconds": 0.495, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25497, "cached": 24417, "seconds": 0.797, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26574, "cached": 25490, "seconds": 0.806, "messages": 6}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24423, "cached": 24192, "seconds": 0.536, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25494, "cached": 24416, "seconds": 0.794, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26556, "cached": 25487, "seconds": 0.764, "messages": 6}
+{"label": "CF up3 r3", "kind": "B-new", "prompt": 26735, "cached": 26560, "seconds": 0.486, "messages": 2}
+{"label": "CF up3 r3", "kind": "B-turn", "prompt": 27801, "cached": 26728, "seconds": 0.865, "messages": 4}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 63789, "cached": 60572, "seconds": 2.376, "messages": 26}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 66640, "cached": 63782, "seconds": 2.216, "messages": 28}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 70233, "cached": 66633, "seconds": 2.836, "messages": 30}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24422, "cached": 24192, "seconds": 0.575, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25499, "cached": 24415, "seconds": 0.8, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26561, "cached": 25492, "seconds": 0.808, "messages": 6}
+{"label": "CF up3 r3", "kind": "A-new", "prompt": 24414, "cached": 24192, "seconds": 0.406, "messages": 2}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 25484, "cached": 24407, "seconds": 0.673, "messages": 4}
+{"label": "CF up3 r3", "kind": "A-turn", "prompt": 26539, "cached": 25477, "seconds": 0.687, "messages": 6}
+{"label": "CF up3 r3", "kind": "B-new", "prompt": 26723, "cached": 26560, "seconds": 0.42, "messages": 2}
+{"label": "CF up3 r3", "kind": "B-turn", "prompt": 27786, "cached": 26716, "seconds": 0.791, "messages": 4}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 73327, "cached": 70226, "seconds": 2.57, "messages": 32}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 76827, "cached": 73320, "seconds": 2.874, "messages": 34}
+{"label": "CF up3 r3", "kind": "inter", "prompt": 78824, "cached": 76820, "seconds": 1.858, "messages": 36}
+{"label": "CF up3 r3", "kind": "C-new", "prompt": 7112, "cached": 0, "seconds": 1.958, "messages": 2}
+{"label": "CF up3 r3", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.634, "messages": 4}
+{"label": "CF up3 r3", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.683, "messages": 2}
+{"label": "CF up3 r3", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.605, "messages": 4}
+{"label": "CF up3 r3", "summary": true, "requests": 74, "total_s": 84.3, "new_s": 18.1, "new_mean_s": 0.82, "new_cached_frac": 0.924, "all_cached_frac": 0.941, "wall_s": 84.3, "A_new_mean_s": 0.52, "B_new_mean_s": 0.47, "C_new_mean_s": 1.94, "D_new_mean_s": 2.61, "inter_mean_s": 2.22}
