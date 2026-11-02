@@ -1,0 +1,320 @@
+From 2dcd1515c21324f99ea19d32f9051588fc01a53f Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 13:13:01 +0100
+Subject: [PATCH 3/4] Merge pull request #217 from
+ Brontir/fix/token-domain-request-scoped
+
+engine: a token outside the vocabulary ends its request, not the Engine (ninfer#426)
+(cherry picked from commit 4e0cdfc149cc43a013f5c5279e8ac811f34a8ab7)
+---
+ docs/maintainer/environment.md              |  1 +
+ src/core/debug_fault.cu                     |  7 +++
+ src/core/debug_poison.h                     |  6 +++
+ src/models/qwen3_5/program/decode.cpp       | 48 +++++++++++++++------
+ src/models/qwen3_5/program/prefill.cpp      |  4 +-
+ src/models/qwen3_5/program/program_impl.h   |  6 +++
+ src/runtime/contract/execution.h            |  7 ++-
+ src/runtime/engine/decision_fingerprint.cpp |  4 +-
+ src/runtime/engine/engine_core.h            | 33 ++++++++------
+ 9 files changed, 86 insertions(+), 30 deletions(-)
+
+diff --git a/docs/maintainer/environment.md b/docs/maintainer/environment.md
+index 0eeb3777..9a6a23d3 100644
+--- a/docs/maintainer/environment.md
++++ b/docs/maintainer/environment.md
+@@ -169,4 +169,5 @@ fault.
+ | `NINFERNO_DEBUG_FREEZE_FILE` | file path | While the file exists, the executor blocks as on a hung device wait. |
+ | `NINFERNO_DEBUG_TRAP_FILE` | file path | Once the file appears, the next check launches a kernel that traps, which poisons the CUDA context as a failed device-side assert does. Fires once. |
+ | `NINFERNO_DEBUG_CUDA_ERROR_FILE` | file path | When the file exists, the next check removes it and raises a recoverable CUDA error (`cudaErrorMemoryAllocation`). Each new file is one error. |
++| `NINFERNO_DEBUG_TOKEN_DOMAIN_FILE` | file path | When the file exists, the next sampled or licensed decode token is replaced with one outside the public vocabulary and the file is removed: that request ends with a numerical failure, the others go on. Each new file is one token. |
+ | `NINFERNO_DEBUG_NAN_FILE` | file path | See the [serving reference](../reference/serving.md). |
+diff --git a/src/core/debug_fault.cu b/src/core/debug_fault.cu
+index 353ba1a3..caf1ff5a 100644
+--- a/src/core/debug_fault.cu
++++ b/src/core/debug_fault.cu
+@@ -40,4 +40,11 @@ void debug_transient_cuda_error_point() {
+                     "CUDA call failed: cudaErrorMemoryAllocation (NINFERNO_DEBUG_CUDA_ERROR_FILE)");
+ }
+ 
++bool debug_token_domain_point() {
++    static const std::string path = sys::env("NINFERNO_DEBUG_TOKEN_DOMAIN_FILE");
++    if (path.empty()) { return false; }
++    std::error_code error;
++    return std::filesystem::remove(path, error);
++}
++
+ } // namespace ninferno
+diff --git a/src/core/debug_poison.h b/src/core/debug_poison.h
+index 5c9d88c9..c566a284 100644
+--- a/src/core/debug_poison.h
++++ b/src/core/debug_poison.h
+@@ -46,4 +46,10 @@ void debug_device_fault_point() noexcept;
+ // file is one error. Unset, one cached check.
+ void debug_transient_cuda_error_point();
+ 
++// Debug-only out-of-vocabulary token. When the file named by NINFERNO_DEBUG_TOKEN_DOMAIN_FILE
++// exists, debug_token_domain_point() removes it and returns true: the caller replaces one sampled
++// token with one outside the public vocabulary, as a faulty draft or sampler would. Each new file is
++// one token. Unset, one cached check.
++[[nodiscard]] bool debug_token_domain_point();
++
+ } // namespace ninferno
+diff --git a/src/models/qwen3_5/program/decode.cpp b/src/models/qwen3_5/program/decode.cpp
+index 94cb2b86..8dc2111f 100644
+--- a/src/models/qwen3_5/program/decode.cpp
++++ b/src/models/qwen3_5/program/decode.cpp
+@@ -428,6 +428,17 @@ void ProgramImpl::validate_licensed_tokens(std::span<const TokenId> tokens) cons
+     }
+ }
+ 
++bool ProgramImpl::license_tokens(std::span<TokenId> tokens) const noexcept {
++    bool inside = true;
++    for (TokenId& token : tokens) {
++        if (token < 0 || token >= model.traits().public_tokens) {
++            token  = 0;
++            inside = false;
++        }
++    }
++    return inside;
++}
++
+ // A decode step runs its rows in at most two launches that share one synchronization: the rows
+ // that speculate verify their drafts in one speculative launch (MTP or DFlash), and the rows that
+ // decode plainly (every row of an ordinary engine; in a speculative engine, a request whose
+@@ -628,6 +639,7 @@ ProgramImpl::decode_raw(std::span<const std::uint32_t> lanes,
+                                   std::chrono::duration<double>(finished - launched).count(),
+                                   round_timer->elapsed_ms() / 1000.0, finished, follows_round);
+         }
++        domain_faults.fill(0);
+         if (speculative.size != 0) { collect_speculative(speculative, seconds); }
+         if (plain.size != 0) { collect_ordinary(plain, seconds, ordinary_steps); }
+         return publish_step(lanes.size(), speculative, plain, ordinary_steps, timing.finish());
+@@ -725,15 +737,16 @@ runtime::BatchedGeneratedRound ProgramImpl::publish_step(std::size_t rows,
+                                                          std::uint32_t ordinary_steps,
+                                                          runtime::ExecutionTiming timing) {
+     bool faulted = false;
++    // A non-finite hidden is the cause when both hold (its argmax is the out-of-domain token).
++    const auto fault = [&](std::uint32_t row, bool non_finite) {
++        step_faults[row] = non_finite ? runtime::kRowFaultNonFinite : domain_faults[row];
++        faulted          = faulted || step_faults[row] != 0U;
++    };
+     for (std::size_t i = 0; i < speculative.size; ++i) {
+-        step_faults[speculative.rows[i]] =
+-            numeric_status.faulted(NumericStatus::Launch::Speculative, i) ? 1U : 0U;
+-        faulted = faulted || step_faults[speculative.rows[i]] != 0U;
++        fault(speculative.rows[i], numeric_status.faulted(NumericStatus::Launch::Speculative, i));
+     }
+     for (std::size_t i = 0; i < plain.size; ++i) {
+-        step_faults[plain.rows[i]] =
+-            numeric_status.faulted(NumericStatus::Launch::Plain, i) ? 1U : 0U;
+-        faulted = faulted || step_faults[plain.rows[i]] != 0U;
++        fault(plain.rows[i], numeric_status.faulted(NumericStatus::Launch::Plain, i));
+     }
+     const auto row_faults = faulted ? std::span<const std::uint8_t>(step_faults.data(), rows)
+                                     : std::span<const std::uint8_t>{};
+@@ -896,8 +909,11 @@ void ProgramImpl::collect_ordinary(const LaunchRows& part, double seconds, std::
+         const std::uint32_t base_E = sequence.execution_frontier;
+         const std::uint32_t base_S = sequence.ledger_frontier;
+         if (steps == 1) {
+-            const TokenId token = ordinary_host_egress->sampled_tokens[row];
+-            validate_licensed_tokens(std::span<const TokenId>(&token, 1));
++            TokenId& token = ordinary_host_egress->sampled_tokens[row];
++            if (debug_token_domain_point()) { token = model.traits().public_tokens; }
++            if (!license_tokens(std::span<TokenId>(&token, 1))) {
++                domain_faults[part.rows[row]] = runtime::kRowFaultTokenDomain;
++            }
+             sequence.text_kv_valid = base_E + 1;
+             // A speculative engine's drafter state stays where the request stopped speculating.
+             commit_sequence_kv(sequence, sequence.text_kv_valid, backend_kv_valid(sequence));
+@@ -915,8 +931,11 @@ void ProgramImpl::collect_ordinary(const LaunchRows& part, double seconds, std::
+                 tokens[step] = ordinary_host_egress->step_tokens[step * kMaximumConcurrency + row];
+             }
+             tokens[steps - 1U] = ordinary_host_egress->sampled_tokens[row];
++            if (debug_token_domain_point()) { tokens[steps - 1U] = model.traits().public_tokens; }
++            if (!license_tokens(std::span<TokenId>(tokens, steps))) {
++                domain_faults[part.rows[row]] = runtime::kRowFaultTokenDomain;
++            }
+             const std::span<const TokenId> produced(tokens, steps);
+-            validate_licensed_tokens(produced);
+             sequence.ledger.insert(sequence.ledger.end(), produced.begin(), produced.end());
+             sequence.prefix_identity.append_generated(steps, sequence.rope_delta);
+             sequence.prefix_digests.append_generated(produced, sequence.rope_delta);
+@@ -1271,10 +1290,13 @@ void ProgramImpl::collect_speculative(const LaunchRows& part, double seconds) {
+             throw std::runtime_error(mtp ? "MTP batch returned invalid row metadata"
+                                          : "DFlash batch returned invalid row metadata");
+         }
+-        const TokenId* tokens = mtp ? mtp_host_egress->licensed_tokens.data()
+-                                    : dflash_host_egress->licensed_tokens.data();
+-        validate_licensed_tokens(
+-            std::span<const TokenId>(tokens + row * width, static_cast<std::size_t>(count_i)));
++        TokenId* tokens = mtp ? mtp_host_egress->licensed_tokens.data()
++                              : dflash_host_egress->licensed_tokens.data();
++        if (debug_token_domain_point()) { tokens[row * width] = model.traits().public_tokens; }
++        if (!license_tokens(
++                std::span<TokenId>(tokens + row * width, static_cast<std::size_t>(count_i)))) {
++            domain_faults[part.rows[row]] = runtime::kRowFaultTokenDomain;
++        }
+         const bool copy_round = mtp && request.copy_round;
+         request.copy_round    = false;
+         if (extent == 0) {
+diff --git a/src/models/qwen3_5/program/prefill.cpp b/src/models/qwen3_5/program/prefill.cpp
+index e34682fe..22df46eb 100644
+--- a/src/models/qwen3_5/program/prefill.cpp
++++ b/src/models/qwen3_5/program/prefill.cpp
+@@ -1368,7 +1368,9 @@ runtime::PrefillStepResult ProgramImpl::advance_prefill(SequenceState& sequence,
+         const double vision_seconds       = staged.vision ? staged.vision->elapsed_seconds() : 0.0;
+         const std::uint32_t prompt_tokens = staged.prompt_tokens;
+ 
+-        validate_licensed_tokens(std::span<const TokenId>(host_tokens, 1));
++        if (!license_tokens(std::span<TokenId>(host_tokens, 1)) && prefill_fault == 0U) {
++            prefill_fault = runtime::kRowFaultTokenDomain;
++        }
+         if (sequence.ledger.size() != prompt_tokens) {
+             throw std::logic_error("candidate token ledger does not match prompt length");
+         }
+diff --git a/src/models/qwen3_5/program/program_impl.h b/src/models/qwen3_5/program/program_impl.h
+index 5e5ffa76..b6083c8a 100644
+--- a/src/models/qwen3_5/program/program_impl.h
++++ b/src/models/qwen3_5/program/program_impl.h
+@@ -755,6 +755,9 @@ public:
+     // Rows whose final hidden held a NaN or an infinity, in the step's row order (publish_step).
+     NumericStatus numeric_status;
+     std::array<std::uint8_t, kMaximumConcurrency> step_faults{};
++    // Rows of the step whose sampled or licensed tokens left the public domain (collect_*), in the
++    // step's row order; publish_step folds them into step_faults.
++    std::array<std::uint8_t, kMaximumConcurrency> domain_faults{};
+     std::uint8_t prefill_fault = 0;
+ 
+     // Round pacing (round_pacing.h) in a CUDA Graph engine; the timer measures each
+@@ -1317,6 +1320,9 @@ private:
+                                        std::span<const std::uint32_t> starts,
+                                        std::span<const std::uint32_t> counts);
+     void validate_licensed_tokens(std::span<const TokenId> tokens) const;
++    // Whether every token is inside the public domain; one outside it is replaced with 0 (the row
++    // faults: its request ends, the Engine and the other rows go on).
++    [[nodiscard]] bool license_tokens(std::span<TokenId> tokens) const noexcept;
+     void mark_workspace_usage(std::size_t phase_bytes) noexcept;
+     // One launch of a decode step: its rows (positions in the step's membership, which the
+     // step's token masks and published tokens use), their lanes and budgets. A launch row is the
+diff --git a/src/runtime/contract/execution.h b/src/runtime/contract/execution.h
+index 8a213ac0..47014f68 100644
+--- a/src/runtime/contract/execution.h
++++ b/src/runtime/contract/execution.h
+@@ -50,9 +50,14 @@ struct BeginSummary {
+     [[nodiscard]] friend constexpr bool operator==(BeginSummary, BeginSummary) noexcept = default;
+ };
+ 
++// A row's fault in a round (row_faults): the request ends with a numerical failure, the Engine
++// and the other rows go on.
++inline constexpr std::uint8_t kRowFaultNonFinite  = 1; // a NaN or an infinity in its final hidden
++inline constexpr std::uint8_t kRowFaultTokenDomain = 2; // a token outside the public vocabulary
++
+ struct GeneratedRound {
+     std::span<const TokenId> tokens;
+-    // Per row, nonzero when the round computed a NaN or an infinity for it (empty: none).
++    // Per row, a kRowFault* when the round faulted for it (empty: none).
+     std::span<const std::uint8_t> row_faults;
+ };
+ 
+diff --git a/src/runtime/engine/decision_fingerprint.cpp b/src/runtime/engine/decision_fingerprint.cpp
+index e50d6f8d..ffa7f59c 100644
+--- a/src/runtime/engine/decision_fingerprint.cpp
++++ b/src/runtime/engine/decision_fingerprint.cpp
+@@ -37,10 +37,10 @@ namespace {
+ // credentials, update checks and where a tool finds its inputs (the desktop UI's access key,
+ // catalog and updater, apps/ui). Every decision is an option. The <dump>_ROWS names are built at
+ // run time from their dump's name (models/common/layer_dump.h).
+-constexpr std::array<std::string_view, 22> kNonDecisionVariables{
++constexpr std::array<std::string_view, 23> kNonDecisionVariables{
+     "NINFERNO_DENSE_DUMP_ROWS",    "NINFERNO_GEMMA4_DUMP_ROWS",
+     "NINFERNO_QWEN_DUMP_ROWS",     "NINFERNO_API_KEY",
+-    "NINFERNO_ARTIFACT_DIRECT_IO", "NINFERNO_DEBUG_CUDA_ERROR_FILE",
++    "NINFERNO_ARTIFACT_DIRECT_IO", "NINFERNO_DEBUG_CUDA_ERROR_FILE", "NINFERNO_DEBUG_TOKEN_DOMAIN_FILE",
+     "NINFERNO_DEBUG_FREEZE_FILE",  "NINFERNO_DEBUG_NAN_FILE",
+     "NINFERNO_DEBUG_TRAP_FILE",    "NINFERNO_DENSE_DUMP",
+     "NINFERNO_GEMMA4_DUMP",        "NINFERNO_PDFIUM",
+diff --git a/src/runtime/engine/engine_core.h b/src/runtime/engine/engine_core.h
+index fdabe287..eab12fc8 100644
+--- a/src/runtime/engine/engine_core.h
++++ b/src/runtime/engine/engine_core.h
+@@ -956,19 +956,21 @@ private:
+         std::array<std::shared_ptr<Request>, kMaximumConcurrency> requests{};
+         std::array<std::uint32_t, kMaximumConcurrency> lanes{};
+         std::array<FinishReason, kMaximumConcurrency> reasons{};
++        std::array<std::uint8_t, kMaximumConcurrency> faults{}; // a faulted row's kRowFault*
+         std::size_t count = 0;
+ 
+         void add(const std::shared_ptr<Request>& request, std::uint32_t lane,
+-                 FinishReason reason = FinishReason::None) noexcept {
++                 FinishReason reason = FinishReason::None, std::uint8_t fault = 0) noexcept {
+             requests[count] = request;
+             lanes[count]    = lane;
+             reasons[count]  = reason;
++            faults[count]   = fault;
+             ++count;
+         }
+     };
+ 
+-    // Completes the released rows of a commit: the terminal ones with their reason, the ones whose
+-    // round computed a NaN or an infinity with a numerical failure.
++    // Completes the released rows of a commit: the terminal ones with their reason, the faulted
++    // ones (a NaN or an infinity, or a token outside the vocabulary) with a numerical failure.
+     void complete_released(const ReleasedRows& terminal, const ReleasedRows& faulted) {
+         for (std::size_t index = 0; index < terminal.count; ++index) {
+             complete_success(terminal.requests[index], terminal.reasons[index]);
+@@ -976,14 +978,16 @@ private:
+         }
+         for (std::size_t index = 0; index < faulted.count; ++index) {
+             const std::size_t generated = faulted.requests[index]->generated.size();
+-            complete_error(
+-                faulted.requests[index],
+-                std::make_exception_ptr(RequestError(
+-                    RequestErrorKind::NumericalFailure,
+-                    "the model computed a NaN or an infinity in its final hidden state " +
+-                        (generated == 0
+-                             ? std::string("at the end of the prompt")
+-                             : "after " + std::to_string(generated) + " generated tokens"))));
++            const std::string where =
++                generated == 0 ? std::string("at the end of the prompt")
++                               : "after " + std::to_string(generated) + " generated tokens";
++            complete_error(faulted.requests[index],
++                           std::make_exception_ptr(RequestError(
++                               RequestErrorKind::NumericalFailure,
++                               faulted.faults[index] == kRowFaultTokenDomain
++                                   ? "the model selected a token outside its vocabulary " + where
++                                   : "the model computed a NaN or an infinity in its final "
++                                     "hidden state " + where)));
+             remove_completed_slot(faulted.lanes[index]);
+         }
+     }
+@@ -1147,6 +1151,8 @@ private:
+         // Cancelled, a faulted one (its round computed a NaN or an infinity) fails.
+         enum class RowRelease : std::uint8_t { None, Cancelled, Faulted };
+         std::array<RowRelease, kMaximumConcurrency> releases{};
++        // A faulted row's kRowFault*, read before the commit consumes the pending batch.
++        std::array<std::uint8_t, kMaximumConcurrency> row_fault{};
+         const auto released = [&](std::size_t row) noexcept {
+             return releases[row] != RowRelease::None;
+         };
+@@ -1183,7 +1189,8 @@ private:
+                 if (cancelled_at_unit_start[lane]) {
+                     releases[row] = RowRelease::Cancelled;
+                 } else if (!pending.row_faults().empty() && pending.row_faults()[row] != 0U) {
+-                    releases[row] = RowRelease::Faulted;
++                    releases[row]  = RowRelease::Faulted;
++                    row_fault[row] = pending.row_faults()[row];
+                 }
+                 const std::int32_t raw_count =
+                     pending.row_counts().empty() ? 1 : pending.row_counts()[row];
+@@ -1315,7 +1322,7 @@ private:
+                 const std::uint32_t lane     = lane_indices[row];
+                 const auto& request          = slots_[lane];
+                 if (releases[row] == RowRelease::Faulted) {
+-                    faulted_rows.add(request, lane);
++                    faulted_rows.add(request, lane, FinishReason::None, row_fault[row]);
+                     continue;
+                 }
+                 const std::uint32_t accepted = decisions[row].accepted_tokens;
+-- 
+2.43.0
+

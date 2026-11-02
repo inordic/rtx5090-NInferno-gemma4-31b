@@ -1,0 +1,106 @@
+From 3bfa4acf3d7a7e631ac2874f108a25dfc5b87b71 Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 16:27:46 +0100
+Subject: [PATCH 1/4] Merge pull request #226 from Brontir/fix/tma-proxy-fence
+
+ops: TMA pipelines fence a stage's generic-proxy reads before its async-proxy refill
+(cherry picked from commit 7d2e424cfdf8072db420fb34b7f3b552011f2f1e)
+---
+ docs/maintainer/op-development.md        |  7 +++++++
+ src/ops/common/mbarrier.cuh              | 14 ++++++++++++++
+ src/ops/linear/bf16/bf16_a16_tma_mma.cuh |  4 +++-
+ src/ops/linear/fp8/fp8_a8_tma_mma.cuh    |  4 +++-
+ src/ops/linear/nvfp4/nvfp4_a4_tma.cuh    |  4 ++++
+ 5 files changed, 31 insertions(+), 2 deletions(-)
+
+diff --git a/docs/maintainer/op-development.md b/docs/maintainer/op-development.md
+index 7429468c..41cb05d4 100644
+--- a/docs/maintainer/op-development.md
++++ b/docs/maintainer/op-development.md
+@@ -281,6 +281,13 @@ A family may share private launch or computation bodies across related Ops. Each
+ defines its output mapping, observable fusion boundary, validation, and dispatch; sharing does not
+ create a model-callable private backend.
+ 
++A pipeline whose producer refills shared-memory stages with TMA (`cp.async.bulk.tensor`: writes of
++the async proxy) while consumers read those stages with ordinary loads or `ldmatrix` (the generic
++proxy) runs `cta_fence_reads_before_async_refill()` (`src/ops/common/mbarrier.cuh`,
++`fence.proxy.async.shared::cta`) in every reading thread after its last read of a stage and before
++its warp arrives on that stage's empty barrier: the mbarrier orders generic-proxy accesses only. A
++producer of 16-byte `cp.async` copies writes through the generic proxy and needs no fence.
++
+ ## 5. State, workspace, naming, and dependencies
+ 
+ ### 5.1 State and execution views
+diff --git a/src/ops/common/mbarrier.cuh b/src/ops/common/mbarrier.cuh
+index c60bc07d..74fa31a9 100644
+--- a/src/ops/common/mbarrier.cuh
++++ b/src/ops/common/mbarrier.cuh
+@@ -59,6 +59,20 @@ __device__ __forceinline__ void cta_mbarrier_arrive_expect_tx(std::uint64_t* bar
+ #endif
+ }
+ 
++// A consumer's generic-proxy reads of a stage (ld.shared, ldmatrix) ordered before the async-proxy
++// writes of its refill (cp.async.bulk.tensor): the mbarrier orders generic-proxy accesses only
++// (PTX ISA, memory consistency model: proxies), so every reading thread runs this after its last
++// read of a stage and before its warp arrives on the stage's empty barrier. Without it a refill
++// may overwrite a stage still being read (Wallawalla47/Infernix 4b5eae7a8c: wrong outputs on the
++// RTX 5090 while another shared-memory-heavy kernel shared the SMs, never in an isolated test).
++__device__ __forceinline__ void cta_fence_reads_before_async_refill() {
++#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 900
++    __trap();
++#else
++    asm volatile("fence.proxy.async.shared::cta;" : : : "memory");
++#endif
++}
++
+ __device__ __forceinline__ void cta_mbarrier_fence_init() {
+ #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 900
+     __trap();
+diff --git a/src/ops/linear/bf16/bf16_a16_tma_mma.cuh b/src/ops/linear/bf16/bf16_a16_tma_mma.cuh
+index 79244730..66523e41 100644
+--- a/src/ops/linear/bf16/bf16_a16_tma_mma.cuh
++++ b/src/ops/linear/bf16/bf16_a16_tma_mma.cuh
+@@ -122,7 +122,9 @@ __launch_bounds__(Schedule::kThreads, Schedule::kMinBlocksPerSm) void bf16_a16_t
+         cta_mbarrier_wait(full + stage, (kt / S) & 1U);
+         bf16_mma_compute_stage<Schedule>(a + stage * BR * BK, b + stage * BT * BK, accum, warp,
+                                          lane);
+-        // Every lane must finish its shared reads before the elected lane releases this stage.
++        // Every lane must finish its shared reads, ordered before the stage's TMA refill, before
++        // the elected lane releases this stage.
++        cta_fence_reads_before_async_refill();
+         __syncwarp();
+         if (lane == 0) cta_mbarrier_arrive(empty + stage);
+     }
+diff --git a/src/ops/linear/fp8/fp8_a8_tma_mma.cuh b/src/ops/linear/fp8/fp8_a8_tma_mma.cuh
+index 2f43f871..30fbe2b8 100644
+--- a/src/ops/linear/fp8/fp8_a8_tma_mma.cuh
++++ b/src/ops/linear/fp8/fp8_a8_tma_mma.cuh
+@@ -203,7 +203,9 @@ __launch_bounds__(Schedule::kThreads, Schedule::kMinBlocksPerSm) void fp8_a8_tma
+         cta_mbarrier_wait(full + stage, (kt / S) & 1U);
+         fp8_mma_compute_stage<Schedule>(activation + stage * BT * BK, weight + stage * BR * BK,
+                                         accumulators, warp, lane);
+-        // Release only after every lane in this consumer warp has finished its shared reads.
++        // Release only after every lane in this consumer warp has finished its shared reads,
++        // ordered before the stage's TMA refill.
++        cta_fence_reads_before_async_refill();
+         __syncwarp();
+         if (lane == 0) cta_mbarrier_arrive(empty + stage);
+     }
+diff --git a/src/ops/linear/nvfp4/nvfp4_a4_tma.cuh b/src/ops/linear/nvfp4/nvfp4_a4_tma.cuh
+index cf6b09ed..f8f6d0c9 100644
+--- a/src/ops/linear/nvfp4/nvfp4_a4_tma.cuh
++++ b/src/ops/linear/nvfp4/nvfp4_a4_tma.cuh
+@@ -310,6 +310,10 @@ __launch_bounds__(Schedule::kThreads, Schedule::kMinBlocksPerSm) void nvfp4_a4_t
+                 }
+             }
+         }
++        // Every lane's shared reads of this stage, ordered before its TMA refill, finish before
++        // the elected lane releases it.
++        cta_fence_reads_before_async_refill();
++        __syncwarp();
+         if (lane == 0) { cta_mbarrier_arrive(&shared.empty[stage]); }
+     }
+ 
+-- 
+2.43.0
+

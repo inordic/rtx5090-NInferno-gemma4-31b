@@ -8,7 +8,7 @@
 | [`gemma4-31b-262k.service`](systemd/gemma4-31b-262k.service) | QAT-UD Q4 | 262,144, chunk 512 | the max-context option, text only |
 
 The fast unit:
-- runs `/opt/NInferno-up/build/apps-up1/ninferno-serve` (our branch `kvshare-up` at `afd15fa`: patches 01–16 on upstream NInferno `8359583`) with `--vision`;
+- runs `/opt/NInferno-up/build/apps-up3/ninferno-serve` (our branch `kvshare-up3` at `e4b9bbd`: patches 01–16 on upstream NInferno `8359583`, four upstream fixes, and patches 17–18) with `--vision`;
 - lets a new session's system head and tool list compete for the cache (`--auto-tools-shared-prefix --auto-shared-prefix-requested`, patch 16), and keeps up to 18 states and 8 GiB of KV in host memory (`--host-state-slots 18 --host-kv-mib 8192`; without them NInferno caps that cache at 30% of RAM);
 - drafts with Google's regular assistant (`assistant.q8full.ninferno`), 7 drafts;
 - keeps its sliding rings in FP8 (`--sliding-kv-dtype fp8`) and its token table in host memory (`NINFERNO_GEMMA4_EMBED_HOST=1`);

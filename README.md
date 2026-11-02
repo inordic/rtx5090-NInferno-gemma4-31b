@@ -2,14 +2,14 @@
 
 This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GPU, in a Proxmox container, through [NInferno](https://github.com/Brontir/NInferno) with our patches. Its main client is an agent (Hermes). The headline numbers, measured server-side through the OpenAI API on port 8080 at one request at a time:
 
-- **Prefill: 4,361 tok/s at 8K**, 3,676 at 2K, 3.45K at 32K, 2.56K at 64K and about 1.6K at 130K. We started from 1.4K.
+- **Prefill: 4,469 tok/s at 8K**, 4,125 at 2K, 3.46K at 32K, 2.58K at 64K and about 1.6K at 130K. We started from 1.4K.
 - **Decode: 110 tok/s on chat** (109.6 greedy / 110.9 sampled), 111–122 after 2K and 114–115 after 8K of context. That's 3.3× the 33 tok/s we started from.
 - **Context: 202,112 tokens with vision** in the fast profile and **262,144** (the model's full window) in the max-context profile, up from 32K.
 - **Quality:** MMLU-Pro 177–178/280 (direct answer), GSM8K 198/200, MMLU 248/285, HumanEval 158/164; see [Quality](#quality).
 - **Vision:** images in requests (about 290 tokens each), 7/7 on our image questions.
 - **Long context:** needles pass at 140K and 170K on the fast profile, and at 185K and 231K on the max-context profile.
 
-*Production since 2026-10-26 22:43 CET; since 2026-10-28 06:38 on our patches rebased onto upstream NInferno, with the prompt-cache flags, at the same measured speed* ([CHANGELOG](CHANGELOG.md); numbers from [`results/results.jsonl`](results/results.jsonl), label `K1 turbo-qkv-vision ctx202112`, measured beside the previous build in one session).
+*Production since 2026-10-26 22:43 CET; since 2026-10-28 06:38 on our patches rebased onto upstream NInferno, with the prompt-cache flags; since 2026-11-02 09:33 with four upstream fixes and our patch 17, which keeps one of them from stopping the engine* ([CHANGELOG](CHANGELOG.md); numbers up to 64K from [`results/results.jsonl`](results/results.jsonl), label `CF up3`, measured on 2 Nov beside the previous build (`N4 A0`); beyond 64K and decode from label `K1 turbo-qkv-vision ctx202112`).
 
 Every number here comes from a file in [`results/`](results/), measured on the box described in [What runs](#what-runs). The night-by-night reports are in [`research/`](research/), and the build route, with a check after each step, is in [`BUILD.md`](BUILD.md).
 
@@ -28,10 +28,10 @@ What made the difference, in order of effect:
 
 | Prompt | Fast profile (live) | Previous fast profile (QAT-NVFP4, same session) | Max-context profile (QAT Q4) | Start (abliterated Q4_K) |
 |---:|---:|---:|---:|---:|
-| 2K | 3,676 | 3,126 | 1,427 | 1,335 |
-| 8K | **4,361** | 4,345 | 1,531 | 1,409 |
-| 32K | 3,450 | 3,469 | 1,332 | 1,272 (24K) |
-| 64K | 2,562 | 2,571 | 1,092 | — |
+| 2K | 4,125 | 3,126 | 1,427 | 1,335 |
+| 8K | **4,469** | 4,345 | 1,531 | 1,409 |
+| 32K | 3,462 | 3,469 | 1,332 | 1,272 (24K) |
+| 64K | 2,578 | 2,571 | 1,092 | — |
 | ~130K / ~170K | ~1,580 / ~1,290 | ~1,600 / — | ~710 (before FP8 attention) | — |
 | ~185K / ~231K | — | — | 613 / 528 | — |
 

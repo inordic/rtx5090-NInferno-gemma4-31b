@@ -1,7 +1,7 @@
 # Build: from a container with an RTX 5090 Laptop GPU to both profiles serving
 
 This is the route we took. The paths are ours:
-- **Engine:** two trees. `/opt/NInferno-up` (upstream `8359583` + patches 01–16) serves the fast unit from `build/apps-up1`; `/opt/NInferno` (`9895ebc` + patches) serves the max-context unit from `build/apps-final7` (patches 01–09). Production runs these copies of the binaries; later builds in the trees don't touch them.
+- **Engine:** two trees. `/opt/NInferno-up` (upstream `8359583` + patches 01–16, four upstream fixes, patches 17–18) serves the fast unit from `build/apps-up3`; `/opt/NInferno` (`9895ebc` + patches) serves the max-context unit from `build/apps-final7` (patches 01–09). Production runs these copies of the binaries; later builds in the trees don't touch them.
 - **Converter:** `/opt/llama.cpp`, the patched one, used only to convert the drafter.
 - **Models:** `/opt/models/dl` and `/opt/models/dl2`.
 - **Benchmarks:** `/root/gbench`, holding the contents of [`bench/`](bench/).
@@ -36,7 +36,16 @@ PATH=/usr/local/cuda-13.2/bin:$PATH ninja -C build ninferno-serve ninferno-gemma
 mkdir -p build/apps-up1 && cp build/apps/ninferno-serve build/apps/ninferno-gemma4 build/apps/ninferno build/apps-up1/
 ```
 
-In a clone that holds only upstream's history, this series gives exactly the tree of our `kvshare-up` (`afd15fa`).
+In a clone that holds only upstream's history, this series gives exactly the tree of our `kvshare-up` (`afd15fa`), the fast unit's build from 28 Oct to 2 Nov.
+
+Since 2 Nov the fast unit adds four upstream fixes (#226, #246, #217, #234, picked onto this branch; [`patches/ninferno/upstream/`](patches/ninferno/upstream/) holds them as applied) and our patches 17–18, which fix the engine exit #234 caused here ([night 4 §5](research/2026-11-02-night4.md#5-update-2-nov-the-exit-found-and-fixed-patch-17)):
+
+```bash
+git checkout -b kvshare-up3
+git am -3 $P/upstream/000[1-4]-*.patch $P/001[78]-*.patch
+PATH=/usr/local/cuda-13.2/bin:$PATH ninja -C build ninferno-serve ninferno-gemma4 ninferno
+mkdir -p build/apps-up3 && cp build/apps/ninferno-serve build/apps/ninferno-gemma4 build/apps/ninferno build/apps-up3/
+```
 
 The max-context unit still runs the build at patch 09 on the original base (`/opt/NInferno/build/apps-final7`); it hasn't been re-measured on newer builds. Step 3 converts with that tree's `build/apps/ninferno-convert` at the branch tip (patch 13 packs the fast model's Q/K/V). To set it up:
 1. Clone into `/opt/NInferno` and run `git checkout -b kvshare-main 9895ebc62e2bdfb367083a72cb2c4a714cf41542`.
@@ -47,8 +56,8 @@ The max-context unit still runs the build at patch 09 on the original base (`/op
 The full build takes a long time; the kernels are many. Add `-DNINFERNO_BUILD_BENCHMARKS=ON` and `ninja -C build bench/ninferno_linear_bench` if you want the kernel microbenchmark used in [`bench/lb.sh`](bench/lb.sh).
 
 **Check:**
-- `git log --oneline -1` shows `serve: opt-in automatic shared-prefix candidates after the tools, and as requested evidence`, our patch 16.
-- `build/apps-up1/ninferno-serve --version` prints `NInferno 0.1.0 (built for sm_120, CUDA 13.2)` and lists the GPU.
+- `git log --oneline -1` shows `program: a resource subtraction underflow names its call site and operands`, our patch 18 (patch 16, `serve: opt-in automatic shared-prefix candidates …`, before the upstream fixes).
+- `build/apps-up3/ninferno-serve --version` prints `NInferno 0.1.0 (built for sm_120, CUDA 13.2)` and lists the GPU.
 
 ## 2. llama.cpp with the QAT-aware Q4_0 encoder (for the drafter)
 

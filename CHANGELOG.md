@@ -2,12 +2,26 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-02 09:33: fast unit on apps-up3 (four upstream fixes and patch 17)
+
+- **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) runs `/opt/NInferno-up/build/apps-up3`, branch `kvshare-up3` at `e4b9bbd`: patches 01–16 on upstream `8359583`, upstream #226, #246, #217 and #234, and our patches 17 (the fix for the exit #234 caused) and 18 (the error names its call site). Model, flags, drafter, template and environment are unchanged.
+  - **Restart:** 09:33 with no request in flight ([`deploy_up3.sh`](bench/runs/crashfix/deploy_up3.sh)); 8080 answered again after 31 s, with the same plan (202,112 tokens × 1 lane) and cache (host 18 states, 8 GiB).
+- **Why:** prefill +10.3% at 2K and +2.1% at 8K, agent turns 20–30 ms faster, the same quality, decode, vision and agent loop, and no exit in three cache replays and 300 stress steps ([night-4 report §5](research/2026-11-02-night4.md#5-update-2-nov-the-exit-found-and-fixed-patch-17)).
+- **Measured on the live unit after the switch:**
+  - [`verify.py`](bench/verify.py) passed: agent turns of 0.49–0.50 s with 17.6K cached (0.52–0.53 s before);
+  - [`textcalltest.py`](bench/textcalltest.py): 0 leaks; [`visiontest.py`](bench/visiontest.py): 7/7;
+  - [`agenttest.py`](bench/agenttest.py): 29 steps, 27 calls, no markup as text, no error;
+  - [`headprobe.py`](bench/headprobe.py): new sessions sharing a 24.4K-token head answered in 0.41–0.45 s;
+  - GPU 23.9 GB, as before.
+- **To watch:** the line `ninferno: the capture at N publishes privately` in the unit's log marks a capture patch 17 kept from stopping the engine.
+- **Rollback:** restore `/etc/systemd/system/gemma4-31b-fast.service.bak-20261102-083322` (`apps-up1`), then `systemctl daemon-reload` and [`bench/deploy_fast.sh`](bench/deploy_fast.sh).
+
 ## 2026-11-02 08:35: night 4's engine exit found and fixed (running setup unchanged)
 
 - **Found:** upstream #234 alone makes the engine exit in the cache replay; the other three upstream fixes pass. Since #234 the shared copy at a turn's end can take pages the request is not entitled to ([night-4 report §5](research/2026-11-02-night4.md#5-update-2-nov-the-exit-found-and-fixed-patch-17)).
 - **Fixed:** [patch 17](patches/ninferno/) publishes such a capture privately; [patch 18](patches/ninferno/) makes the error name its call site and numbers. Branch `kvshare-up3` (`kvshare-up2` + 17 + 18), built as `/opt/NInferno-up/build/apps-up3`.
 - **Measured at production flags:** three cache replays and 300 stress steps without an exit (6 captures taken privately that would have stopped the engine); prefill +10.3% at 2K, agent turns 20–30 ms faster; quality, hard50, vision and decode the same as production.
-- **Proposed, waiting for an OK:** the fast unit on `apps-up3`, nothing else changed.
+- **Proposed:** the fast unit on `apps-up3`, nothing else changed (applied at 09:33, entry above).
 - **Decided:** production stays on LilaRest NVFP4-turbo; the Humanlike builds stay on the box.
 - **Unchanged:** 8080 runs `apps-up1` as before; it answered after each test window.
 

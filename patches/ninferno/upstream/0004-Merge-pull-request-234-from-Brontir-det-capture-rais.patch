@@ -1,0 +1,144 @@
+From 6c0e52ade3f271b330d5425cb293f241252fbda5 Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Fri, 30 Oct 2026 02:07:04 +0100
+Subject: [PATCH 4/4] Merge pull request #234 from
+ Brontir/det/capture-raise-to-turn
+
+frontend: OpenAI's automatic boundary at the closed turn's end, no prefill split (DECISIONS 63)
+(cherry picked from commit 88ace881e0d091835930bee40215e6e91bde4842)
+---
+ src/models/qwen3_5/frontend/frontend.cpp | 30 ++++++++++++----
+ tests/models/qwen3_5/test_frontend.cpp   | 45 ++++++++++++++++++++++++
+ 2 files changed, 69 insertions(+), 6 deletions(-)
+
+diff --git a/src/models/qwen3_5/frontend/frontend.cpp b/src/models/qwen3_5/frontend/frontend.cpp
+index 7d4ba957..139b513f 100644
+--- a/src/models/qwen3_5/frontend/frontend.cpp
++++ b/src/models/qwen3_5/frontend/frontend.cpp
+@@ -442,7 +442,7 @@ bool exact_vision_frontier(std::uint32_t frontier, std::span<const VisionItem> i
+ }
+ 
+ PreparedContextCache prepare_context_cache(
+-    ContextCacheHints hints, std::size_t message_count,
++    ContextCacheHints hints, std::size_t message_count, std::span<const std::size_t> message_parts,
+     std::span<const std::optional<std::uint32_t>> message_boundaries,
+     std::span<const PromptCacheMarker> rendered_markers,
+     std::span<const std::optional<std::uint32_t>> cache_boundaries,
+@@ -549,12 +549,24 @@ PreparedContextCache prepare_context_cache(
+     for (std::size_t index = 0; index < hints.markers.size(); ++index) {
+         const PromptCacheMarker marker = hints.markers[index];
+         std::optional<std::uint32_t> resolved;
+-        if (marker.location == PromptCacheMarkerLocation::MessageBoundary) {
++        // A boundary after a message's last part (OpenAI's automatic one) is taken at the closed
++        // turn's end: the bytes between are the template's, the same in every rendering that
++        // continues the conversation, and the turn's end is an execution frontier where a next
++        // turn opens (prompt_layout.cpp), so the capture needs no prefill split of its own. At
++        // the content's end the program moves it down to the 64-token grid, and the 17 to 80
++        // tokens up to the message's end cost a whole-model call of their own (DECISIONS 63).
++        const bool last_part =
++            marker.location == PromptCacheMarkerLocation::MessagePartBoundary &&
++            marker.after_message_count != 0 && marker.after_message_count <= message_parts.size() &&
++            marker.after_message_part_count == message_parts[marker.after_message_count - 1U];
++        if (marker.location == PromptCacheMarkerLocation::MessageBoundary || last_part) {
+             if (marker.after_message_count < message_boundaries.size()) {
+                 resolved = message_boundaries[marker.after_message_count];
+             }
+-        } else {
+-            if (index < cache_boundaries.size()) { resolved = cache_boundaries[index]; }
++        }
++        if (!resolved && marker.location != PromptCacheMarkerLocation::MessageBoundary &&
++            index < cache_boundaries.size()) {
++            resolved = cache_boundaries[index];
+         }
+         if (!resolved) { continue; }
+         add_opportunity(marker.kind, marker.evidence, *resolved, static_cast<std::uint32_t>(index));
+@@ -1080,7 +1092,13 @@ PreparedPrompt Frontend::prepare(PromptInput input, const PreparationControl& co
+             .after_tool_count = static_cast<std::uint32_t>(options.tool_jsons.size()),
+         });
+     }
+-    const std::size_t message_count       = input.messages.size();
++    const std::size_t message_count = input.messages.size();
++    std::vector<std::size_t> message_parts;
++    message_parts.reserve(message_count);
++    for (const ChatMessage& message : input.messages) {
++        // A message whose turn carries tool calls after its parts keeps its part boundaries.
++        message_parts.push_back(message.tool_calls.empty() ? message.parts.size() : 0U);
++    }
+     std::vector<fi::ChatMessage> messages = convert_messages(std::move(input.messages));
+     const bool has_media =
+         std::any_of(messages.begin(), messages.end(),
+@@ -1163,7 +1181,7 @@ PreparedPrompt Frontend::prepare(PromptInput input, const PreparationControl& co
+     (void)checked_token_count(result.token_ids.size());
+     result.identity.reusable = true;
+     result.context_cache     = prepare_context_cache(
+-        std::move(cache_hints), message_count, message_boundaries, rendered_markers,
++        std::move(cache_hints), message_count, message_parts, message_boundaries, rendered_markers,
+         cache_boundaries, result.vision_items, engine_tool_marker_index, leading_boundary,
+         checked_token_count(result.token_ids.size()));
+     result.prepare.seconds = std::chrono::duration<double>(Clock::now() - start).count();
+diff --git a/tests/models/qwen3_5/test_frontend.cpp b/tests/models/qwen3_5/test_frontend.cpp
+index 8bbdc911..46d30fce 100644
+--- a/tests/models/qwen3_5/test_frontend.cpp
++++ b/tests/models/qwen3_5/test_frontend.cpp
+@@ -1992,6 +1992,50 @@ int test_disabled_tool_calls_keep_the_prompt() {
+                  "disabled tool calls changed the prompt or still read calls back");
+ }
+ 
++// OpenAI's automatic boundary after the last message's last part is taken at the closed turn's end,
++// an execution frontier of the prompt: the capture adds no prefill split (DECISIONS 63).
++int test_last_part_boundary_at_turn_end() {
++    const Frontend frontend = make_frontend(resources(), false);
++    ninferno::ChatMessage user;
++    user.role = ninferno::ChatRole::User;
++    user.parts.push_back(ninferno::MessagePart{
++        .kind = ninferno::MessagePartKind::Text, .text = "first part", .media = {}});
++    user.parts.push_back(ninferno::MessagePart{
++        .kind = ninferno::MessagePartKind::Text, .text = " and the last part", .media = {}});
++    ninferno::PromptInput input;
++    input.messages.push_back(std::move(user));
++    input.context_cache.allow_engine_automatic_shared_prefixes = false;
++    for (const std::uint32_t parts : {1U, 2U}) {
++        input.context_cache.markers.push_back(ninferno::PromptCacheMarker{
++            .after_message_count      = 1,
++            .kind                     = ninferno::PromptCacheMarkerKind::SharedStablePrefix,
++            .evidence                 = ninferno::SharedCandidateEvidence::DefaultAutomatic,
++            .location                 = ninferno::PromptCacheMarkerLocation::MessagePartBoundary,
++            .after_message_part_count = parts,
++        });
++    }
++    const auto prepared   = frontend.prepare(std::move(input));
++    const auto& data      = FrontendFactory::inspect(prepared);
++    const auto& static_at = data.identity.rewrite_execution_frontiers;
++    const auto& found     = data.context_cache.opportunities;
++    const auto at_static  = [&](std::uint32_t frontier) {
++        return std::find(static_at.begin(), static_at.end(), frontier) != static_at.end();
++    };
++    int failures = check(found.size() == 2, "both part boundaries became opportunities");
++    if (found.size() == 2) {
++        const std::uint32_t middle = std::min(found[0].frontier, found[1].frontier);
++        const std::uint32_t last   = std::max(found[0].frontier, found[1].frontier);
++        failures += check(at_static(last) && last < data.token_ids.size() &&
++                              data.identity.rewrite_checkpoint &&
++                              last == data.identity.rewrite_checkpoint->frontier,
++                          "the boundary after the last part is the turn's end, the turn closure's "
++                          "static frontier");
++        failures += check(!at_static(middle) && middle < last,
++                          "a boundary between parts stays where its part ends");
++    }
++    return failures;
++}
++
+ int test_explicit_leading_instruction_cache_boundary() {
+     const Frontend frontend           = make_frontend(resources(), false);
+     constexpr std::string_view stable = "stable cache section.";
+@@ -3301,6 +3345,7 @@ int main() {
+     failures += test_image_resize_rejection_policy();
+     failures += test_disabled_tool_calls_keep_the_prompt();
+     failures += test_explicit_leading_instruction_cache_boundary();
++    failures += test_last_part_boundary_at_turn_end();
+     failures += test_media_admission_uses_aggregate_resources(frontend);
+     failures += test_multimodal_prompt_over_removed_32k_cap(frontend);
+     failures += test_attention_pairs_are_diagnostic(frontend);
+-- 
+2.43.0
+

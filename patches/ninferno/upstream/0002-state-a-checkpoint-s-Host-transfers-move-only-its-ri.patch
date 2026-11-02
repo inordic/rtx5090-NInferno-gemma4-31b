@@ -1,0 +1,532 @@
+From 19775e33f96276ac72f4f437866dd0f443ed9606 Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Fri, 30 Oct 2026 14:28:57 +0100
+Subject: [PATCH 2/4] state: a checkpoint's Host transfers move only its rings'
+ live window (Gemma TTFT -27 ms on the RTX 4090) (#246)
+
+* state: a checkpoint's Host transfers move only its rings' live window (rows of the last window positions), not window + chunk - 1 rows
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+* state: a windowed ring's transfer work prices its live window (Opus review)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+* test: FP8 window payload counts every head's codes
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+* audit: test_state_image's expect_rows reads after the stream synchronizes
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+* DECISIONS 62: item 3's bytes, half the pause (predicted 280 ms, measured 280-281 on the RTX 4090)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+---------
+
+Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>
+(cherry picked from commit 289a63af524db64bb48863a910727cd1362d4711)
+---
+ .../program/planning/sequence_bytes.cpp       |   6 +-
+ .../qwen3_5/program/storage/state_store.h     |  16 ++-
+ .../qwen3_5/program/transactions/capture.cpp  |   2 +-
+ .../qwen3_5/program/transactions/commit.cpp   |   2 +-
+ src/models/qwen3_5/state/state_image.cpp      | 101 +++++++++++++-----
+ src/models/qwen3_5/state/state_image.h        |  12 ++-
+ tests/models/qwen3_5/test_state_image.cpp     |  98 ++++++++++++++++-
+ tools/audit/legacy_stream_calls.sh            |   2 +-
+ 8 files changed, 202 insertions(+), 37 deletions(-)
+
+diff --git a/src/models/qwen3_5/program/planning/sequence_bytes.cpp b/src/models/qwen3_5/program/planning/sequence_bytes.cpp
+index 5ee8f8da..52efb4f2 100644
+--- a/src/models/qwen3_5/program/planning/sequence_bytes.cpp
++++ b/src/models/qwen3_5/program/planning/sequence_bytes.cpp
+@@ -318,7 +318,8 @@ PersistentLayout dense_layout(const StateShape& shape, const SequencePlanImpl& p
+                                 .capacity = shape.window + ring_decoder_widest_call(plan) - 1U,
+                                 .kv_heads = shape.sliding_kv_heads,
+                                 .head_dim = shape.sliding_head_dim,
+-                                .fp8      = plan.ring_storage == KvCacheStorage::Fp8E4M3Row256});
++                                .fp8      = plan.ring_storage == KvCacheStorage::Fp8E4M3Row256,
++                                .window   = shape.window});
+     }
+     if (plan.features.masked_draft()) {
+         const DrafterStateShape& draft = drafter_of(shape);
+@@ -377,7 +378,8 @@ PersistentLayout gemma4_layout(const StateShape& shape, const SequencePlanImpl&
+                                  .capacity = shape.window + ring_decoder_widest_call(plan) - 1U,
+                                  .kv_heads = shape.sliding_kv_heads,
+                                  .head_dim = shape.sliding_head_dim,
+-                                 .fp8      = plan.ring_storage == KvCacheStorage::Fp8E4M3Row256}},
++                                 .fp8      = plan.ring_storage == KvCacheStorage::Fp8E4M3Row256,
++                                 .window   = shape.window}},
+                  });
+     plan_program_buffers(builder, plan, program_buffers_of(shape), out);
+     out.kv_payload_bytes = out.decoder.kv_payload_bytes();
+diff --git a/src/models/qwen3_5/program/storage/state_store.h b/src/models/qwen3_5/program/storage/state_store.h
+index 5997f65b..7145c2f1 100644
+--- a/src/models/qwen3_5/program/storage/state_store.h
++++ b/src/models/qwen3_5/program/storage/state_store.h
+@@ -318,13 +318,17 @@ public:
+         source_object.device_slot.reset();
+     }
+ 
+-    void freeze(StateImageHandle handle) {
++    // `frontier`: the positions the checkpoint holds (0 .. frontier - 1), so its Host transfers move
++    // only the rows of its rings a later call reads (StateImageDevicePool::copy_to_host); omitted,
++    // every row.
++    void freeze(StateImageHandle handle, std::optional<std::uint64_t> frontier = std::nullopt) {
+         Object& object = require(handle);
+         if (object.role != StateImageRole::ActiveMutable || !object.device_slot ||
+             object.source_pins != 0 || object.destination_pinned || has_pending_replica(object)) {
+             throw std::logic_error("StateImage active image is not freezable");
+         }
+         object.content_epoch = next_epoch();
++        object.frontier      = frontier;
+         object.role          = StateImageRole::CheckpointImmutable;
+     }
+ 
+@@ -335,6 +339,7 @@ public:
+             object.destination_pinned || has_pending_replica(object)) {
+             throw std::logic_error("StateImage checkpoint is not thawable");
+         }
++        object.frontier.reset();
+         object.role = StateImageRole::ActiveMutable;
+     }
+ 
+@@ -506,7 +511,7 @@ public:
+             throw std::logic_error("StateImage Device-to-Host transfer is not enqueueable");
+         }
+         device_->copy_to_host(*object.device_slot, host_->writable_view(*object.pending_host_slot),
+-                              stream);
++                              stream, object.frontier);
+     }
+ 
+     [[nodiscard]] std::optional<StateImageTransfer>
+@@ -538,7 +543,8 @@ public:
+         object.destination_pinned    = true;
+         ++object.source_pins;
+         try {
+-            device_->copy_from_host(host_->view(*object.host_slot), *target, stream);
++            device_->copy_from_host(host_->view(*object.host_slot), *target, stream,
++                                    object.frontier);
+         } catch (...) {
+             --object.source_pins;
+             object.destination_pinned = false;
+@@ -575,7 +581,8 @@ public:
+         destination_object.content_epoch       = source_object.content_epoch;
+         ++source_object.source_pins;
+         try {
+-            device_->copy_from_host(host_->view(*source_object.host_slot), *target, stream);
++            device_->copy_from_host(host_->view(*source_object.host_slot), *target, stream,
++                                    source_object.frontier);
+         } catch (...) {
+             --source_object.source_pins;
+             destination_object.pending_device_slot.reset();
+@@ -715,6 +722,7 @@ private:
+     struct Object {
+         std::uint32_t generation    = 1;
+         std::uint64_t content_epoch = 0;
++        std::optional<std::uint64_t> frontier; // a checkpoint's positions (freeze)
+         std::optional<std::int32_t> device_slot;
+         std::optional<qwen3_5::HostStateSlotHandle> host_slot;
+         std::optional<std::int32_t> pending_device_slot;
+diff --git a/src/models/qwen3_5/program/transactions/capture.cpp b/src/models/qwen3_5/program/transactions/capture.cpp
+index 8793e0aa..2b13f1d8 100644
+--- a/src/models/qwen3_5/program/transactions/capture.cpp
++++ b/src/models/qwen3_5/program/transactions/capture.cpp
+@@ -707,7 +707,7 @@ void ProgramImpl::prepare_active_capture(ActiveCaptureTransaction& transaction)
+         }
+     }
+ 
+-    state_store->freeze(transaction.source_state);
++    state_store->freeze(transaction.source_state, sequence.text_kv_valid);
+     if (transaction.state_placement == qwen3_5::CaptureStatePlacement::DeviceFork) {
+         (void)state_store->begin_fork(transaction.source_state, transaction.destination_state);
+         sequence.state = ActiveStateBinding{.read         = transaction.source_state,
+diff --git a/src/models/qwen3_5/program/transactions/commit.cpp b/src/models/qwen3_5/program/transactions/commit.cpp
+index bb7873fd..dc77d0cc 100644
+--- a/src/models/qwen3_5/program/transactions/commit.cpp
++++ b/src/models/qwen3_5/program/transactions/commit.cpp
+@@ -774,7 +774,7 @@ FinishResult ProgramImpl::finish_terminal(SequenceHandle sequence, bool cancelle
+             state.rewrite_checkpoint = {};
+         }
+         if (state_store->role(state.state.read) == StateImageRole::ActiveMutable) {
+-            state_store->freeze(state.state.read);
++            state_store->freeze(state.state.read, state.text_kv_valid);
+         } else if (state_store->role(state.state.read) != StateImageRole::CheckpointImmutable) {
+             return out;
+         }
+diff --git a/src/models/qwen3_5/state/state_image.cpp b/src/models/qwen3_5/state/state_image.cpp
+index 43ddbae3..73d9c189 100644
+--- a/src/models/qwen3_5/state/state_image.cpp
++++ b/src/models/qwen3_5/state/state_image.cpp
+@@ -3,10 +3,13 @@
+ #include "core/checked.h"
+ #include "core/device.h"
+ 
++#include <cstddef>
+ #include <limits>
++#include <optional>
+ #include <stdexcept>
+ #include <string>
+ #include <utility>
++#include <vector>
+ 
+ namespace ninferno::models::qwen3_5 {
+ namespace {
+@@ -188,6 +191,49 @@ const std::byte* byte_offset(const std::byte* base, std::size_t offset) noexcept
+     return base + offset;
+ }
+ 
++// A run of ring rows: rows first .. first + count - 1 of every head.
++struct RowRun {
++    std::size_t first = 0;
++    std::size_t count = 0;
++};
++
++// The rows of a ring that a later call from `frontier` still reads: its last `window` positions,
++// position p in row p % capacity, as one run or two (wrapping). Every row when the ring has no
++// window or the frontier is not given.
++std::vector<RowRun> live_rows(const KvRingSpec& spec, std::optional<std::uint64_t> frontier) {
++    const std::uint64_t capacity = spec.capacity;
++    if (!frontier || spec.window == 0 || spec.window >= capacity) {
++        return {RowRun{.first = 0, .count = capacity}};
++    }
++    const std::uint64_t first = *frontier > spec.window ? *frontier - spec.window : 0;
++    const std::uint64_t count = *frontier - first;
++    if (count == 0) { return {}; }
++    const std::uint64_t start = first % capacity;
++    if (start + count <= capacity) { return {RowRun{.first = start, .count = count}}; }
++    return {RowRun{.first = start, .count = capacity - start},
++            RowRun{.first = 0, .count = start + count - capacity}};
++}
++
++// Copies the runs of one slot's ring plane [inner, capacity, kv_heads] (contiguous, as the Host
++// image holds it): one copy for the whole plane, else a 2D copy a run (its rows of every head).
++void copy_ring_rows(void* destination, const void* source, const Tensor& plane,
++                    std::uint32_t capacity, const std::vector<RowRun>& runs, cudaMemcpyKind kind,
++                    cudaStream_t stream) {
++    if (runs.size() == 1 && runs.front().first == 0 && runs.front().count == capacity) {
++        CUDA_CHECK(cudaMemcpyAsync(destination, source, plane.bytes(), kind, stream));
++        return;
++    }
++    const auto heads        = static_cast<std::size_t>(plane.ne[2]);
++    const std::size_t row   = plane.bytes() / (static_cast<std::size_t>(capacity) * heads);
++    const std::size_t pitch = row * capacity;
++    auto* const out         = static_cast<std::byte*>(destination);
++    const auto* const in    = static_cast<const std::byte*>(source);
++    for (const RowRun& run : runs) {
++        CUDA_CHECK(cudaMemcpy2DAsync(out + run.first * row, pitch, in + run.first * row, pitch,
++                                     run.count * row, heads, kind, stream));
++    }
++}
++
+ void validate_slot(std::int32_t slot, std::int32_t slot_count, const char* label) {
+     if (slot < 0 || slot >= slot_count) { throw std::out_of_range(label); }
+ }
+@@ -258,13 +304,18 @@ TransferWork state_image_transfer_work(const StateImageHostLayout& layout) {
+     std::uint64_t operations =
+         2ULL * layout.spec.linear.layers + 1ULL +
+         (layout.spec.dflash_local ? 2ULL * layout.spec.dflash_local->layers : 0ULL);
++    // A checkpoint moves its rings' live window (copy_to_host with its frontier): window of the
++    // capacity rows, in up to two copies a plane where the window wraps.
+     for (std::size_t group = 0; group < layout.rings.size(); ++group) {
+         const KvRingHostLayout& ring = layout.rings[group];
++        const KvRingSpec& spec       = layout.spec.rings[group];
++        const bool windowed          = spec.window != 0 && spec.window < spec.capacity;
+         for (const std::size_t bytes : {ring.k.bytes, ring.v.bytes, ring.k_scale.bytes,
+                                         ring.v_scale.bytes}) {
+-            payload = checked_add(payload, bytes, "StateImage transfer payload overflow");
++            payload = checked_add(payload, windowed ? bytes / spec.capacity * spec.window : bytes,
++                                  "StateImage transfer payload overflow");
+         }
+-        operations += (layout.spec.rings[group].fp8 ? 4ULL : 2ULL) * layout.spec.rings[group].layers;
++        operations += (spec.fp8 ? 4ULL : 2ULL) * spec.layers * (windowed ? 2ULL : 1ULL);
+     }
+     if (operations > std::numeric_limits<std::uint32_t>::max()) {
+         throw std::overflow_error("StateImage transfer operation count exceeds uint32");
+@@ -552,7 +603,8 @@ void StateImageDevicePool::validate_host_layout(const StateImageHostLayout* layo
+ }
+ 
+ void StateImageDevicePool::copy_to_host(std::int32_t source, HostStateImageView destination,
+-                                        cudaStream_t stream) const {
++                                        cudaStream_t stream,
++                                        std::optional<std::uint64_t> frontier) const {
+     validate_slot(source, slot_count(), "StateImage copy-to-host source is out of range");
+     validate_host_layout(destination.layout, destination.data);
+     const std::uint32_t linear_layers = linear_ ? linear_->layer_count() : 0;
+@@ -590,30 +642,31 @@ void StateImageDevicePool::copy_to_host(std::int32_t source, HostStateImageView
+     for (std::size_t group = 0; group < rings_.size(); ++group) {
+         const RingGroup& ring        = rings_[group];
+         const KvRingHostLayout& host = host_layout_.rings[group];
++        const std::vector<RowRun> runs = live_rows(ring.spec, frontier);
++        const std::uint32_t capacity   = ring.spec.capacity;
+         for (std::size_t layer = 0; layer < ring.k.size(); ++layer) {
+             const Tensor k = ring.k[layer].slice(3, source, 1);
+             const Tensor v = ring.v[layer].slice(3, source, 1);
+-            CUDA_CHECK(cudaMemcpyAsync(
+-                byte_offset(destination.data, host.k.offset + layer * host.layer_bytes), k.data,
+-                k.bytes(), cudaMemcpyDeviceToHost, stream));
+-            CUDA_CHECK(cudaMemcpyAsync(
+-                byte_offset(destination.data, host.v.offset + layer * host.layer_bytes), v.data,
+-                v.bytes(), cudaMemcpyDeviceToHost, stream));
++            copy_ring_rows(byte_offset(destination.data, host.k.offset + layer * host.layer_bytes),
++                           k.data, k, capacity, runs, cudaMemcpyDeviceToHost, stream);
++            copy_ring_rows(byte_offset(destination.data, host.v.offset + layer * host.layer_bytes),
++                           v.data, v, capacity, runs, cudaMemcpyDeviceToHost, stream);
+             if (!ring.spec.fp8) { continue; }
+             const Tensor k_scale = ring.k_scale[layer].slice(3, source, 1);
+             const Tensor v_scale = ring.v_scale[layer].slice(3, source, 1);
+-            CUDA_CHECK(cudaMemcpyAsync(
++            copy_ring_rows(
+                 byte_offset(destination.data, host.k_scale.offset + layer * host.scale_layer_bytes),
+-                k_scale.data, k_scale.bytes(), cudaMemcpyDeviceToHost, stream));
+-            CUDA_CHECK(cudaMemcpyAsync(
++                k_scale.data, k_scale, capacity, runs, cudaMemcpyDeviceToHost, stream);
++            copy_ring_rows(
+                 byte_offset(destination.data, host.v_scale.offset + layer * host.scale_layer_bytes),
+-                v_scale.data, v_scale.bytes(), cudaMemcpyDeviceToHost, stream));
++                v_scale.data, v_scale, capacity, runs, cudaMemcpyDeviceToHost, stream);
+         }
+     }
+ }
+ 
+ void StateImageDevicePool::copy_from_host(HostStateImageConstView source, std::int32_t destination,
+-                                          cudaStream_t stream) {
++                                          cudaStream_t stream,
++                                          std::optional<std::uint64_t> frontier) {
+     validate_slot(destination, slot_count(),
+                   "StateImage copy-from-host destination is out of range");
+     validate_host_layout(source.layout, source.data);
+@@ -656,26 +709,26 @@ void StateImageDevicePool::copy_from_host(HostStateImageConstView source, std::i
+     for (std::size_t group = 0; group < rings_.size(); ++group) {
+         const RingGroup& ring        = rings_[group];
+         const KvRingHostLayout& host = host_layout_.rings[group];
++        const std::vector<RowRun> runs = live_rows(ring.spec, frontier);
++        const std::uint32_t capacity   = ring.spec.capacity;
+         for (std::size_t layer = 0; layer < ring.k.size(); ++layer) {
+             const Tensor k = ring.k[layer].slice(3, destination, 1);
+             const Tensor v = ring.v[layer].slice(3, destination, 1);
+-            CUDA_CHECK(cudaMemcpyAsync(
+-                k.data, byte_offset(source.data, host.k.offset + layer * host.layer_bytes),
+-                k.bytes(), cudaMemcpyHostToDevice, stream));
+-            CUDA_CHECK(cudaMemcpyAsync(
+-                v.data, byte_offset(source.data, host.v.offset + layer * host.layer_bytes),
+-                v.bytes(), cudaMemcpyHostToDevice, stream));
++            copy_ring_rows(k.data, byte_offset(source.data, host.k.offset + layer * host.layer_bytes),
++                           k, capacity, runs, cudaMemcpyHostToDevice, stream);
++            copy_ring_rows(v.data, byte_offset(source.data, host.v.offset + layer * host.layer_bytes),
++                           v, capacity, runs, cudaMemcpyHostToDevice, stream);
+             if (!ring.spec.fp8) { continue; }
+             const Tensor k_scale = ring.k_scale[layer].slice(3, destination, 1);
+             const Tensor v_scale = ring.v_scale[layer].slice(3, destination, 1);
+-            CUDA_CHECK(cudaMemcpyAsync(
++            copy_ring_rows(
+                 k_scale.data,
+                 byte_offset(source.data, host.k_scale.offset + layer * host.scale_layer_bytes),
+-                k_scale.bytes(), cudaMemcpyHostToDevice, stream));
+-            CUDA_CHECK(cudaMemcpyAsync(
++                k_scale, capacity, runs, cudaMemcpyHostToDevice, stream);
++            copy_ring_rows(
+                 v_scale.data,
+                 byte_offset(source.data, host.v_scale.offset + layer * host.scale_layer_bytes),
+-                v_scale.bytes(), cudaMemcpyHostToDevice, stream));
++                v_scale, capacity, runs, cudaMemcpyHostToDevice, stream);
+         }
+     }
+ }
+diff --git a/src/models/qwen3_5/state/state_image.h b/src/models/qwen3_5/state/state_image.h
+index 65c0eedb..2418f87c 100644
+--- a/src/models/qwen3_5/state/state_image.h
++++ b/src/models/qwen3_5/state/state_image.h
+@@ -30,12 +30,15 @@ struct DFlashLocalStateSpec {
+ // here carries them with the rest of a sequence's state image. BF16 planes by default; fp8: E4M3
+ // code planes, each row (one position of one head) with an FP32 scale in a K and a V scale plane
+ // [1, capacity, kv_heads] per slot (the row is scale * code; ops/gemma4_attention.h FP8 storage).
++// window: the positions below its first that a later call still reads, so a checkpoint's Host
++// replica carries only those rows (0: every row).
+ struct KvRingSpec {
+     std::uint32_t layers   = 0;
+     std::uint32_t capacity = 0;
+     std::int32_t kv_heads  = 0;
+     std::int32_t head_dim  = 0;
+     bool fp8               = false;
++    std::uint32_t window   = 0;
+ 
+     friend bool operator==(const KvRingSpec&, const KvRingSpec&) = default;
+ };
+@@ -212,10 +215,13 @@ public:
+                            cudaStream_t stream);
+     // Copies one slot's rings, every group and layer.
+     void copy_rings(std::int32_t source, std::int32_t destination, cudaStream_t stream);
+-    void copy_to_host(std::int32_t source, HostStateImageView destination,
+-                      cudaStream_t stream) const;
++    // `frontier`: the positions the image holds (0 .. frontier - 1). Given, a ring moves only the
++    // rows of its last `window` positions (KvRingSpec::window); no call from the frontier on reads
++    // the others, which keep what the destination held. Omitted, every row.
++    void copy_to_host(std::int32_t source, HostStateImageView destination, cudaStream_t stream,
++                      std::optional<std::uint64_t> frontier = std::nullopt) const;
+     void copy_from_host(HostStateImageConstView source, std::int32_t destination,
+-                        cudaStream_t stream);
++                        cudaStream_t stream, std::optional<std::uint64_t> frontier = std::nullopt);
+ 
+ private:
+     void validate_host_layout(const StateImageHostLayout* layout, const std::byte* data) const;
+diff --git a/tests/models/qwen3_5/test_state_image.cpp b/tests/models/qwen3_5/test_state_image.cpp
+index 85b677fd..fa587861 100644
+--- a/tests/models/qwen3_5/test_state_image.cpp
++++ b/tests/models/qwen3_5/test_state_image.cpp
+@@ -4,10 +4,12 @@
+ 
+ #include <cuda_runtime.h>
+ 
++#include <algorithm>
+ #include <cstddef>
+ #include <cstdint>
+ #include <exception>
+ #include <iostream>
++#include <string>
+ #include <string_view>
+ #include <utility>
+ #include <vector>
+@@ -30,7 +32,7 @@ struct PlannedPool {
+ };
+ 
+ PlannedPool plan_pool(bool dflash, std::int32_t slots = 4, bool dflash2 = false, bool rings = false,
+-                      bool linear = true, bool fp8_rings = false) {
++                      bool linear = true, bool fp8_rings = false, bool windows = false) {
+     q36::StateImageSpec spec{
+         .linear =
+             {
+@@ -60,6 +62,10 @@ PlannedPool plan_pool(bool dflash, std::int32_t slots = 4, bool dflash2 = false,
+         spec.rings = {{.layers = 3, .capacity = 19, .kv_heads = 2, .head_dim = 8},
+                       {.layers = 1, .capacity = 5, .kv_heads = 1, .head_dim = 16}};
+         for (auto& ring : spec.rings) { ring.fp8 = fp8_rings; }
++        if (windows) {
++            spec.rings[0].window = 6;
++            spec.rings[1].window = 2;
++        }
+     }
+     ninferno::LayoutBuilder builder;
+     q36::StateImageDeviceLayout layout = q36::plan_state_image_device_pool(builder, spec);
+@@ -308,6 +314,94 @@ void test_fp8_rings(ninferno::DeviceContext& device) {
+     }
+ }
+ 
++// One slot's plane [inner, capacity, kv_heads]: the rows in `live` hold `inside`, every other row
++// `outside`.
++void expect_rows(const ninferno::Tensor& plane, std::uint32_t capacity,
++                 const std::vector<std::uint32_t>& live, unsigned char inside,
++                 unsigned char outside, std::string_view label) {
++    std::vector<unsigned char> host(plane.bytes());
++    CUDA_CHECK(cudaMemcpy(host.data(), plane.data, host.size(), cudaMemcpyDeviceToHost));
++    const auto heads     = static_cast<std::size_t>(plane.ne[2]);
++    const std::size_t row = host.size() / (capacity * heads);
++    for (std::size_t head = 0; head < heads; ++head) {
++        for (std::uint32_t r = 0; r < capacity; ++r) {
++            const bool in = std::find(live.begin(), live.end(), r) != live.end();
++            for (std::size_t b = 0; b < row; ++b) {
++                if (host[(head * capacity + r) * row + b] != (in ? inside : outside)) {
++                    ++failures;
++                    std::cerr << "FAIL: " << label << " row " << r << " head " << head << '\n';
++                    return;
++                }
++            }
++        }
++    }
++}
++
++// A checkpoint's Host round trip with its frontier: a ring moves the rows of its last `window`
++// positions (wrapping at the capacity; fewer at a short frontier) and leaves every other row of
++// the destination as it was; the hidden moves whole.
++void test_ring_live_rows(ninferno::DeviceContext& device, bool fp8) {
++    PlannedPool planned = plan_pool(false, 2, false, true, false, fp8, true);
++    ninferno::DeviceArena arena(planned.bytes);
++    q36::StateImageDevicePool pool({arena.base(), arena.capacity()}, planned.layout);
++    q36::HostStatePool host(planned.layout.host, 1);
++    const auto handle = host.allocate();
++    expect(handle.has_value(), "live-row Host slot");
++    const auto work = q36::state_image_transfer_work(planned.layout.host);
++    expect(work.payload_bytes == (fp8 ? 7U * 2U + 2U * 3U * (8U * 6U * 2U + 6U * 2U * 4U) +
++                                            2U * (16U * 2U + 2U * 4U)
++                                      : 7U * 2U + 2U * 3U * (8U * 6U * 2U * 2U) +
++                                            2U * (16U * 2U * 2U)),
++           "a windowed ring's transfer prices its window's rows");
++    expect(work.copy_operations == 1U + (fp8 ? 4U : 2U) * 2U * (3U + 1U),
++           "a windowed ring's transfer prices two copies a plane");
++    // Group 0: capacity 19, window 6; group 1: capacity 5, window 2.
++    const struct {
++        std::uint64_t frontier;
++        std::vector<std::uint32_t> rows[2];
++    } cases[] = {
++        {.frontier = 23, .rows = {{17, 18, 0, 1, 2, 3}, {1, 2}}}, // wraps in both groups
++        {.frontier = 4, .rows = {{0, 1, 2, 3}, {2, 3}}},          // shorter than the window
++        {.frontier = 12, .rows = {{6, 7, 8, 9, 10, 11}, {0, 1}}},
++    };
++    for (const auto& c : cases) {
++        fill_slot(pool, 0, 0x11, device.stream);
++        fill_slot(pool, 1, 0x47, device.stream);
++        pool.copy_to_host(0, host.writable_view(*handle), device.stream, c.frontier);
++        pool.copy_from_host(host.view(*handle), 1, device.stream, c.frontier);
++        device.synchronize();
++        const std::string label = "live rows at frontier " + std::to_string(c.frontier);
++        expect_bytes(pool.continuation_hidden_slot(1), 0x11 + 0x20, label + ": hidden");
++        for (std::size_t group = 0; group < pool.ring_groups(); ++group) {
++            const std::uint32_t capacity = pool.ring_spec(group).capacity;
++            for (std::uint32_t layer = 0; layer < pool.ring_spec(group).layers; ++layer) {
++                const auto planes = pool.ring_planes(group, layer);
++                const auto in     = static_cast<unsigned char>(0x11 + 0x50 + 8 * group + layer);
++                const auto out    = static_cast<unsigned char>(0x47 + 0x50 + 8 * group + layer);
++                expect_rows(planes.k.slice(3, 1, 1), capacity, c.rows[group], in, out,
++                            label + ": K");
++                expect_rows(planes.v.slice(3, 1, 1), capacity, c.rows[group],
++                            static_cast<unsigned char>(in + 0x40),
++                            static_cast<unsigned char>(out + 0x40), label + ": V");
++                if (!fp8) { continue; }
++                expect_rows(planes.k_scale.slice(3, 1, 1), capacity, c.rows[group],
++                            static_cast<unsigned char>(in + 0x80),
++                            static_cast<unsigned char>(out + 0x80), label + ": K scale");
++                expect_rows(planes.v_scale.slice(3, 1, 1), capacity, c.rows[group],
++                            static_cast<unsigned char>(in + 0xC0),
++                            static_cast<unsigned char>(out + 0xC0), label + ": V scale");
++            }
++        }
++    }
++    // Without a frontier every row moves.
++    fill_slot(pool, 0, 0x11, device.stream);
++    fill_slot(pool, 1, 0x47, device.stream);
++    pool.copy_to_host(0, host.writable_view(*handle), device.stream);
++    pool.copy_from_host(host.view(*handle), 1, device.stream);
++    device.synchronize();
++    expect_slot(pool, 1, 0x11, "every row without a frontier");
++}
++
+ } // namespace
+ 
+ int main() {
+@@ -357,6 +451,8 @@ int main() {
+     test_host_roundtrip(true, device, false, true, true);
+     test_fp8_rings(device);
+     test_host_roundtrip(false, device, false, true, false, true);
++    test_ring_live_rows(device, false);
++    test_ring_live_rows(device, true);
+ 
+     return failures == 0 ? 0 : 1;
+ }
+diff --git a/tools/audit/legacy_stream_calls.sh b/tools/audit/legacy_stream_calls.sh
+index abbcc8a4..d7faa3af 100644
+--- a/tools/audit/legacy_stream_calls.sh
++++ b/tools/audit/legacy_stream_calls.sh
+@@ -34,7 +34,7 @@ tests/artifact/test_materialization.cpp|9|D2H after materialize, which synchroni
+ tests/models/qwen3_5/test_dflash_prefill_real.cpp|3|cache and block-table D2H, every prefill synchronizes device.stream first
+ tests/models/qwen3_5/test_context_store.cpp|1|block-table D2H, every caller synchronizes device.stream first
+ tests/models/qwen3_5/test_loading_real.cpp|1|D2H after materialize_model, which synchronizes its transfer stream
+-tests/models/qwen3_5/test_state_image.cpp|1|expect_bytes D2H, every caller synchronizes device.stream first
++tests/models/qwen3_5/test_state_image.cpp|2|expect_bytes and expect_rows D2H, every caller synchronizes device.stream first
+ tests/ops/test_fp8_e4m3.cu|1|D2H after the widening kernel on the same legacy stream; the test makes no other stream
+ tests/ops/test_gemma4_attention_fp8.cu|4|zero fills on the legacy stream before the appends and launches on the same stream (stream nullptr)
+ tests/ops/test_gemma4_fused.cpp|1|H2D of the input before scale_bf16 runs on the legacy stream (stream nullptr), cuda_synchronize before the read
+-- 
+2.43.0
+
