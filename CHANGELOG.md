@@ -2,6 +2,13 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-04 22:30: research update, night 5 prepared (running setup unchanged)
+
+- **Found:** no outside release moves our numbers; the best finds are in our own code ([research update](research/2026-11-04-research-update.md)).
+- **Built, not deployed:** branch `kvshare-up4` at `a0d4feb` (`kvshare-up3`, six upstream fixes, patch 12 reverted, a new patch 19, opt-in) as `/opt/NInferno-up/build/apps-up4`, and a counting build as `apps-sk`. CPU unit tests pass; nothing has run on the GPU yet.
+- **Corrected:** the GPU's enforced power limit is 150 W (default 95 W, maximum 175 W).
+- **Unchanged:** 8080 runs `apps-up3`.
+
 ## 2026-11-04 18:50: first two days on apps-up3 (running setup unchanged)
 
 - **Held up:** from 13:23 on 2 Nov to 18:44 on 4 Nov (53 hours), the same process served 575 agent requests: none failed or cancelled, 0 restarts, no exit line. GPU 23.9 GB, as before.
