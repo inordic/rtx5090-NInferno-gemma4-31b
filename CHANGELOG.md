@@ -2,6 +2,15 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-04 18:50: first two days on apps-up3 (running setup unchanged)
+
+- **Held up:** from 13:23 on 2 Nov to 18:44 on 4 Nov (53 hours), the same process served 575 agent requests: none failed or cancelled, 0 restarts, no exit line. GPU 23.9 GB, as before.
+- **Patch 17 caught one capture:** at 16,973 tokens a shared copy would have taken 265 KV pages from a request entitled to 67. It was published privately; without patch 17 this would have stopped the engine.
+- **Cache:** 87.2% of 23.0M prompt tokens came from the cache, against 83.3% on apps-up1 (29 Oct to 1 Nov, 1,184 requests). Requests that found nothing cached: 11% (19% before). The traffic differs between the windows, so not all of this is the build.
+- **Speed at matching context:** turns with under 2K new tokens answered in a median 0.18–0.20 s up to 64K (0.21–0.22 s before) and 1.0 s above 64K (the same). Prefills of 32K+ new tokens ran at 3,360 tok/s with 32–64K context and 1,695 tok/s above (3,330 and 1,575 before; 11 and 35 requests). Decode median 92 tok/s (89.5), MTP acceptance 43.2% (40.2%).
+- **Tool markup returned as text:** 3 of 575 requests (2 of 1,184 before); the model and template are unchanged.
+- **Numbers:** [`bench/reqstats.py`](bench/reqstats.py), output in [`results/runs/live-up3-first-days.out`](results/runs/live-up3-first-days.out). [`bench/livecache.py`](bench/livecache.py) now also reads first-token times of a minute or more, which it skipped before.
+
 ## 2026-11-02 16:45: host memory noted, README engine row corrected (running setup unchanged)
 
 - **Measured:** the fast unit pins 22.3 GiB of host memory at start (14.3 GiB for 18 host states, 8 GiB of host KV) and holds about 26 GB of the container's 48 GB in all. The rest is file cache; no OOM events, no memory pressure, 50 MB of swap in use. No more RAM is needed for this setup.

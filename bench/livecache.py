@@ -11,7 +11,7 @@ import sys
 START = re.compile(r"^(\S+ \S+)\s+INFO\s+req#(\d+) started \| (\S+) (stream|non-stream) \| request \S+ \| (\d+) messages? \| "
                    r"max output [\d,]+ \| thinking (\w+)(?: \| tools (\d+))?")
 DONE = re.compile(r"^(\S+ \S+)\s+INFO\s+req#(\d+) done \| \S+ \| ([^|]+?) \| prompt ([\d,]+) \| output ([\d,]+) \| "
-                  r"cache ([\d,]+) \(([\d.]+)%(?:, ([^)]+))?\) \| TTFT ([\d.]+) ?(ms|s) \| total ([\d.]+) ?(ms|s)")
+                  r"cache ([\d,]+) \(([\d.]+)%(?:, ([^)]+))?\) \| TTFT ((?:\d+m )?[\d.]+) ?(ms|s) \| total ((?:\d+m )?[\d.]+) ?(ms|s)")
 FAIL = re.compile(r"req#(\d+) (failed|cancel)|Engine failed")
 
 as_json = "--json" in sys.argv
@@ -19,7 +19,7 @@ args = [a for a in sys.argv[1:] if a != "--json"]
 split = args[0]
 ex_from, ex_to = (args[1], args[2]) if len(args) > 2 else ("9", "9")
 num = lambda s: int(s.replace(",", ""))
-sec = lambda v, u: float(v) / 1000 if u == "ms" else float(v)
+sec = lambda v, u: float(v) / 1000 if u == "ms" else float(v.rpartition("m ")[2]) + 60 * int(v.rpartition("m ")[0] or 0)  # "1m 21.2s"
 open_reqs, rows, fails = {}, [], {"before": 0, "after": 0}
 last_t = "0"
 for line in sys.stdin:
