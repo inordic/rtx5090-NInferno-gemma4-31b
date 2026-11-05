@@ -1,0 +1,47 @@
+=== apps-up4, 5 Nov from 19:00 UTC to 21:00 UTC
+requests 39 | tool-markup warnings 0
+prompt tokens: median 37,195 | p90 77,693 | max 80,063 | total 1,759,825
+cached tokens: 1,483,157 of 1,759,825 (84.3%)
+  cache turn closure: 16 requests, median hit 98.4%
+  cache none: 7 requests, median hit 0.0%
+  cache response replay: 6 requests, median hit 98.5%
+  cache private endpoint: 6 requests, median hit 99.9%
+  cache shared prefix: 4 requests, median hit 87.3%
+  requests with >=90% cached: 26 | 50-90%: 6 | <50%: 7
+TTFT s: median 0.92 | p90 9.30 | max 26.2
+prefill tok/s,      0- 2,048 new tokens: n 25 | median 1,360
+prefill tok/s,  2,048- 8,192 new tokens: n 7 | median 2,540
+prefill tok/s,  8,192-32,768 new tokens: n 3 | median 3,820
+prefill tok/s, 32,768-     0 new tokens: n 4 | median 3,590
+decode tok/s (output >= 32): n 30 | median 79.3 | p10 57.6 | p90 141.3
+MTP acceptance: 3467/8093 (42.8%)
+output tokens: median 86 | total 4,869
+<2K new tokens, context 0K-32K: n 5 | median prefill 2,250 tok/s | median TTFT 0.30 s
+<2K new tokens, context 32K-64K: n 13 | median prefill 1,020 tok/s | median TTFT 0.19 s
+<2K new tokens, context 64K-K: n 7 | median prefill 1,360 tok/s | median TTFT 1.10 s
+>=32K new tokens, context 32K-64K: n 4 | median prefill 3,590 tok/s
+
+=== apps-up3, 4 Nov 19:00 to 21:10 UTC
+requests 43 | tool-markup warnings 0
+prompt tokens: median 38,300 | p90 68,415 | max 88,958 | total 2,045,798
+cached tokens: 1,671,142 of 2,045,798 (81.7%)
+  cache turn closure: 20 requests, median hit 98.6%
+  cache none: 8 requests, median hit 0.0%
+  cache shared prefix: 6 requests, median hit 86.9%
+  cache response replay: 4 requests, median hit 99.4%
+  cache private endpoint: 4 requests, median hit 99.9%
+  cache long anchor: 1 requests, median hit 95.7%
+  requests with >=90% cached: 30 | 50-90%: 5 | <50%: 8
+TTFT s: median 0.91 | p90 9.30 | max 59.9
+prefill tok/s,      0- 2,048 new tokens: n 27 | median 1,320
+prefill tok/s,  2,048- 8,192 new tokens: n 6 | median 2,345
+prefill tok/s,  8,192-32,768 new tokens: n 7 | median 3,430
+prefill tok/s, 32,768-     0 new tokens: n 3 | median 2,400
+decode tok/s (output >= 32): n 25 | median 81.4 | p10 56.3 | p90 122.8
+MTP acceptance: 2762/6289 (43.9%)
+output tokens: median 58 | total 3,794
+<2K new tokens, context 0K-32K: n 5 | median prefill 1,590 tok/s | median TTFT 0.22 s
+<2K new tokens, context 32K-64K: n 16 | median prefill 1,365 tok/s | median TTFT 0.37 s
+<2K new tokens, context 64K-K: n 6 | median prefill 1,290 tok/s | median TTFT 0.90 s
+>=32K new tokens, context 32K-64K: n 2 | median prefill 2,870 tok/s
+>=32K new tokens, context 64K-K: n 1 | median prefill 1,540 tok/s

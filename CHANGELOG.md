@@ -7,7 +7,7 @@ Every change to the running setup, newest first. Each entry names what changed o
 - **Tested:** with agent traffic moved away, the running `apps-up4` unit took three cache replays, 300 agent stress steps, 60 branch stress rounds, needles and hard50 ([night 5 §11](research/2026-11-05-night5.md#11-the-live-unit-under-load)). 1,016 requests, none failed, no engine exit. Replays 91.5 / 75.1 / 77.9 s, hard50 42/50.
 - **One needle missed:** the known 129K needle. Repeated runs give 18/21 on the new setup and 7/10 on the previous one, a difference that isn't significant. It's borderline on both, so the README's claim that it fails on every NVFP4 build is corrected.
 - **Changed:** nothing in the setup. The unit was restarted during the test and runs the same build and flags.
-- **Not yet seen:** real agent traffic on `apps-up4`.
+- **First real traffic, that evening:** 39 requests in two hours, none failed, no tool markup as text, 84.3% cached. Against the same hours a day earlier, median prefill at 2–8K new tokens rose 8% and at 8–32K 11%, on few requests; decode shows no gain in a sample this short ([night 5 §11](research/2026-11-05-night5.md#11-the-live-unit-under-load)).
 
 ## 2026-11-05 02:45: fast unit on apps-up4, chunk 1280, the assistant in NVFP4
 
