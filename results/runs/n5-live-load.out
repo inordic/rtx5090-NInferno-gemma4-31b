@@ -1,0 +1,42 @@
+START 2026-11-05 05:42:19
+--- replay1 05:42:19
+{"label": "Live up4 r1", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.611, "messages": 4}
+{"label": "Live up4 r1", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.496, "messages": 2}
+{"label": "Live up4 r1", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.591, "messages": 4}
+{"label": "Live up4 r1", "summary": true, "requests": 74, "total_s": 91.5, "new_s": 30.0, "new_mean_s": 1.36, "new_cached_frac": 0.819, "all_cached_frac": 0.92, "wall_s": 91.5, "A_new_mean_s": 1.0, "B
+--- replay2 05:43:50
+{"label": "Live up4 r2", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.612, "messages": 4}
+{"label": "Live up4 r2", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.505, "messages": 2}
+{"label": "Live up4 r2", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.595, "messages": 4}
+{"label": "Live up4 r2", "summary": true, "requests": 74, "total_s": 75.1, "new_s": 16.6, "new_mean_s": 0.75, "new_cached_frac": 0.925, "all_cached_frac": 0.943, "wall_s": 75.2, "A_new_mean_s": 0.5, "
+--- replay3 05:45:06
+{"label": "Live up4 r3", "kind": "C-turn", "prompt": 7831, "cached": 7105, "seconds": 0.611, "messages": 4}
+{"label": "Live up4 r3", "kind": "D-new", "prompt": 9574, "cached": 0, "seconds": 2.504, "messages": 2}
+{"label": "Live up4 r3", "kind": "D-turn", "prompt": 10287, "cached": 9567, "seconds": 0.597, "messages": 4}
+{"label": "Live up4 r3", "summary": true, "requests": 74, "total_s": 77.9, "new_s": 17.3, "new_mean_s": 0.79, "new_cached_frac": 0.924, "all_cached_frac": 0.943, "wall_s": 78.0, "A_new_mean_s": 0.51, 
+--- stress_agent 05:46:24
+ 328 loop2     prompt  26201 cached  25934 calls 1   0.9s
+ 329 loop1     prompt  30232 cached   5376 calls 1   8.0s
+--- step 300/300, 329 requests, 722s
+PASSED 300 steps, 329 requests in 722s
+--- stress_branch 05:58:26
+ 411 resume    prompt  17250 cached  14177   1.2s
+ 412 resume-sb prompt  15412 cached  14859   0.4s
+--- round 60/60 done, 412 requests, 366s
+PASSED 60 rounds, 412 requests in 366s
+--- needle 06:04:32
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1730.3, "tg": 62.2, "wall": 74.8, "ans": "cobalt-otter-3286", "want": "amber-falcon-5506"}
+{"L": 170000, "depth": 0.5, "ok": true, "ptok": 158559, "pp": 1493.4, "tg": 75.6, "wall": 106.5, "ans": "saffron-falcon-1488", "want": "saffron-falcon-1488"}
+{"L": 205000, "depth": 0.5, "ok": true, "ptok": 191809, "pp": 1294.6, "tg": 77.2, "wall": 148.5, "ans": "cobalt-badger-7873", "want": "cobalt-badger-7873"}
+NEEDLE Live up4 needle 2/3
+--- hard50 06:10:02
+mmlu_pro_health:501          ok    386 tok     3748 ms drafts 756 
+mmlu_pro_chemistry:343       ok    539 tok     3236 ms drafts 651 
+mmlu_pro_history:374         ok    422 tok     5021 ms drafts 1008 
+{"tag": "live_up4", "questions": 50, "correct": 42, "by_dataset": {"gsm8k": 17, "math_500": 17, "mmlu_pro": 8}, "tokens": 28133, "decode_ms": 182274.056659, "tok_s": 154.07019800156166, "rounds": 5267
+--- totals 06:13:15
+requests done 1016 | failed 0 | exits 0 | privately 0
+NRestarts=0 ActiveEnterTimestamp=Thu 2026-11-05 01:45:07 UTC 
+rss 27874356 | gpu 23854 MiB, 70
+mtp 52323/69460 (75.3%)
+L1_DONE

@@ -1,0 +1,43 @@
+=== 06:14:43 A
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1743.0, "tg": 73.3, "wall": 74.2, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1733.3, "tg": 61.8, "wall": 74.7, "ans": "cobalt-otter-3286", "want": "amber-
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1731.0, "tg": 72.6, "wall": 74.8, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1729.0, "tg": 72.3, "wall": 74.8, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1728.6, "tg": 142.4, "wall": 74.8, "ans": "amber-falcon-5506", "want": "amber-
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1728.6, "tg": 72.9, "wall": 74.9, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1728.6, "tg": 72.8, "wall": 74.9, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1728.0, "tg": 73.0, "wall": 74.9, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1728.1, "tg": 61.0, "wall": 74.9, "ans": "cobalt-otter-3286", "want": "amber-
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1728.1, "tg": 73.4, "wall": 74.9, "ans": "amber-falcon-5506", "want": "amber-f
+SUM L2 A live: 8 of 10
+=== 06:27:12 B
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1736.8, "tg": 73.8, "wall": 74.5, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1728.5, "tg": 74.6, "wall": 74.9, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1725.6, "tg": 73.0, "wall": 75.0, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1726.0, "tg": 73.2, "wall": 75.0, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1728.1, "tg": 72.4, "wall": 74.9, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1727.4, "tg": 72.4, "wall": 74.9, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1727.3, "tg": 73.2, "wall": 74.9, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1726.3, "tg": 73.4, "wall": 75.0, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1726.2, "tg": 73.2, "wall": 75.0, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1726.2, "tg": 73.5, "wall": 75.0, "ans": "amber-falcon-5506", "want": "amber-f
+SUM L2 B fresh: 10 of 10
+=== 06:40:16 C
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1590.5, "tg": 59.2, "wall": 81.4, "ans": "cobalt-otter-3286", "want": "amber-
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1583.1, "tg": 71.2, "wall": 81.7, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1581.0, "tg": 71.5, "wall": 81.8, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1580.4, "tg": 137.1, "wall": 81.8, "ans": "amber-falcon-5506", "want": "amber-
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1582.1, "tg": 69.6, "wall": 81.8, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1582.6, "tg": 71.2, "wall": 81.7, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1582.7, "tg": 59.6, "wall": 81.8, "ans": "cobalt-otter-3286", "want": "amber-
+{"L": 140000, "depth": 0.5, "ok": false, "ptok": 128932, "pp": 1582.2, "tg": 60.0, "wall": 81.8, "ans": "cobalt-otter-3286", "want": "amber-
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1582.2, "tg": 70.8, "wall": 81.8, "ans": "amber-falcon-5506", "want": "amber-f
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1582.4, "tg": 70.2, "wall": 81.7, "ans": "amber-falcon-5506", "want": "amber-f
+SUM L2 C old: 7 of 10
+active
+NRestarts=0 ActiveEnterTimestamp=Thu 2026-11-05 06:54:34 UTC 
+L2_DONE

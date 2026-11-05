@@ -7,7 +7,7 @@ This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GP
 - **Context: 203,136 tokens with vision** in the fast profile and **262,144** (the model's full window) in the max-context profile, up from 32K.
 - **Quality:** MMLU-Pro 178/280 (direct answer), GSM8K 197/200, MMLU 249/285, HumanEval 161/164; see [Quality](#quality).
 - **Vision:** images in requests (about 290 tokens each), 7/7 on our image questions.
-- **Long context:** needles pass at 140K, 170K and 205K (192K tokens) on the fast profile, and at 185K and 231K on the max-context profile.
+- **Long context:** needles pass at 170K and 205K (192K tokens) on the fast profile, and at 185K and 231K on the max-context profile. One borderline 140K needle passes 18 of 21 runs, against 7 of 10 on the previous setup.
 
 *Production since 2026-10-26 22:43 CET; since 2026-10-28 06:38 on our patches rebased onto upstream NInferno, with the prompt-cache flags; since 2026-11-02 09:33 with four upstream fixes and our patch 17, which keeps one of them from stopping the engine; since 2026-11-05 02:45 with six more upstream fixes, our patch 19, prefill chunk 1280 and the assistant in NVFP4* ([CHANGELOG](CHANGELOG.md); numbers from [`results/results.jsonl`](results/results.jsonl), label `Live up4`, on the running unit with a rested GPU. Measured turn about against the previous build, the gain is +6.2% at 8K, +7.6% at 32K, +8.3% at 64K and +9.3% at 130K: [night 5](research/2026-11-05-night5.md)).
 
@@ -72,7 +72,7 @@ The QAT-NVFP4 build gave up about 13 MMLU-Pro questions against QAT Q4. The loss
 - It is the same with 4-, 8- or 16-bit activations, and with BF16, INT8 or FP8 attention.
 - NVFP4 (E2M1 codes with E4M3 block scales) can't hold the QAT model's int4 grid exactly.
 - "MSE-scaled" NVFP4 doesn't help: melcheikh's MSE repo has byte-identical language-model tensors to the absmax one.
-- On one 140K needle prompt, every NVFP4 build names the wrong one of three planted codes, and QAT Q4 names the right one; the other 24 NVFP4 needles at 32–140K pass.
+- One 140K needle prompt is borderline on NVFP4: the model sometimes names the wrong one of three planted codes, always the same one. The result changes with a nonce at the start of the prompt, so single runs of it say little ([night 5 §11](research/2026-11-05-night5.md#11-the-live-unit-under-load)). The other 24 NVFP4 needles at 32–140K pass.
 
 Perplexity on a 32K window (lower is better) is how the attention kernels were judged. The scoring setup inflates absolute values; differences are what count:
 

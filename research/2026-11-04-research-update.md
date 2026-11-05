@@ -60,7 +60,7 @@ FP4 attention is not worth porting: quality falls without retraining, and no ker
 - **262K with vision** is about 1.07 GB short, not 2.2 GB. The gap is the vision tower. Moving it off the device is a watch item; the agent's largest prompt so far is 138K.
 - **4-bit KV:** no new result at 128K or above, and upstream has none for Gemma 4. A paper of 2 Nov (FlagRot) reports that whole-head rotation raised NVFP4 KL by 82% on Gemma 3 27B, so our 25 Oct design of a rotated cache would have to change.
 - **Beyond 128K** we found no independent quality measurement of Gemma 4.
-- Before any approximate attention ships, our needle test needs to get stronger; one 140K needle already fails on every NVFP4 build.
+- Before any approximate attention ships, our needle test needs to get stronger; one 140K needle already fails on every NVFP4 build. **Corrected 5 Nov:** that needle is borderline, not a fixed failure. It changes with a nonce at the start of the prompt, on the turbo build too ([night 5 §11](2026-11-05-night5.md#11-the-live-unit-under-load)).
 
 ## 4. Speculative decoding
 

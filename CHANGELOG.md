@@ -2,6 +2,13 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-05 07:55: the live unit under load, setup unchanged
+
+- **Tested:** with agent traffic moved away, the running `apps-up4` unit took three cache replays, 300 agent stress steps, 60 branch stress rounds, needles and hard50 ([night 5 §11](research/2026-11-05-night5.md#11-the-live-unit-under-load)). 1,016 requests, none failed, no engine exit. Replays 91.5 / 75.1 / 77.9 s, hard50 42/50.
+- **One needle missed:** the known 129K needle. Repeated runs give 18/21 on the new setup and 7/10 on the previous one, a difference that isn't significant. It's borderline on both, so the README's claim that it fails on every NVFP4 build is corrected.
+- **Changed:** nothing in the setup. The unit was restarted during the test and runs the same build and flags.
+- **Not yet seen:** real agent traffic on `apps-up4`.
+
 ## 2026-11-05 02:45: fast unit on apps-up4, chunk 1280, the assistant in NVFP4
 
 - **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) runs `/opt/NInferno-up/build/apps-up4`, branch `kvshare-up4` at `a0d4feb`: `kvshare-up3`, upstream #324, `c6e54d7` from #326, #327, #325, #318 and #319, patch 12 reverted (#318 carries its fix) and our new patch 19, on with `NINFERNO_GEMMA4_SKIP_LAST_LAYER=1`. Flags: `--prefill-chunk 1280` (was 1024), `--drafter assistant.nvfp4.ninferno` (was the Q8 one), `--max-context 203136` (was 202,112).
