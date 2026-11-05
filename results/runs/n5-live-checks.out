@@ -1,0 +1,16 @@
+turn 0: prompt 17606 cache 0 prompt_ms 4134.423384 wall 4.86s decode 113.35749839362506
+turn 1: prompt 105 cache 17599 prompt_ms 190.89019 wall 0.48s decode 122.0589895991933
+turn 2: prompt 56 cache 17697 prompt_ms 183.87050599999998 wall 0.47s decode 146.55250673762615
+TEXTCALL leaks 0
+VISION live up4 7/7
+status 200: 'The number in the title is 731.'
+AGENT live up4 {"steps": 29, "calls": 27, "markup_as_text": 0, "text_with_calls": 4, "final": 2, "errors": 0}
+new session 0: prompt 24414 cached 0 6.51s
+new session 1: prompt 24414 cached 24192 0.39s
+new session 2: prompt 24410 cached 24192 0.44s
++   60 chars: prompt 38 cache 15204 new -15166 prompt_ms 190.749474 ttft 0.213s wall 0.25s
++  250 chars: prompt 69 cache 15235 new -15166 prompt_ms 191.841847 ttft 0.216s wall 0.25s
++  500 chars: prompt 124 cache 15297 new -15173 prompt_ms 195.909416 ttft 0.222s wall 0.26s
++ 1000 chars: prompt 230 cache 15414 new -15184 prompt_ms 220.703336 ttft 0.246s wall 0.29s
++ 2000 chars: prompt 865 cache 15637 new -14772 prompt_ms 411.772543 ttft 0.438s wall 0.48s
++ 4000 chars: prompt 954 cache 16495 new -15541 prompt_ms 422.861581 ttft 0.447s wall 0.49s

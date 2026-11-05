@@ -1,0 +1,22 @@
+plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.61 GiB more would serve rung 2, 1.40 G
+plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.62 GiB more free memory would serve rung 2 (206,848 tokens x 1 context (206,848 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.41 GiB the t
+capacity | KV 206,848 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,232/3,232 | runtime 5.26 GiB | free 274.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+FIT N5_dr4 chunk 1024 context 206848
+--- speed
+PP 2048: 4222.8 tok/s (n=1706) [4266.073918767103, 4179.540947151302]
+PP 8192: 4568.3 tok/s (n=7468) [4602.292272474247, 4534.404886636098]
+PP 32768: 3619.3 tok/s (n=28972) [3638.775234656262, 3599.770022904523]
+PP 65536: 2721.9 tok/s (n=57942) [2722.539292398319, 2721.202383671676]
+PP 131072: 1809.4 tok/s (n=118244) [1813.147856573549, 1805.6123101302117]
+TG@8192 greedy: 113.6 tok/s [112.5737959537308, 114.66728960879756] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.7 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "N5 dr4", "ts": "2026-11-04 23:12:33", "pp2048_ntok": 1706, "pp2048": 4222.8, "pp8192_ntok": 7468, "pp8192": 4568.3, "pp32768_ntok": 28972, "pp32768": 3619.3, "pp65536_ntok": 57942, "pp65536": 2721.9, "pp131072_ntok": 118244, "pp131072": 1809.4, 
+--- hard50
+mmlu_pro_chemistry:343       ok    539 tok     3237 ms drafts 651 
+mmlu_pro_history:374         ok    422 tok     5024 ms drafts 1008 
+{"tag": "n5_dr4", "questions": 50, "correct": 42, "by_dataset": {"gsm8k": 17, "math_500": 17, "mmlu_pro": 8}, "tokens": 28078, "decode_ms": 181965.38966400002, "tok_s": 154.0292912391408, "rounds": 5249, "accepted": 22854, "capped_rounds": 0, "copy_rounds": 10
+COUNTS N5_dr4: privately 0 | request failure 0 | exits 0
+MTP N5_dr4 accepted 21147/26137 (80.9%)
+=== 23:20:00 restoring the fast unit
+active

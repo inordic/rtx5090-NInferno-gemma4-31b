@@ -1,0 +1,313 @@
+From 06c091c522a43e49a55f988ed66c067307163b0c Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Mon, 2 Nov 2026 15:38:50 +0100
+Subject: [PATCH 7/8] Merge pull request #319 from
+ Brontir/fix/keep-alive-after-refusal
+
+HTTP: a refusal rendered after the whole request was read keeps the connection
+(cherry picked from commit 9d8a8f293ba9b5138154a7abd2faf7feb47d3c9f)
+---
+ docs/reference/serving.md         |  6 +++
+ src/serve/http_server.cpp         | 42 ++++++++++++++--
+ tests/test_http_transport.cpp     | 83 +++++++++++++++++++++++++++++++
+ third_party/cpp-httplib/httplib.h | 28 +++++++----
+ 4 files changed, 143 insertions(+), 16 deletions(-)
+
+diff --git a/docs/reference/serving.md b/docs/reference/serving.md
+index 4bff19ec..f6d6bdc6 100644
+--- a/docs/reference/serving.md
++++ b/docs/reference/serving.md
+@@ -515,6 +515,12 @@ prefix, with the same behavior, errors, and request IDs.
+   and the context cache as above, and the queued requests go on. Three such failures with no
+   token generated between them are Engine-wide: the server restarts.
+ 
++- **Connections.** HTTP/1.1 keep-alive holds for refusals too: an error the server rendered after
++  reading the request whole (400, 401 on a request without a body, 429, 503) keeps the connection
++  for the caller's next request. A refusal that leaves a body unread (413, 415, a key refused
++  before the body was read), every answer while the server drains and `/health`'s 503 of a failed
++  server close it.
++
+ ### Request IDs
+ 
+ Every OpenAI-compatible response carries an `x-request-id` header, including streaming and
+diff --git a/src/serve/http_server.cpp b/src/serve/http_server.cpp
+index 9a2b0213..9680a0e8 100644
+--- a/src/serve/http_server.cpp
++++ b/src/serve/http_server.cpp
+@@ -207,16 +207,21 @@ void set_retry_after(httplib::Response& response, int status) {
+ 
+ } // namespace
+ 
++// A handler's refusal comes after the request was read whole: the caller's next request may reuse
++// the connection, unless the server is draining (it closes every socket). Every refusal before
++// routing sets it again after writing (a request that may carry an unread body closes, #305).
+ void write_openai_error(httplib::Response& response, const ApiError& error) {
+-    response.status = error.status;
++    response.keep_alive_after_error = error.code != "server_draining";
++    response.status                 = error.status;
+     set_retry_after(response, error.status);
+     response.set_content(make_error_body(error), "application/json");
+ }
+ 
+ void write_anthropic_error(httplib::Response& response, const ApiError& api_error,
+                            const std::string& request_id) {
+-    const ApiError error = normalize_anthropic_error(api_error);
+-    response.status      = error.status;
++    const ApiError error            = normalize_anthropic_error(api_error);
++    response.keep_alive_after_error = api_error.code != "server_draining";
++    response.status                 = error.status;
+     set_retry_after(response, error.status);
+     response.headers.erase("request-id");
+     response.set_header("request-id", request_id);
+@@ -225,6 +230,16 @@ void write_anthropic_error(httplib::Response& response, const ApiError& api_erro
+ 
+ namespace {
+ 
++// Whether the request may have a body the server has not read: a refusal before routing (or the
++// library's own, such as 413) leaves it unread, and its bytes would be read as the next request,
++// so the connection closes after such a refusal. A request without a body keeps it (#305).
++bool may_carry_body(const httplib::Request& req) {
++    if (req.has_header("Transfer-Encoding")) { return true; }
++    const std::string length = req.get_header_value("Content-Length");
++    // A malformed length counts as a body (the library refuses it and nothing is read).
++    return !length.empty() && (length.find_first_not_of('0') != std::string::npos);
++}
++
+ // An error in the shape the request's endpoint speaks, under the id the response already carries:
+ // a handler that set its request-id (and logged under it) keeps it, as the exception handler's
+ // log line does (ensure_request_id).
+@@ -281,6 +296,7 @@ httplib::Server::HandlerResponse handle_unrendered_http_error(const ServeOptions
+     // the response is stale, and write_error_for names a fresh one.
+     response.headers.erase("request-id");
+     write_error_for(request, response, error);
++    response.keep_alive_after_error = !may_carry_body(request);
+     return httplib::Server::HandlerResponse::Handled;
+ }
+ 
+@@ -554,7 +570,11 @@ void answer_cors_preflight(const httplib::Request& request, httplib::Response& r
+ 
+ void HttpServer::register_routes() {
+     server_.set_error_handler([this](const httplib::Request& request, httplib::Response& response) {
+-        return handle_unrendered_http_error(options_, request, response);
++        const auto handled = handle_unrendered_http_error(options_, request, response);
++        // Every error status passes here before the library decides the connection: while the
++        // server drains, an error of a permitted GET (a missing stored response) closes too.
++        if (draining_.load()) { response.keep_alive_after_error = false; }
++        return handled;
+     });
+     if (options_.enable_cors) {
+         server_.set_default_headers(
+@@ -577,7 +597,10 @@ void HttpServer::register_routes() {
+         if (service_ != nullptr && req.method == "POST" && is_generation_path(req.path)) {
+             res.set_header("x-ninferno-sampling-defaults", sampling_defaults_header_);
+         }
+-        if (reject_while_draining(req, res)) { return httplib::Server::HandlerResponse::Handled; }
++        if (reject_while_draining(req, res)) {
++            res.keep_alive_after_error = false; // the server stops: no connection is kept
++            return httplib::Server::HandlerResponse::Handled;
++        }
+         if (refuses_browser_origin(req, options_.enable_cors)) {
+             ApiError error;
+             error.status  = 403;
+@@ -587,6 +610,7 @@ void HttpServer::register_routes() {
+                             ascii_preview(req.get_header_value("Origin")) +
+                             "' is refused; start the server with --cors to serve browser pages";
+             refuse(req, res, error);
++            res.keep_alive_after_error = !may_carry_body(req);
+             return httplib::Server::HandlerResponse::Handled;
+         }
+         if (options_.api_key.empty() || req.path == "/health" || req.method == "OPTIONS") {
+@@ -606,6 +630,7 @@ void HttpServer::register_routes() {
+             error.code    = "invalid_api_key";
+             error.message = "missing or invalid API key";
+             refuse(req, res, error); // in the shape the target endpoint speaks
++            res.keep_alive_after_error = !may_carry_body(req);
+             return httplib::Server::HandlerResponse::Handled;
+         }
+         return httplib::Server::HandlerResponse::Unhandled;
+@@ -624,6 +649,9 @@ void HttpServer::register_routes() {
+                     make_internal_request_failure(RequestFailurePhase::Http, e.what()),
+                     response_request_id(res));
+                 write_error_for(req, res, internal_error(e));
++                // A failure inside the library (an allocation while the body was being read) may
++                // leave the body half read: a request that could carry one closes the connection.
++                res.keep_alive_after_error = !may_carry_body(req);
+             } catch (...) {
+                 operational_log_.http_failure(
+                     endpoint_name(req.path),
+@@ -631,6 +659,7 @@ void HttpServer::register_routes() {
+                     response_request_id(res));
+                 ApiError error = internal_error("unknown error");
+                 write_error_for(req, res, error);
++                res.keep_alive_after_error = !may_carry_body(req);
+             }
+         });
+ 
+@@ -653,6 +682,9 @@ void HttpServer::register_routes() {
+             body["materializing_requests"]   = stats.materializing_requests;
+         }
+         if (res.status != 200) { res.set_header("Retry-After", kRetryAfterUnavailableSeconds); }
++        // A stalled executor recovers in this process: a load balancer's probe keeps its
++        // connection. A failed or draining server goes away.
++        res.keep_alive_after_error = std::string_view(status) == "stalled";
+         res.set_content(body.dump(), "application/json");
+     });
+     server_.Get("/props", [this](const httplib::Request&, httplib::Response& res) {
+diff --git a/tests/test_http_transport.cpp b/tests/test_http_transport.cpp
+index ee001e85..c33476da 100644
+--- a/tests/test_http_transport.cpp
++++ b/tests/test_http_transport.cpp
+@@ -374,6 +374,88 @@ int test_worker_plan_answers_every_connection() {
+     listener.join();
+     return failures;
+ }
++
++// An error response the application marks reusable keeps the connection for the caller's next
++// request; one that sends `Connection: close` also closes the socket, so a client waiting for EOF
++// is not held until the keep-alive timeout (#319).
++int test_error_connection_reuse() {
++    httplib::Server server;
++    server.set_read_timeout(5, 0);
++    server.set_keep_alive_timeout(30);
++    server.Get("/refuse", [](const httplib::Request&, httplib::Response& response) {
++        response.status                 = 401;
++        response.keep_alive_after_error = true;
++        response.set_content("no", "text/plain");
++    });
++    server.Get("/close", [](const httplib::Request&, httplib::Response& response) {
++        response.status = 503;
++        response.set_content("bye", "text/plain");
++    });
++    const int port = server.bind_to_any_port("127.0.0.1");
++    if (port <= 0) { return check(false, "test HTTP server could not bind"); }
++    std::thread listener([&] { server.listen_after_bind(); });
++    server.wait_until_ready();
++
++    const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
++    sockaddr_in address{};
++    address.sin_family      = AF_INET;
++    address.sin_port        = htons(static_cast<std::uint16_t>(port));
++    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
++    timeval timeout{3, 0};
++    int failures = 0;
++    if (fd < 0 || ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) != 0 ||
++        ::connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
++        failures += check(false, "test HTTP client could not connect");
++    } else {
++        // Reads one response (headers and a Content-Length body); empty on EOF or timeout.
++        std::string pending;
++        const auto read_response = [&]() -> std::string {
++            char buffer[512];
++            for (;;) {
++                const std::size_t end = pending.find("\r\n\r\n");
++                if (end != std::string::npos) {
++                    const std::size_t at = pending.find("Content-Length: ");
++                    const std::size_t length =
++                        at == std::string::npos ? 0 : std::stoul(pending.substr(at + 16));
++                    if (pending.size() >= end + 4 + length) {
++                        std::string response = pending.substr(0, end + 4 + length);
++                        pending.erase(0, end + 4 + length);
++                        return response;
++                    }
++                }
++                const ssize_t got = ::recv(fd, buffer, sizeof(buffer), 0);
++                if (got <= 0) { return {}; }
++                pending.append(buffer, static_cast<std::size_t>(got));
++            }
++        };
++        const auto send_request = [&](const char* path) {
++            const std::string request =
++                std::string("GET ") + path + " HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n";
++            return ::send(fd, request.data(), request.size(), 0) ==
++                   static_cast<ssize_t>(request.size());
++        };
++        const bool refused = send_request("/refuse");
++        const std::string first = read_response();
++        failures += check(refused && first.find(" 401 ") != std::string::npos &&
++                              first.find("Connection: close") == std::string::npos,
++                          "a reusable HTTP refusal closed the connection");
++        const bool closing = send_request("/close");
++        const std::string second = read_response();
++        failures += check(closing && second.find(" 503 ") != std::string::npos &&
++                              second.find("Connection: close") != std::string::npos,
++                          "an HTTP error was not answered on the reused connection with close");
++        char byte = 0;
++        const auto start  = std::chrono::steady_clock::now();
++        const ssize_t eof = ::recv(fd, &byte, 1, 0);
++        failures += check(eof == 0 && std::chrono::steady_clock::now() - start <
++                                          std::chrono::seconds(2),
++                          "an HTTP response with Connection: close left the socket open");
++    }
++    if (fd >= 0) { ::close(fd); }
++    server.stop();
++    listener.join();
++    return failures;
++}
+ #endif
+ 
+ // /health reports a stalled executor. Busy without progress for the threshold is a stall;
+@@ -415,6 +497,7 @@ int main() {
+     failures += test_inherited_socket_liveness();
+     failures += test_worker_plan_answers_every_connection();
+     failures += test_successor_binds_over_time_wait();
++    failures += test_error_connection_reuse();
+ #endif
+     if (failures == 0) { std::cout << "ok\n"; }
+     return failures == 0 ? 0 : 1;
+diff --git a/third_party/cpp-httplib/httplib.h b/third_party/cpp-httplib/httplib.h
+index 09f8dd72..9e828b13 100644
+--- a/third_party/cpp-httplib/httplib.h
++++ b/third_party/cpp-httplib/httplib.h
+@@ -1764,6 +1764,11 @@ struct Response {
+   // by route handlers to pass arbitrary data (e.g. decoded auth tokens).
+   UserData user_data;
+ 
++  // NInferno patch: an error response the application rendered after the
++  // request was read completely keeps the connection (a refused caller's next
++  // request reuses it); every other error response still closes it.
++  bool keep_alive_after_error = false;
++
+   bool has_header(const std::string &key) const;
+   std::string get_header_value(const std::string &key, const char *def = "",
+                                size_t id = 0) const;
+@@ -13156,7 +13161,8 @@ inline bool Server::write_response_core(Stream &strm, bool close_connection,
+   // Prepare additional headers
+   if (close_connection ||
+       detail::has_header_token(req.headers, "Connection", "close") ||
+-      400 <= res.status) { // Don't leave connections open after errors
++      (400 <= res.status &&
++       !res.keep_alive_after_error)) { // Don't leave connections open after errors
+     res.set_header("Connection", "close");
+   } else {
+     std::string s = "timeout=";
+@@ -14426,17 +14432,17 @@ Server::process_request(Stream &strm, const std::string &remote_addr,
+   // keep-alive. Without framing there is no body to drain — reading would
+   // consume the next request (issue #2450). If the response has committed the
+   // connection to close, there is no next request to protect.
+-  if (!req.body_consumed_ && detail::has_framed_body(req)) {
+-    if (detail::has_header_token(res.headers, "Connection", "close")) {
++  // NInferno patch: a response that sent `Connection: close` ends the
++  // keep-alive loop even when no unread body remains.
++  if (detail::has_header_token(res.headers, "Connection", "close")) {
++    connection_closed = true;
++  } else if (!req.body_consumed_ && detail::has_framed_body(req)) {
++    int dummy_status;
++    if (!detail::read_content(
++            strm, req, payload_max_length_, dummy_status, nullptr,
++            [](const char *, size_t, size_t, size_t) { return true; },
++            false)) {
+       connection_closed = true;
+-    } else {
+-      int dummy_status;
+-      if (!detail::read_content(
+-              strm, req, payload_max_length_, dummy_status, nullptr,
+-              [](const char *, size_t, size_t, size_t) { return true; },
+-              false)) {
+-        connection_closed = true;
+-      }
+     }
+   }
+ 
+-- 
+2.43.0
+

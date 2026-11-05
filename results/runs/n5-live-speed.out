@@ -1,0 +1,16 @@
+PP 2048: 4277.4 tok/s (n=1706) [4313.490043363193, 4241.2230883891425]
+PP 8192: 4811.9 tok/s (n=7468) [4847.978913259909, 4775.848138445508]
+PP 32768: 3770.8 tok/s (n=28972) [3799.6457910396066, 3741.925851486245]
+PP 65536: 2795.0 tok/s (n=57942) [2799.959492159392, 2790.1216683736066]
+PP 131072: 1827.2 tok/s (n=118244) [1832.5336457302665, 1821.959357007379]
+TG@2048 greedy: 124.2 tok/s [126.34691167076477, 121.98997378967829] spec=['mtp K=7', 'mtp K=7']
+TG@2048 sampled: 120.3 tok/s [124.53183903152421, 115.98902923101153] spec=['mtp K=7', 'mtp K=7']
+TG@8192 greedy: 113.7 tok/s [117.94987178598497, 109.50944797455662] spec=['mtp K=7', 'mtp K=7']
+TG@8192 sampled: 120.5 tok/s [120.20838593714642, 120.76659627256608] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.7 tok/s (4861 tok) spec=mtp K=7
+CHAT C=1 sampled: 110.6 tok/s (4827 tok) spec=mtp K=7
+ROW {"label": "Live up4", "ts": "2026-11-05 01:50:26", "pp2048_ntok": 1706, "pp2048": 4277.4, "pp8192_ntok": 7468, "pp8192": 4811.9, "pp32768_ntok": 28972, "pp32768": 3770.8, "pp65536_ntok": 57942, "p
+{"edit": "Change the default of `--reps` from 2 to", "ok": true, "out_tokens": 1995, "decode": 376.5, "wall": 5.7}
+{"edit": "Add a one-line docstring to the function", "ok": true, "out_tokens": 2003, "decode": 375.0, "wall": 5.8}
+EDIT Live up4 decode median 375.0
+F5_DONE

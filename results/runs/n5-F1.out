@@ -1,0 +1,142 @@
+--- top context at chunk 1024
+plan | rung 3 of 3: 217,088 tokens x 1 context (217,088 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve warm_up) | free 5.59 GiB after 17.69 GiB of weights | 0.81 GiB more would serve rung 2, 1.6
+plan | rung 3: below the top rung of the asked --max-context 217,088 | 0.81 GiB more free memory would serve rung 2 (217,088 tokens x 1 context (217,088 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.61 GiB the t
+capacity | KV 217,088 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,392/3,392 | runtime 5.46 GiB | free 72.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+FIT F1_top chunk 1024 context 217088
+2026-11-04 23:43:14.814  INFO  plan | rung 3 of 3: 217,088 tokens x 1 context (217,088 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve warm_up) |
+2026-11-04 23:43:14.814  WARN  plan | rung 3: below the top rung of the asked --max-context 217,088 | 0.81 GiB more free memory would serve rung 2 (217,088 tokens x 1 con
+--- chunk 1280
+plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1280 for 1 lane (step states, reserve warm_up) | free 5.59 GiB after 17.69 GiB of weights | 0.91 GiB more would serve rung 2, 1.8
+plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.91 GiB more free memory would serve rung 2 (206,848 tokens x 1 context (206,848 KV tokens for 1 lane), 1 cached states, chunk 1280), 1.81 GiB the t
+capacity | KV 206,848 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,232/3,232 | runtime 5.46 GiB | free 70.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+FIT F1_c1280 chunk 1280 context 206848
+2026-11-04 23:43:53.353  INFO  plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1280 for 1 lane (step states, reserve warm_up) |
+2026-11-04 23:43:53.353  WARN  plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.91 GiB more free memory would serve rung 2 (206,848 tokens x 1 con
+--- speed
+PP 2048: 4209.0 tok/s (n=1718) [4172.850889991451, 4209.048611718591, 4209.743753804345]
+PP 8192: 4764.9 tok/s (n=8041) [4764.856051057227, 4781.395662196268, 4725.167440621493]
+PP 32768: 3671.9 tok/s (n=30322) [3671.924325396743, 3700.1819068044574, 3656.2936029886123]
+PP 65536: 2770.7 tok/s (n=58444) [2770.6539200737925, 2774.0114013123684, 2757.1762308225866]
+TG@8192 greedy: 112.7 tok/s [106.98562979614458, 113.78836201799622, 112.70818230478258] spec=['mtp K=7', 'mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.8 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F1 c1280", "ts": "2026-11-04 23:43:53", "pp2048_ntok": 1718, "pp2048": 4209.0, "pp8192_ntok": 8041, "pp8192": 4764.9, "pp32768_ntok": 30322, "pp32768": 3671.9, "pp65536_ntok": 58444, "pp65536": 2770.7, "tg8192g": 112.7, "chatg": 113.8, "chatg_sp
+COUNTS F1_c1280: privately 0 | request failure 0 | exits 0
+--- chunk 1152
+plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1152 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.76 GiB more would serve rung 2, 1.60 G
+plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.77 GiB more free memory would serve rung 2 (206,848 tokens x 1 context (206,848 KV tokens for 1 lane), 1 cached states, chunk 1152), 1.61 GiB the t
+capacity | KV 206,848 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,232/3,232 | runtime 5.36 GiB | free 172.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+FIT F1_c1152 chunk 1152 context 206848
+2026-11-04 23:47:07.765  INFO  plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1152 for 1 lane (step states, reserve kept) | fr
+2026-11-04 23:47:07.765  WARN  plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.77 GiB more free memory would serve rung 2 (206,848 tokens x 1 con
+--- speed
+PP 2048: 4030.4 tok/s (n=1718) [4157.622302246337, 4013.564304030987, 4030.4357960316556]
+PP 8192: 4446.6 tok/s (n=8041) [4433.780172723072, 4446.643123030534, 4454.599535340894]
+PP 32768: 3453.3 tok/s (n=30322) [3453.2925641394504, 3459.867065103262, 3434.8235668806437]
+PP 65536: 2627.3 tok/s (n=58444) [2627.288349988376, 2632.713879438978, 2620.31189457884]
+TG@8192 greedy: 113.8 tok/s [113.74347742313574, 113.84846605280052, 119.20658112352481] spec=['mtp K=7', 'mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.6 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F1 c1152", "ts": "2026-11-04 23:47:08", "pp2048_ntok": 1718, "pp2048": 4030.4, "pp8192_ntok": 8041, "pp8192": 4446.6, "pp32768_ntok": 30322, "pp32768": 3453.3, "pp65536_ntok": 58444, "pp65536": 2627.3, "tg8192g": 113.8, "chatg": 113.6, "chatg_sp
+COUNTS F1_c1152: privately 0 | request failure 0 | exits 0
+--- chunk 1408
+DIED
+2026-11-04 23:49:58.627  INFO  engine start refused | finalizing target | 63.1 ms
+2026-11-04 23:49:58.766  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.60 GiB of Device memory free after the weights (17.69 GiB): its last rung, 206,848 tokens x 1 context (206,848 KV
+no fit: F1_c1408 chunk 1408 context 206848
+plan | rung 3 of 3: 204,800 tokens x 1 context (204,800 KV tokens), 0 cached states, chunk 1408 for 1 lane (step states, reserve warm_up) | free 5.59 GiB after 17.69 GiB of weights | 1.02 GiB more would serve rung 2, 1.9
+plan | rung 3: below the top rung of the asked --max-context 204,800 | 1.02 GiB more free memory would serve rung 2 (204,800 tokens x 1 context (204,800 KV tokens for 1 lane), 1 cached states, chunk 1408), 1.97 GiB the t
+capacity | KV 204,800 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,200/3,200 | runtime 5.52 GiB | free 8.56 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+FIT F1_c1408 chunk 1408 context 204800
+2026-11-04 23:50:40.679  INFO  plan | rung 3 of 3: 204,800 tokens x 1 context (204,800 KV tokens), 0 cached states, chunk 1408 for 1 lane (step states, reserve warm_up) |
+2026-11-04 23:50:40.679  WARN  plan | rung 3: below the top rung of the asked --max-context 204,800 | 1.02 GiB more free memory would serve rung 2 (204,800 tokens x 1 con
+--- speed
+PP 2048: 3968.1 tok/s (n=1718) [4146.882166143158, 3968.0670986469804, 3880.583083313178]
+PP 8192: 4475.4 tok/s (n=8041) [4486.303385150251, 4474.280056571387, 4475.3665564395]
+PP 32768: 3466.1 tok/s (n=30322) [3466.071714742624, 3482.2867026830477, 3465.761161929958]
+PP 65536: 2647.3 tok/s (n=58444) [2647.3071582127636, 2652.925468063217, 2639.409217373194]
+TG@8192 greedy: 115.3 tok/s [111.40813845900423, 116.54412711584992, 115.34959402023027] spec=['mtp K=7', 'mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.6 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F1 c1408", "ts": "2026-11-04 23:50:41", "pp2048_ntok": 1718, "pp2048": 3968.1, "pp8192_ntok": 8041, "pp8192": 4475.4, "pp32768_ntok": 30322, "pp32768": 3466.1, "pp65536_ntok": 58444, "pp65536": 2647.3, "tg8192g": 115.3, "chatg": 113.6, "chatg_sp
+COUNTS F1_c1408: privately 0 | request failure 0 | exits 0
+--- chunk 1536
+DIED
+2026-11-04 23:53:31.093  INFO  engine start refused | finalizing target | 58.0 ms
+2026-11-04 23:53:31.222  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.60 GiB of Device memory free after the weights (17.69 GiB): its last rung, 206,848 tokens x 1 context (206,848 KV
+no fit: F1_c1536 chunk 1536 context 206848
+DIED
+2026-11-04 23:53:40.110  INFO  engine start refused | finalizing target | 58.2 ms
+2026-11-04 23:53:40.256  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.60 GiB of Device memory free after the weights (17.69 GiB): its last rung, 204,800 tokens x 1 context (204,800 KV
+no fit: F1_c1536 chunk 1536 context 204800
+DIED
+2026-11-04 23:53:49.209  INFO  engine start refused | finalizing target | 58.1 ms
+2026-11-04 23:53:49.351  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.60 GiB of Device memory free after the weights (17.69 GiB): its last rung, 202,112 tokens x 1 context (202,112 KV
+no fit: F1_c1536 chunk 1536 context 202112
+DIED
+2026-11-04 23:54:29.413  INFO  engine start refused | warming up kernels | 31.1s
+2026-11-04 23:54:29.552  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.53 GiB of Device memory free after the weights (17.69 GiB): its last rung, 200,704 tokens x 1 context (200,704 KV
+no fit: F1_c1536 chunk 1536 context 200704
+plan | rung 3 of 3: 198,656 tokens x 1 context (198,656 KV tokens), 0 cached states, chunk 1536 for 1 lane (step states, reserve warm_up) | free 5.59 GiB after 17.69 GiB of weights | 1.05 GiB more would serve rung 2, 2.0
+plan | rung 3: below the top rung of the asked --max-context 198,656 | 1.06 GiB more free memory would serve rung 2 (198,656 tokens x 1 context (198,656 KV tokens for 1 lane), 1 cached states, chunk 1536), 2.05 GiB the t
+capacity | KV 198,656 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,104/3,104 | runtime 5.50 GiB | free 26.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+FIT F1_c1536 chunk 1536 context 198656
+2026-11-04 23:55:15.444  INFO  plan | rung 3 of 3: 198,656 tokens x 1 context (198,656 KV tokens), 0 cached states, chunk 1536 for 1 lane (step states, reserve warm_up) |
+2026-11-04 23:55:15.444  WARN  plan | rung 3: below the top rung of the asked --max-context 198,656 | 1.06 GiB more free memory would serve rung 2 (198,656 tokens x 1 con
+--- speed
+PP 2048: 4131.4 tok/s (n=1718) [4344.547169460046, 4131.419735268988, 4124.000395894436]
+PP 8192: 4662.4 tok/s (n=8041) [4662.368111022337, 4705.0652935690005, 4604.87073688028]
+PP 32768: 3573.5 tok/s (n=30322) [3573.538310859797, 3592.686415382193, 3567.887022816239]
+PP 65536: 2701.8 tok/s (n=58444) [2705.2946042366716, 2701.849805678462, 2692.277195581451]
+TG@8192 greedy: 113.9 tok/s [113.85643096603636, 108.77633692696284, 119.0692302349607] spec=['mtp K=7', 'mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.6 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F1 c1536", "ts": "2026-11-04 23:55:16", "pp2048_ntok": 1718, "pp2048": 4131.4, "pp8192_ntok": 8041, "pp8192": 4662.4, "pp32768_ntok": 30322, "pp32768": 3573.5, "pp65536_ntok": 58444, "pp65536": 2701.8, "tg8192g": 113.9, "chatg": 113.6, "chatg_sp
+COUNTS F1_c1536: privately 0 | request failure 0 | exits 0
+--- chunk 1024
+plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.61 GiB more would serve rung 2, 1.40 G
+plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.62 GiB more free memory would serve rung 2 (206,848 tokens x 1 context (206,848 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.41 GiB the t
+capacity | KV 206,848 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,232/3,232 | runtime 5.26 GiB | free 274.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+FIT F1_c1024 chunk 1024 context 206848
+2026-11-04 23:58:30.072  INFO  plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | fr
+2026-11-04 23:58:30.072  WARN  plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.62 GiB more free memory would serve rung 2 (206,848 tokens x 1 con
+--- speed
+PP 2048: 4171.8 tok/s (n=1718) [4236.38925297648, 4171.819317957574, 4139.757061031571]
+PP 8192: 4513.0 tok/s (n=8041) [4512.990171450708, 4508.99576084533, 4516.373769923605]
+PP 32768: 3522.4 tok/s (n=30322) [3522.3537898762725, 3542.107217929031, 3515.3757910722265]
+PP 65536: 2690.5 tok/s (n=58444) [2690.822718064405, 2690.4595911738897, 2679.593967194713]
+TG@8192 greedy: 106.5 tok/s [115.69654086972723, 106.48277277129377, 102.95369347445171] spec=['mtp K=7', 'mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.6 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F1 c1024", "ts": "2026-11-04 23:58:31", "pp2048_ntok": 1718, "pp2048": 4171.8, "pp8192_ntok": 8041, "pp8192": 4513.0, "pp32768_ntok": 30322, "pp32768": 3522.4, "pp65536_ntok": 58444, "pp65536": 2690.5, "tg8192g": 106.5, "chatg": 113.6, "chatg_sp
+COUNTS F1_c1024: privately 0 | request failure 0 | exits 0
+--- cuda 13.4
+plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.61 GiB more would serve rung 2, 1.40 G
+plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.62 GiB more free memory would serve rung 2 (206,848 tokens x 1 context (206,848 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.41 GiB the t
+capacity | KV 206,848 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,232/3,232 | runtime 5.26 GiB | free 274.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- speed
+PP 2048: 4174.0 tok/s (n=1718) [4258.8135993319465, 4173.9771515463135, 4162.441887083975]
+PP 8192: 4498.5 tok/s (n=8041) [4519.43164888764, 4496.487221384067, 4498.471008529457]
+PP 32768: 3494.6 tok/s (n=30322) [3494.5741516378994, 3507.5784099625644, 3484.6316143393287]
+PP 65536: 2654.3 tok/s (n=58444) [2656.4593709171872, 2654.2805333589113, 2643.786596072499]
+TG@8192 greedy: 113.3 tok/s [112.4189315322523, 113.25466157738488, 114.66926954748295] spec=['mtp K=7', 'mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.7 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F1 cuda134", "ts": "2026-11-05 00:01:46", "pp2048_ntok": 1718, "pp2048": 4174.0, "pp8192_ntok": 8041, "pp8192": 4498.5, "pp32768_ntok": 30322, "pp32768": 3494.6, "pp65536_ntok": 58444, "pp65536": 2654.3, "tg8192g": 113.3, "chatg": 113.7, "chatg_
+--- ab
+48000 'The provided text consists of a series of disparate federal '
+64000 'This text consists of a series of federal regulatory notices'
+100000 'This text consists of a series of official government notice'
+COUNTS F1_134: privately 0 | request failure 0 | exits 0
+plan | rung 3 of 3: 206,848 tokens x 1 context (206,848 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.61 GiB more would serve rung 2, 1.40 G
+plan | rung 3: below the top rung of the asked --max-context 206,848 | 0.62 GiB more free memory would serve rung 2 (206,848 tokens x 1 context (206,848 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.41 GiB the t
+capacity | KV 206,848 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,232/3,232 | runtime 5.26 GiB | free 274.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- ab
+48000 'The provided text consists of a series of disparate federal '
+64000 'This text consists of a series of federal regulatory notices'
+100000 'This text consists of a series of official government notice'
+same 30/30: n5/ab_132.json n5/ab_134.json
+=== 00:09:01 restoring the fast unit
+active

@@ -1,0 +1,34 @@
+--- reference: weights only
+
+score rate: 373.5 tok/s
+KLD reference: "/root/gbench/n5/a16.kld"
+report: "/opt/NInferno-up/profiles/perplexity/turbo-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/bf16/ninferno-ppl-1m-v1/quick/20261104-224248/report.json"
+--- production: A4 + FP8 KV
+overall                           273337        8.193401     3617.003446
+
+score rate: 2272.8 tok/s
+
+against turbo-qkv-vision-nvfp4.r31 (top-32)
+mean KLD: 1.284682, median: 0.195229, p99: 14.652624
+top-1 agreement: 68.1785 %, PPL ratio: 0.8542
+report: "/opt/NInferno-up/profiles/perplexity/turbo-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/fp8-e4m3-r256/ninferno-ppl-1m-v1/quick/20261104-225503/report.json"
+--- KV alone
+overall                           273337        8.356483     4257.692587
+
+score rate: 375.3 tok/s
+
+against turbo-qkv-vision-nvfp4.r31 (top-32)
+mean KLD: 0.349601, median: 0.007658, p99: 8.115742
+top-1 agreement: 87.5974 %, PPL ratio: 1.0055
+report: "/opt/NInferno-up/profiles/perplexity/turbo-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/fp8-e4m3-r256/ninferno-ppl-1m-v1/quick/20261104-225707/report.json"
+--- A4 alone
+overall                           273337        8.197166     3630.645847
+
+score rate: 2195.4 tok/s
+
+against turbo-qkv-vision-nvfp4.r31 (top-32)
+mean KLD: 1.241654, median: 0.189903, p99: 14.350057
+top-1 agreement: 68.6471 %, PPL ratio: 0.8574
+report: "/opt/NInferno-up/profiles/perplexity/turbo-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/bf16/ninferno-ppl-1m-v1/quick/20261104-230919/report.json"
+=== 23:11:26 restoring the fast unit
+active

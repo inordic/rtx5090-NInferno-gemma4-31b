@@ -1,0 +1,5 @@
+Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+-- Build files have been written to: /opt/NInferno-up/build-134
+BUILD_134_FAILED
+FAILED: src/core/CMakeFiles/ninferno_core.dir/decode_graph.cpp.o 
+/opt/NInferno-up/src/core/nvtx.h:3:10: fatal error: nvtx3/nvToolsExt.h: No such file or directory

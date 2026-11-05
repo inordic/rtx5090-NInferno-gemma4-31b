@@ -1,0 +1,512 @@
+From 006f162657218962f4b94b879f10660ad465abf2 Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Mon, 2 Nov 2026 15:48:38 +0100
+Subject: [PATCH 4/8] Merge pull request #325 from Brontir/fix/api-output-bugs
+
+Serve: tool_choice none and cut-off calls stay out of the text; Gemma media cache boundary; effort beside disabled thinking (#290, #291, #293, #294)
+(cherry picked from commit 76db073fa62ba79217a859b049801d3e325e0242)
+---
+ docs/reference/serving.md                     |   7 +-
+ include/ninferno/types.h                      |   4 +
+ src/chat/tool_calls.cpp                       | 100 +++++++++++++++++-
+ src/chat/tool_calls.h                         |  26 +++++
+ src/models/qwen3_5/frontend/chat_template.cpp |  14 ++-
+ src/models/qwen3_5/frontend/frontend.cpp      |   3 +-
+ src/serve/anthropic_messages_request.cpp      |   7 ++
+ src/serve/generation_service.cpp              |   7 ++
+ src/serve/generation_service.h                |   4 +
+ src/serve/operational_log.cpp                 |   8 ++
+ src/serve/translate.cpp                       |   2 +
+ tests/chat/test_chat.cpp                      |  20 ++++
+ tests/test_anthropic_schema.cpp               |  13 +++
+ tests/test_tool_call_parser.cpp               |  52 ++++++++-
+ 14 files changed, 257 insertions(+), 10 deletions(-)
+
+diff --git a/docs/reference/serving.md b/docs/reference/serving.md
+index 50aa2b1b..0487e087 100644
+--- a/docs/reference/serving.md
++++ b/docs/reference/serving.md
+@@ -1444,7 +1444,9 @@ and Anthropic SSE.
+   next prompt equals the visible-Thinking one. The signature is not encrypted: it hides the
+   reasoning from display, not from the client.
+ - `preserve_thinking` remains a NInferno extension for closed-turn reasoning history.
+-  `output_config.effort` passes its protocol-validated value to the selected template.
++  `output_config.effort` passes its protocol-validated value to the selected template. With
++  `thinking: {"type": "disabled"}` there is no reasoning for it to scale: the request is served
++  without it, and `notes` says so.
+ 
+ ### Tools
+ 
+@@ -1812,7 +1814,8 @@ Details:
+   `ended_inside_reasoning` `true`: its reply has reasoning and no content.
+ - When the output limit cuts the last call off, the complete calls before it are published, and
+   `cut_calls_dropped` counts the unfinished call whose markup was dropped (the finish reason stays
+-  `length`).
++  `length`). A turn whose only call was cut off has empty content: the unfinished markup never
++  reaches the client as text.
+ - `undeclared_calls` counts the published calls whose name the request did not declare.
+ - Fallback reasons are `none`, `malformed_structure`, `duplicate_parameter`, `invalid_tool_name`,
+   `undeclared_tool` (Llama 3's JSON form only), and `trailing_content`.
+diff --git a/include/ninferno/types.h b/include/ninferno/types.h
+index 88634652..e773c92e 100644
+--- a/include/ninferno/types.h
++++ b/include/ninferno/types.h
+@@ -940,6 +940,10 @@ struct PromptOptions {
+     // False (tool_choice none) keeps the declarations in the prompt, so the conversation's cached
+     // prefix stays the same, but no output is read back as a call.
+     bool tool_calls_enabled = true;
++    // With tool_calls_enabled false and declarations present: a complete call the model writes
++    // anyway is still read out of the text, so its markup never reaches the answer, and dropped
++    // (the serve layer does not return it). Nothing else of the text changes.
++    bool tool_calls_discarded = false;
+ };
+ 
+ enum class CacheRetentionHint : std::uint8_t {
+diff --git a/src/chat/tool_calls.cpp b/src/chat/tool_calls.cpp
+index 1b30d123..747425bc 100644
+--- a/src/chat/tool_calls.cpp
++++ b/src/chat/tool_calls.cpp
+@@ -3,6 +3,7 @@
+ #include <nlohmann/json.hpp>
+ 
+ #include <algorithm>
++#include <cctype>
+ #include <optional>
+ #include <stdexcept>
+ #include <string_view>
+@@ -1025,6 +1026,36 @@ CallStart match_call_start(std::string_view held, std::string_view lead, std::st
+ 
+ } // namespace
+ 
++namespace {
++
++// A call header (its parts, format whitespace allowed before each) and the name after it in a
++// call the output limit cut off: nullopt when the body leaves the header, an empty name while
++// the body ends inside the header.
++std::optional<ToolCallSyntax::CutCallName>
++cut_name_after_header(std::string_view body, std::initializer_list<std::string_view> header) {
++    std::size_t pos = 0;
++    for (const std::string_view part : header) {
++        while (pos < body.size() && is_format_whitespace(body[pos])) { ++pos; }
++        const std::string_view rest = body.substr(pos);
++        if (rest.size() < part.size()) {
++            if (!part.starts_with(rest)) { return std::nullopt; }
++            return ToolCallSyntax::CutCallName{};
++        }
++        if (!rest.starts_with(part)) { return std::nullopt; }
++        pos += part.size();
++    }
++    const auto name_byte = [](char byte) {
++        return std::isalnum(static_cast<unsigned char>(byte)) != 0 || byte == '_' ||
++               byte == '.' || byte == ':' || byte == '/' || byte == '-';
++    };
++    std::size_t end = pos;
++    while (end < body.size() && name_byte(body[end])) { ++end; }
++    return ToolCallSyntax::CutCallName{.name     = body.substr(pos, end - pos),
++                                       .complete = end < body.size()};
++}
++
++} // namespace
++
+ ToolCallStart ToolCallSyntax::match_start(std::string_view held) const {
+     return match_call_start(held, lead(), open());
+ }
+@@ -1109,9 +1140,44 @@ ToolCallOutputDecoder::Terminal ToolCallOutputDecoder::finish(bool cut_off) {
+     // prose that follows complete calls), or does not parse up to that marker, stays text.
+     const std::string_view close = syntax_->close();
+     if (cut_off && saw_tool_marker_ && !close.empty()) {
+-        const std::size_t last = tool_region_.rfind(syntax_->open());
++        const ToolCallSyntax::LastCall last_call = syntax_->last_call(tool_region_);
++        const std::size_t last                   = last_call.start;
++        // The only call of the region was cut off (nothing but format whitespace before its open
++        // marker): no call is complete, and its markup is not the answer either (a forced call
++        // must not reach the client as text). The answer is empty, with the finish reason length.
++        // Only a call that began is dropped: after the marker, the body writes the syntax's call
++        // header and, at its name position, a declared tool's name or (cut there) a prefix of
++        // one. Prose that quotes the marker ("the `<tool_call>` tag") opens a region too, and
++        // stays text. A region without the open marker is a bare call (Qwen's <function=NAME>
++        // block, which opens a region on its own): its body is the whole region.
++        const auto began_call = [&]() {
++            if (last_call.body == std::string::npos) { return false; }
++            const std::string_view body = std::string_view(tool_region_).substr(last_call.body);
++            const auto cut              = syntax_->cut_call_name(body);
++            if (!cut) { return false; }
++            if (cut->name.empty()) { return !cut->complete; }
++            return std::any_of(contract_->tools.begin(), contract_->tools.end(),
++                               [&](const ToolCallOutputContract::Tool& tool) {
++                                   const std::string_view name = tool.name;
++                                   return cut->complete ? name == cut->name
++                                                        : name.starts_with(cut->name);
++                               });
++        };
++        if (last != std::string::npos &&
++            tool_region_.find(last_call.close, last) == std::string::npos &&
++            std::all_of(tool_region_.begin(),
++                        tool_region_.begin() + static_cast<std::ptrdiff_t>(last),
++                        [](char byte) { return is_format_whitespace(byte); }) &&
++            began_call()) {
++            held_.clear();
++            tool_region_.clear();
++            ToolCallParseDiagnostics diagnostics = parsed.diagnostics;
++            diagnostics.fallback_reason          = ToolCallParseFallbackReason::None;
++            diagnostics.cut_calls_dropped        = 1;
++            return Terminal{.content = {}, .tool_calls = {}, .diagnostics = diagnostics};
++        }
+         if (last != std::string::npos && last != 0 &&
+-            tool_region_.find(close, last) == std::string::npos) {
++            tool_region_.find(last_call.close, last) == std::string::npos) {
+             ParsedToolCallOutput complete =
+                 syntax_->parse(tool_region_.substr(0, last), max_tool_name_length_, *contract_);
+             if (complete.is_tool_call_response && !complete.tool_calls.empty()) {
+@@ -1315,6 +1381,28 @@ public:
+         const ToolCallStart wrapped = match_call_start(held, {}, kToolOpen);
+         return wrapped != ToolCallStart::No ? wrapped : match_call_start(held, {}, kFunctionOpen);
+     }
++    // A <function=NAME> block right after <tool_call> (format whitespace between) is that wrapped
++    // call's; one anywhere else is a bare call, ended by its </function>.
++    [[nodiscard]] LastCall last_call(std::string_view region) const override {
++        const std::size_t wrapped = region.rfind(kToolOpen);
++        const std::size_t bare    = region.rfind(kFunctionOpen);
++        if (bare == std::string_view::npos || (wrapped != std::string_view::npos && bare < wrapped)) {
++            return ToolCallSyntax::last_call(region);
++        }
++        if (wrapped != std::string_view::npos) {
++            const std::size_t after = wrapped + kToolOpen.size();
++            const std::string_view gap = region.substr(after, bare - after);
++            if (std::all_of(gap.begin(), gap.end(),
++                            [](char byte) { return is_format_whitespace(byte); })) {
++                return LastCall{wrapped, after, kToolClose};
++            }
++        }
++        return LastCall{bare, bare, kFunctionClose};
++    }
++    [[nodiscard]] std::optional<CutCallName> cut_call_name(std::string_view body) const override {
++        if (auto xml = cut_name_after_header(body, {kFunctionOpen})) { return xml; }
++        return cut_name_after_header(body, {"{", "\"name\"", ":", "\""});
++    }
+     [[nodiscard]] ParsedToolCallOutput parse(const std::string& text, std::size_t max_length,
+                                              const Contract& contract) const override {
+         return parse_qwen_tool_call_output(text, max_length, contract);
+@@ -1333,6 +1421,9 @@ public:
+     [[nodiscard]] std::string_view open() const noexcept override { return kToolOpen; }
+ 
+     [[nodiscard]] std::string_view close() const noexcept override { return kToolClose; }
++    [[nodiscard]] std::optional<CutCallName> cut_call_name(std::string_view body) const override {
++        return cut_name_after_header(body, {"{", "\"name\"", ":", "\""});
++    }
+     [[nodiscard]] ParsedToolCallOutput parse(const std::string& text, std::size_t max_length,
+                                              const Contract& contract) const override {
+         return parse_calls(text, kToolOpen, max_length, contract,
+@@ -1422,6 +1513,11 @@ ws ::= [ \t\n]{0,24})GBNF";
+     [[nodiscard]] std::string_view open() const noexcept override { return kOpen; }
+ 
+     [[nodiscard]] std::string_view close() const noexcept override { return kClose; }
++    [[nodiscard]] std::optional<CutCallName> cut_call_name(std::string_view body) const override {
++        // The 4-bit checkpoints' shorthand writes the name after a bare colon (":NAME{").
++        if (auto call = cut_name_after_header(body, {kCall})) { return call; }
++        return cut_name_after_header(body, {":"});
++    }
+     [[nodiscard]] ParsedToolCallOutput parse(const std::string& text, std::size_t max_length,
+                                              const Contract& contract) const override {
+         return parse_calls(text, kOpen, max_length, contract,
+diff --git a/src/chat/tool_calls.h b/src/chat/tool_calls.h
+index f1566934..dc451477 100644
+--- a/src/chat/tool_calls.h
++++ b/src/chat/tool_calls.h
+@@ -8,6 +8,7 @@
+ #include <memory>
+ #include <span>
+ #include <string>
++#include <optional>
+ #include <string_view>
+ #include <vector>
+ 
+@@ -92,6 +93,31 @@ public:
+     // region. The default: whitespace, an optional lead() and whitespace, then open(). A syntax
+     // whose region opens with a header that names the function overrides it.
+     [[nodiscard]] virtual ToolCallStart match_start(std::string_view held) const;
++    // The name a call cut off by the output limit had begun to write: `body` follows open().
++    // nullopt when the body does not begin this syntax's call header (then the region is not a
++    // call, e.g. prose quoting the marker); else the name bytes written so far (empty while the
++    // header itself was cut) and whether a byte after them ended the name.
++    struct CutCallName {
++        std::string_view name;
++        bool complete = false;
++    };
++    [[nodiscard]] virtual std::optional<CutCallName> cut_call_name(std::string_view body) const {
++        (void)body;
++        return std::nullopt;
++    }
++    // Where the region's last call begins (`start`, npos for none), where its body begins after
++    // its open marker, and the marker that would end it. The default: the last open(), ended by
++    // close(). A syntax whose calls may also stand bare (Qwen's <function=NAME> blocks) overrides.
++    struct LastCall {
++        std::size_t start = std::string_view::npos;
++        std::size_t body  = std::string_view::npos;
++        std::string_view close;
++    };
++    [[nodiscard]] virtual LastCall last_call(std::string_view region) const {
++        const std::size_t at = region.rfind(open());
++        return at == std::string_view::npos ? LastCall{}
++                                            : LastCall{at, at + open().size(), close()};
++    }
+     // Text before the first open marker is content; the region from it must be calls only.
+     [[nodiscard]] virtual ParsedToolCallOutput
+     parse(const std::string& text, std::size_t max_tool_name_length,
+diff --git a/src/models/qwen3_5/frontend/chat_template.cpp b/src/models/qwen3_5/frontend/chat_template.cpp
+index a9e3c333..9946b662 100644
+--- a/src/models/qwen3_5/frontend/chat_template.cpp
++++ b/src/models/qwen3_5/frontend/chat_template.cpp
+@@ -621,9 +621,17 @@ RenderedChat CompiledChatTemplate::render_once(const std::vector<ChatMessage>& m
+                                 unique_output_region(output, origin.part_tags[part]))
+                             result.cache_boundaries[i] = region->end;
+                     } else if (origin.part_media[part]) {
+-                        result.cache_boundaries[i] =
+-                            layout.media_placeholders[*origin.part_media[part]].bytes.end +
+-                            std::string_view("<|vision_end|>").size();
++                        // After the placeholder and the close marker that follows it in this
++                        // template (Qwen's <|vision_end|>; Gemma 4 renders none there).
++                        constexpr std::string_view kVisionEnd = "<|vision_end|>";
++                        std::size_t end =
++                            layout.media_placeholders[*origin.part_media[part]].bytes.end;
++                        const std::string_view rendered(output.text);
++                        if (end <= rendered.size() &&
++                            rendered.substr(end).starts_with(kVisionEnd)) {
++                            end += kVisionEnd.size();
++                        }
++                        result.cache_boundaries[i] = end;
+                     }
+                 }
+             }
+diff --git a/src/models/qwen3_5/frontend/frontend.cpp b/src/models/qwen3_5/frontend/frontend.cpp
+index 139b513f..ca98c5af 100644
+--- a/src/models/qwen3_5/frontend/frontend.cpp
++++ b/src/models/qwen3_5/frontend/frontend.cpp
+@@ -1077,7 +1077,8 @@ PreparedPrompt Frontend::prepare(PromptInput input, const PreparationControl& co
+             "serve it with a chat template that does (--chat-template)");
+     }
+     const auto tool_call_output = chat::build_tool_call_output_contract(
+-        options.tool_jsons, options.tool_calls_enabled && !options.tool_jsons.empty(),
++        options.tool_jsons,
++        (options.tool_calls_enabled || options.tool_calls_discarded) && !options.tool_jsons.empty(),
+         impl_->chat_template.conventions().tools.format);
+     const std::optional<std::uint32_t> leading_boundary =
+         leading_instruction_boundary(message_roles);
+diff --git a/src/serve/anthropic_messages_request.cpp b/src/serve/anthropic_messages_request.cpp
+index 0cbcbaeb..96835de9 100644
+--- a/src/serve/anthropic_messages_request.cpp
++++ b/src/serve/anthropic_messages_request.cpp
+@@ -1035,6 +1035,13 @@ void parse_effort(const Json& body, GenerationRequest& request, ParsePurpose pur
+         bad_request("output_config.effort is not a recognized effort value",
+                     "output_config.effort");
+     }
++    // In the Anthropic API effort is its own setting, not a switch of extended thinking: with
++    // thinking disabled it has no reasoning to scale here, and the request is served without it.
++    if (request.enable_thinking == false) {
++        request.notes.push_back("output_config.effort " + value +
++                                " not used: thinking is disabled");
++        return;
++    }
+     request.reasoning_effort = *effort;
+ }
+ 
+diff --git a/src/serve/generation_service.cpp b/src/serve/generation_service.cpp
+index 0f14b72c..934b0922 100644
+--- a/src/serve/generation_service.cpp
++++ b/src/serve/generation_service.cpp
+@@ -774,6 +774,7 @@ PreparedRequest GenerationService::prepare_impl(const GenerationRequest& request
+                 return acquire_media(part, prepared.lifetime->deadline, is_cancelled,
+                                      remaining_media_bytes);
+             });
++        prepared.discard_tool_calls = input.options.tool_calls_discarded;
+         std::vector<PromptCacheMarker> protocol_markers = std::move(input.context_cache.markers);
+         const bool protocol_allows_engine_automatic =
+             input.context_cache.allow_engine_automatic_shared_prefixes;
+@@ -1027,6 +1028,12 @@ GenerationOutcome GenerationService::run(PreparedRequest& prepared, const Stream
+ 
+     outcome.tool_calls      = std::move(result.tool_calls);
+     outcome.tool_call_parse = result.tool_call_parse;
++    if (prepared.discard_tool_calls && !outcome.tool_calls.empty()) {
++        // tool_choice none: the calls were read out of the text (PromptOptions::
++        // tool_calls_discarded) and are not the answer.
++        outcome.tool_calls_discarded = static_cast<std::uint32_t>(outcome.tool_calls.size());
++        outcome.tool_calls.clear();
++    }
+     return outcome;
+ }
+ 
+diff --git a/src/serve/generation_service.h b/src/serve/generation_service.h
+index 1d29c0a3..9e84a945 100644
+--- a/src/serve/generation_service.h
++++ b/src/serve/generation_service.h
+@@ -105,6 +105,8 @@ struct GenerationOutcome {
+     std::string reasoning;
+     std::vector<ninferno::GeneratedToolCall> tool_calls;
+     ninferno::ToolCallParseDiagnostics tool_call_parse;
++    // Calls written under tool_choice none and cut out of the answer (the request log counts them).
++    std::uint32_t tool_calls_discarded = 0;
+     int prompt_tokens     = 0;
+     int completion_tokens = 0;
+     int reasoning_tokens  = 0;
+@@ -158,6 +160,8 @@ struct PreparedRequest {
+     double speculation_floor = 0.0;
+     std::string speculation_fallback = "none"; // the server's (StartupSpeculation::fallback)
+     std::uint32_t plan_level         = 0;      // the plan ladder's rung (PlanSummary::rung)
++    // tool_choice none with tools declared: calls the model writes anyway are not returned.
++    bool discard_tool_calls = false;
+ };
+ 
+ // Why --spec auto decodes plainly: `refused` (the choice's label) did not fit, the last refusal
+diff --git a/src/serve/operational_log.cpp b/src/serve/operational_log.cpp
+index b9e6d77d..82d291b9 100644
+--- a/src/serve/operational_log.cpp
++++ b/src/serve/operational_log.cpp
+@@ -310,6 +310,14 @@ OperationalRecord render_request_done(const RequestLogContext& context,
+ 
+ std::optional<OperationalRecord> render_tool_call_fallback(const RequestLogContext& context,
+                                                            const GenerationOutcome& outcome) {
++    if (outcome.tool_calls_discarded != 0) {
++        return OperationalRecord{
++            .severity = OperationalSeverity::Info,
++            .message  = "req#" + std::to_string(context.id) + " tool_choice none | " +
++                       std::to_string(outcome.tool_calls_discarded) +
++                       " call(s) the model wrote cut from the answer",
++        };
++    }
+     const ninferno::ToolCallParseFallbackReason reason = outcome.tool_call_parse.fallback_reason;
+     if (!outcome.tool_call_parse.marker_seen ||
+         reason == ninferno::ToolCallParseFallbackReason::None) {
+diff --git a/src/serve/translate.cpp b/src/serve/translate.cpp
+index d4beb50d..6a15fbd4 100644
+--- a/src/serve/translate.cpp
++++ b/src/serve/translate.cpp
+@@ -459,6 +459,8 @@ ninferno::PromptInput to_prompt_input(const GenerationRequest& request,
+     input.options.add_vision_id                    = false;
+     const std::vector<const ToolDefinition*> tools = effective_tools(request);
+     input.options.tool_calls_enabled               = request.uses_tools();
++    // tool_choice none: a call written anyway is cut out of the answer, not shown as markup.
++    input.options.tool_calls_discarded = !tools.empty() && !request.uses_tools();
+     input.options.tool_jsons.reserve(tools.size());
+     for (std::size_t index = 0; index < tools.size(); ++index) {
+         input.options.tool_jsons.push_back(render_tool_definition(*tools[index]));
+diff --git a/tests/chat/test_chat.cpp b/tests/chat/test_chat.cpp
+index 9ba7e63b..cc25daa8 100644
+--- a/tests/chat/test_chat.cpp
++++ b/tests/chat/test_chat.cpp
+@@ -531,6 +531,26 @@ int test_streaming_decoder() {
+     failures += check(cut_end.tool_calls.size() == 1 && cut_end.content.empty() &&
+                           cut_end.diagnostics.cut_calls_dropped == 1,
+                       "gemma decoder lost the call before a cut-off call");
++    // A lone Gemma call the limit cut off is dropped, not shown as markup (#291), also while
++    // the name itself was cut; prose after the marker that names no declared tool stays text.
++    for (const std::string lone : {std::string("<|tool_call>call:weather{city:<|\"|>Os"),
++                                   std::string("<|tool_call>call:wea"),
++                                   std::string("<|tool_call>:weather{city:<|\"|>Os")}) {
++        ninferno::chat::ToolCallOutputDecoder decoder_lone(contract(ToolCallFormat::Gemma4), 64);
++        const std::string shown_lone = decoder_lone.feed(lone);
++        const auto lone_end          = decoder_lone.finish(true);
++        failures += check(shown_lone.empty() && lone_end.content.empty() &&
++                              lone_end.tool_calls.empty() &&
++                              lone_end.diagnostics.cut_calls_dropped == 1,
++                          "a lone cut-off gemma call reached the content: " + lone);
++    }
++    ninferno::chat::ToolCallOutputDecoder undeclared(contract(ToolCallFormat::Gemma4), 64);
++    const std::string other     = "<|tool_call>call:search{q:";
++    const std::string shown_other = undeclared.feed(other);
++    const auto other_end          = undeclared.finish(true);
++    failures += check(shown_other + other_end.content == other && other_end.tool_calls.empty() &&
++                          other_end.diagnostics.cut_calls_dropped == 0,
++                      "a cut-off gemma region naming no declared tool was dropped");
+ 
+     ninferno::chat::ToolCallOutputDecoder plain(contract(ToolCallFormat::Gemma4), 64);
+     const std::string prose = "a <|tool b";
+diff --git a/tests/test_anthropic_schema.cpp b/tests/test_anthropic_schema.cpp
+index 214423eb..88cbc6eb 100644
+--- a/tests/test_anthropic_schema.cpp
++++ b/tests/test_anthropic_schema.cpp
+@@ -115,6 +115,19 @@ int test_envelope_and_field_policy() {
+                           request.generation.sampling.top_k == 20 &&
+                           request.generation.reasoning_effort == ninferno::ReasoningEffort::Low,
+                       "executable Anthropic generation fields were not lowered");
++    {
++        // Effort is its own setting in the Anthropic API: beside disabled thinking it is served
++        // without reasoning, not refused as a conflict (#294).
++        Json disabled             = base_request();
++        disabled["thinking"]      = Json{{"type", "disabled"}};
++        disabled["output_config"] = Json{{"effort", "low"}};
++        const AnthropicMessagesRequest both = parse(disabled);
++        failures += check(both.generation.enable_thinking == false &&
++                              !both.generation.reasoning_effort &&
++                              both.generation.notes.size() == 1 &&
++                              both.generation.notes[0].find("effort") != std::string::npos,
++                          "output_config.effort beside disabled thinking was not dropped");
++    }
+ 
+     body.erase("max_tokens");
+     const AnthropicMessagesRequest defaulted = parse(body);
+diff --git a/tests/test_tool_call_parser.cpp b/tests/test_tool_call_parser.cpp
+index dce51c7f..01dfd7f1 100644
+--- a/tests/test_tool_call_parser.cpp
++++ b/tests/test_tool_call_parser.cpp
+@@ -957,8 +957,56 @@ int test_cut_off_last_call() {
+     fi::ToolCallOutputDecoder lone(contract, 64);
+     const std::string shown = lone.feed(cut.substr(1));
+     auto lone_end           = lone.finish(true);
+-    failures += check(lone_end.tool_calls.empty() && shown + lone_end.content == cut.substr(1),
+-                      "a lone cut-off call was not restored as text");
++    // A lone call the limit cut off is not complete, and its markup is not the answer either
++    // (#291): nothing is published and the drop is counted.
++    failures += check(lone_end.tool_calls.empty() && shown.empty() && lone_end.content.empty() &&
++                          lone_end.diagnostics.cut_calls_dropped == 1,
++                      "a lone cut-off call's markup reached the content");
++    // Prose that quotes the marker and runs into the limit began no call: it stays text.
++    const std::string prose = "It uses the `<tool_call>` tag, then the arguments as";
++    fi::ToolCallOutputDecoder quoted(contract, 64);
++    const std::string before = quoted.feed(prose);
++    auto quoted_end          = quoted.finish(true);
++    failures += check(quoted_end.tool_calls.empty() && before + quoted_end.content == prose &&
++                          quoted_end.diagnostics.cut_calls_dropped == 0,
++                      "prose quoting the open marker was dropped as a cut-off call");
++    // The limit cut the name itself: a prefix of a declared name at the name position is a call.
++    for (const std::string partial : {std::string("<tool_call>\n<function=sea"),
++                                      std::string("<tool_call>\n{\"name\": \"sear"),
++                                      std::string("<tool_call>\n{\"na")}) {
++        fi::ToolCallOutputDecoder named(contract, 64);
++        const std::string named_shown = named.feed(partial);
++        auto named_end                = named.finish(true);
++        failures += check(named_shown.empty() && named_end.content.empty() &&
++                              named_end.diagnostics.cut_calls_dropped == 1,
++                          "a call cut inside its name reached the content");
++    }
++    // A bare Qwen call (no <tool_call> wrapper) the limit cut off is dropped too.
++    {
++        fi::ToolCallOutputDecoder bare(contract, 64);
++        const std::string bare_shown = bare.feed("<function=search>\n<parameter=q>\nfir");
++        auto bare_end                = bare.finish(true);
++        failures += check(bare_shown.empty() && bare_end.content.empty() &&
++                              bare_end.diagnostics.cut_calls_dropped == 1,
++                          "a lone cut-off bare Qwen call reached the content");
++        // Two bare calls, the second cut: the first is kept, the second dropped.
++        fi::ToolCallOutputDecoder two(contract, 64);
++        (void)two.feed("<function=search>\n<parameter=q>\nfirst\n</parameter>\n</function>\n"
++                       "<function=search>\n<parameter=q>\nsec");
++        auto two_end = two.finish(true);
++        failures += check(two_end.tool_calls.size() == 1 && two_end.content.empty() &&
++                              two_end.tool_calls[0].arguments_json == R"({"q":"first"})" &&
++                              two_end.diagnostics.cut_calls_dropped == 1,
++                          "a complete bare call before a cut-off one was not kept");
++    }
++    // A body that names a tool only in its text, not at the name position, began no call.
++    const std::string markup = "See <tool_call> <b>search</b> for";
++    fi::ToolCallOutputDecoder tagged(contract, 64);
++    const std::string tagged_shown = tagged.feed(markup);
++    auto tagged_end                = tagged.finish(true);
++    failures += check(tagged_shown + tagged_end.content == markup &&
++                          tagged_end.diagnostics.cut_calls_dropped == 0,
++                      "markup naming a tool outside the name position was dropped");
+     return failures;
+ }
+ 
+-- 
+2.43.0
+

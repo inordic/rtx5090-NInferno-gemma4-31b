@@ -1,0 +1,94 @@
+=== 21:33:59 assistant in NVFP4, on the CPU
+wrote /opt/models/dl2/assistant.nvfp4.ninferno: 48 objects, 1 files, 3.0s (model 1.32s, plan 0.65s, weights 0.88s, finish 0.17s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/dl2/assistant.nvfp4.ninferno --model-id <repo> attaches them (or con
+-rw------- 1 root root 296346628 Nov  4 21:34 /opt/models/dl2/assistant.nvfp4.ninferno
+=== 21:34:02 W1: idle, taking the GPU
+PP 2048: 4300.8 tok/s (n=1706) [4346.583491130087, 4254.948704872428]
+PP 8192: 4529.0 tok/s (n=7468) [4586.951381152372, 4471.0437408184125]
+PP 32768: 3486.2 tok/s (n=28972) [3511.1455278640688, 3461.227173946593]
+PP 65536: 2592.2 tok/s (n=57942) [2595.74172994965, 2588.720150379015]
+PP 131072: 1689.6 tok/s (n=118244) [1693.0367928722956, 1686.2017713029877]
+TRACE n5/trace_base.csv: 580 load samples | P-state {'P0': 580} | SM median 2032 low 1590 high 2152 MHz | memory median 14001 high 14001 MHz | power median 172 max 174 W | temp max 82 | sw power cap 99% sw thermal 0% hw thermal 0% brake 0%
+COUNTS N5_base: privately 0 | request failure 0 | exits 0
+FIT N5_c1280 chunk 1280 context 198656
+PP 2048: 4166.3 tok/s (n=1706) [4193.331828977647, 4139.215300616637]
+PP 8192: 4677.0 tok/s (n=7468) [4692.231966447627, 4661.685331295056]
+PP 32768: 3594.9 tok/s (n=28972) [3611.2872196229287, 3578.529381070884]
+PP 65536: 2637.2 tok/s (n=57942) [2638.7909574074865, 2635.668816236781]
+PP 131072: 1706.5 tok/s (n=118244) [1708.7990847020837, 1704.2091145048735]
+TRACE n5/trace_c1280.csv: 521 load samples | P-state {'P0': 521} | SM median 2017 low 1582 high 2235 MHz | memory median 14001 high 14001 MHz | power median 172 max 178 W | temp max 84 | sw power cap 100% sw thermal 0% hw thermal 0% brake 0
+COUNTS N5_c1280: privately 0 | request failure 0 | exits 0
+=== 21:46:26 W2: idle, taking the GPU
+PP 2048: 4155.7 tok/s (n=1706) [4107.350586947336, 4204.000799706421]
+PP 8192: 4450.5 tok/s (n=7468) [4494.280683990472, 4406.766241649031]
+PP 32768: 3444.4 tok/s (n=28972) [3454.877173295147, 3433.9771316924225]
+PP 65536: 2564.8 tok/s (n=57942) [2559.2010522023115, 2570.404849206491]
+PP 131072: 1682.2 tok/s (n=118244) [1683.9776793381823, 1680.3743826534503]
+COUNTS N5_ab0: privately 0 | request failure 0 | exits 0
+COUNTS N5_ab1: privately 0 | request failure 0 | exits 0
+PP 2048: 4211.6 tok/s (n=1706) [4189.61166582965, 4233.6187981092235]
+PP 8192: 4525.4 tok/s (n=7468) [4542.161495013492, 4508.68655729446]
+PP 32768: 3581.6 tok/s (n=28972) [3593.317083125425, 3569.9133513285515]
+PP 65536: 2709.9 tok/s (n=57942) [2705.1547010576533, 2714.5540331280363]
+PP 131072: 1809.3 tok/s (n=118244) [1810.9701824994656, 1807.7146356526312]
+COUNTS N5_ab2: privately 0 | request failure 0 | exits 0
+same 30/30: n5/ab_off.json n5/ab_off2.json
+same 30/30: n5/ab_off.json n5/ab_on.json
+=== 22:03:22 W3: idle, taking the GPU
+PASS ninferno_qwen3_5_state_image_test
+PASS ninferno_qwen3_5_context_store_test
+status 200: 'The number in the title is 731.'
+PASSED 300 steps, 330 requests in 665s
+SURVIVED N5_gates
+COUNTS N5_gates: privately 0 | request failure 0 | exits 0
+MTP N5_gates accepted 90862/123771 (73.4%)
+=== 22:32:58 W4: idle, taking the GPU
+SKIP 8192: tiles 31614384 2^-6=8.4% 2^-8=1.6% 2^-10=0.3% 2^-12=0.1% 2^-14=0.1%
+SKIP 32768: tiles 461932272 2^-6=14.2% 2^-8=3.5% 2^-10=0.6% 2^-12=0.1% 2^-14=0.0%
+SKIP 65536: tiles 2251895088 2^-6=16.1% 2^-8=4.0% 2^-10=0.7% 2^-12=0.1% 2^-14=0.0%
+SKIP 131072: tiles 8370906080 2^-6=17.7% 2^-8=4.4% 2^-10=0.7% 2^-12=0.1% 2^-14=0.0%
+SKIP 32768: tiles 714810400 2^-6=16.8% 2^-8=4.3% 2^-10=0.8% 2^-12=0.1% 2^-14=0.0%
+SKIP 131072: tiles 8737081792 2^-6=16.9% 2^-8=4.1% 2^-10=0.7% 2^-12=0.1% 2^-14=0.0%
+=== 22:37:21 W5: idle, taking the GPU
+ls: cannot access '/etc/nvidia/nvidia-application-profiles-rc': No such file or directory
+ls: cannot access '/root/.nv/nvidia-application-profiles-rc': No such file or directory
+PP 2048: 4250.4 tok/s (n=1706) [4298.355524877015, 4202.369088776072]
+PP 8192: 4567.7 tok/s (n=7468) [4608.157924023707, 4527.338413029665]
+PP 32768: 3619.5 tok/s (n=28972) [3637.108840760143, 3601.9478821927332]
+PP 65536: 2726.4 tok/s (n=57942) [2727.1602133092415, 2725.614279620502]
+PP 131072: 1812.0 tok/s (n=118244) [1815.001500847489, 1808.9751717513604]
+TG@8192 greedy: 106.5 tok/s [108.63287280876638, 104.39483509630045] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 109.6 tok/s (4861 tok) spec=mtp K=7
+TRACE n5/trace_p0.csv: 541 load samples | P-state {'P0': 541} | SM median 2010 low 1590 high 2152 MHz | memory median 14001 high 14001 MHz | power median 172 max 174 W | temp max 83 | sw power cap 99% sw thermal 0% hw thermal 0% brake 0%
+=== 22:42:43 W6: idle, taking the GPU
+--- reference: weights only
+KLD reference: "/root/gbench/n5/a16.kld"
+report: "/opt/NInferno-up/profiles/perplexity/turbo-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/bf16/ninferno-ppl-1m-v1/quick/20261104-224248/report.json"
+--- production: A4 + FP8 KV
+mean KLD: 1.284682, median: 0.195229, p99: 14.652624
+top-1 agreement: 68.1785 %, PPL ratio: 0.8542
+report: "/opt/NInferno-up/profiles/perplexity/turbo-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/fp8-e4m3-r256/ninferno-ppl-1m-v1/quick/20261104-225503/report.json"
+--- KV alone
+mean KLD: 0.349601, median: 0.007658, p99: 8.115742
+top-1 agreement: 87.5974 %, PPL ratio: 1.0055
+report: "/opt/NInferno-up/profiles/perplexity/turbo-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/fp8-e4m3-r256/ninferno-ppl-1m-v1/quick/20261104-225707/report.json"
+--- A4 alone
+mean KLD: 1.241654, median: 0.189903, p99: 14.350057
+top-1 agreement: 68.6471 %, PPL ratio: 0.8574
+report: "/opt/NInferno-up/profiles/perplexity/turbo-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/bf16/ninferno-ppl-1m-v1/quick/20261104-230919/report.json"
+=== 23:11:59 W7: idle, taking the GPU
+FIT N5_dr4 chunk 1024 context 206848
+PP 2048: 4222.8 tok/s (n=1706) [4266.073918767103, 4179.540947151302]
+PP 8192: 4568.3 tok/s (n=7468) [4602.292272474247, 4534.404886636098]
+PP 32768: 3619.3 tok/s (n=28972) [3638.775234656262, 3599.770022904523]
+PP 65536: 2721.9 tok/s (n=57942) [2722.539292398319, 2721.202383671676]
+PP 131072: 1809.4 tok/s (n=118244) [1813.147856573549, 1805.6123101302117]
+TG@8192 greedy: 113.6 tok/s [112.5737959537308, 114.66728960879756] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.7 tok/s (4861 tok) spec=mtp K=7
+COUNTS N5_dr4: privately 0 | request failure 0 | exits 0
+MTP N5_dr4 accepted 21147/26137 (80.9%)
+=== 23:20:33 CUDA 13.4 aside (626 GB free)
+BUILD_134_FAILED
+=== 23:21:25 fast unit answering: active
+/dev/loop4      1.2T  459G  625G  43% /
+=== 23:21:25 NIGHT5_DONE

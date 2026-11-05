@@ -1,7 +1,7 @@
 # Build: from a container with an RTX 5090 Laptop GPU to both profiles serving
 
 This is the route we took. The paths are ours:
-- **Engine:** two trees. `/opt/NInferno-up` (upstream `8359583` + patches 01–16, four upstream fixes, patches 17–18) serves the fast unit from `build/apps-up3`; `/opt/NInferno` (`9895ebc` + patches) serves the max-context unit from `build/apps-final7` (patches 01–09). Production runs these copies of the binaries; later builds in the trees don't touch them.
+- **Engine:** two trees. `/opt/NInferno-up` (upstream `8359583` + patches 01–16, ten upstream fixes, patches 17–19, patch 12 reverted) serves the fast unit from `build/apps-up4`; `/opt/NInferno` (`9895ebc` + patches) serves the max-context unit from `build/apps-final7` (patches 01–09). Production runs these copies of the binaries; later builds in the trees don't touch them.
 - **Converter:** `/opt/llama.cpp`, the patched one, used only to convert the drafter.
 - **Models:** `/opt/models/dl` and `/opt/models/dl2`.
 - **Benchmarks:** `/root/gbench`, holding the contents of [`bench/`](bench/).
@@ -47,6 +47,15 @@ PATH=/usr/local/cuda-13.2/bin:$PATH ninja -C build ninferno-serve ninferno-gemma
 mkdir -p build/apps-up3 && cp build/apps/ninferno-serve build/apps/ninferno-gemma4 build/apps/ninferno build/apps-up3/
 ```
 
+Since 5 Nov the fast unit adds six more upstream fixes (#324, `c6e54d7` from #326, #327, #325, #318, #319), reverts patch 12 because #318 carries its fix, and adds our patch 19 ([night 5](research/2026-11-05-night5.md)):
+
+```bash
+git checkout -b kvshare-up4
+git am -3 $P/upstream/00{05,06,07,08,09,10,11}-*.patch $P/0019-*.patch
+PATH=/usr/local/cuda-13.2/bin:$PATH ninja -C build ninferno-serve ninferno-gemma4 ninferno
+mkdir -p build/apps-up4 && cp build/apps/ninferno-serve build/apps/ninferno-gemma4 build/apps/ninferno build/apps-up4/
+```
+
 The max-context unit still runs the build at patch 09 on the original base (`/opt/NInferno/build/apps-final7`); it hasn't been re-measured on newer builds. Step 3 converts with that tree's `build/apps/ninferno-convert` at the branch tip (patch 13 packs the fast model's Q/K/V). To set it up:
 1. Clone into `/opt/NInferno` and run `git checkout -b kvshare-main 9895ebc62e2bdfb367083a72cb2c4a714cf41542`.
 1. Run `git am $P/00*.patch`; all sixteen apply cleanly on this base.
@@ -56,8 +65,8 @@ The max-context unit still runs the build at patch 09 on the original base (`/op
 The full build takes a long time; the kernels are many. Add `-DNINFERNO_BUILD_BENCHMARKS=ON` and `ninja -C build bench/ninferno_linear_bench` if you want the kernel microbenchmark used in [`bench/lb.sh`](bench/lb.sh).
 
 **Check:**
-- `git log --oneline -1` shows `program: a resource subtraction underflow names its call site and operands`, our patch 18 (patch 16, `serve: opt-in automatic shared-prefix candidates …`, before the upstream fixes).
-- `build/apps-up3/ninferno-serve --version` prints `NInferno 0.1.0 (built for sm_120, CUDA 13.2)` and lists the GPU.
+- `git log --oneline -1` shows `gemma4: a mid-prompt prefill call stops the last layer at its cache write`, our patch 19.
+- `build/apps-up4/ninferno-serve --version` prints `NInferno 0.1.0 (built for sm_120, CUDA 13.2)` and lists the GPU.
 
 ## 2. llama.cpp with the QAT-aware Q4_0 encoder (for the drafter)
 
@@ -106,10 +115,10 @@ mkdir -p $D/assistant && cd $D/assistant
 for f in config.json generation_config.json tokenizer_config.json model.safetensors tokenizer.json chat_template.jinja; do
   curl -sL -C - --fail --retry 10 -o $f https://huggingface.co/google/gemma-4-31B-it-assistant/resolve/main/$f
 done
-/opt/NInferno/build/apps/ninferno-convert --model $D/assistant --recipe gemma4_assistant_published --out $D/assistant.q8full.ninferno
+/opt/NInferno-up/build/apps/ninferno-convert --model $D/assistant --recipe gemma4_assistant_published --drafter-quant nvfp4 --out $D/assistant.nvfp4.ninferno
 ```
 
-**Check:** the artifact is 531,091,716 bytes. Its `.conversion.json` lists `q8_g32_fp16: 19, bf16: 21, fp32: 4`.
+**Check:** the artifact is 296,346,628 bytes. Without `--drafter-quant nvfp4` the converter gives the Q8 assistant the fast unit used until 5 Nov (`assistant.q8full.ninferno`, 531,091,716 bytes).
 
 ### 3b. The fast profile's target: LilaRest NVFP4-turbo, Q/K/V packed, with vision
 
@@ -173,13 +182,13 @@ Don't use melcheikh's "-mse-Blackwell" repo instead: its language-model tensors 
 
 The two units conflict, so starting one stops the other. Enable the one that should come up after a reboot; we enable the fast one: `systemctl enable gemma4-31b-fast`. If the GPU is busy at boot (another container on it), the unit fails and retries every 10 s until it starts.
 
-The first start takes about 25 s: weights, plan and CUDA graphs. The log line `capacity | KV 202,112 tokens, fp8, sliding rings fp8` confirms the context.
+The first start takes about 25 s: weights, plan and CUDA graphs. The log line `capacity | KV 203,136 tokens, fp8, sliding rings fp8` confirms the context, and `free 144.6 MiB` the margin.
 
 **Check**, in order:
-1. `curl -s localhost:8080/v1/models` shows `max_model_len 202112`, `"capabilities": {"images": true}` and `"config": "mtp K=7"`.
+1. `curl -s localhost:8080/v1/models` shows `max_model_len 203136`, `"capabilities": {"images": true}` and `"config": "mtp K=7"`.
 2. [`bench/verify.py`](bench/verify.py) passes: models, chat, streaming, and three agent-style turns with prefix reuse. The second and third turns should report `cache` around 17,600 and take about 0.5 s.
-3. [`bench/gbench.py`](bench/gbench.py) `--pp 2048,8192,32768,65536` lands near the numbers in [`results/results.jsonl`](results/results.jsonl), label `K1 turbo-qkv-vision ctx202112`.
-4. [`bench/visiontest.py`](bench/visiontest.py) scores 7/7, and [`bench/needle.py`](bench/needle.py) `--lengths 140000,181900 --depths 0.5` scores 2/2.
+3. [`bench/gbench.py`](bench/gbench.py) `--pp 2048,8192,32768,65536` lands near the numbers in [`results/results.jsonl`](results/results.jsonl), label `Live up4`.
+4. [`bench/visiontest.py`](bench/visiontest.py) scores 7/7, and [`bench/needle.py`](bench/needle.py) `--lengths 140000,170000,205000 --depths 0.5` scores 3/3.
 5. [`bench/agenttest.py`](bench/agenttest.py) `--label check --runs 3` ends with `"markup_as_text": 0` and `"errors": 0`, and [`bench/textcalltest.py`](bench/textcalltest.py) prints `TEXTCALL leaks 0`.
 
 [`bench/deploy_fast.sh`](bench/deploy_fast.sh) stops anything on 8080 and brings the fast unit up again. Our overnight runners call it after every test batch.
@@ -202,7 +211,7 @@ Stats are on `http://<host-ip>:8081`, and sign-in is on `https://<host-ip>:8443`
 
 **Tools.** The UI's tool calling starts switched off. Turn it on as admin under Settings → Tools, or from the shell with [`config/ninfer-ui/tools-on.mjs`](config/ninfer-ui/tools-on.mjs); no restart is needed, and a reload of the page shows "Use tools" in the Sampling drawer. The built-in `current_time` and `calculator` are then on; an MCP server's tools start off and are switched on one by one. Clients that call 8080 directly (agents) need nothing: the engine accepts OpenAI `tools` and returns `tool_calls`, streamed or not.
 
-**Check:** `curl http://<host-ip>:8081/health` shows `"model":"gemma4-31b-fast","max_context":202112,"images":true`.
+**Check:** `curl http://<host-ip>:8081/health` shows `"model":"gemma4-31b-fast","max_context":203136,"images":true`.
 
 ## 6. Measure
 
@@ -222,7 +231,7 @@ Stats are on `http://<host-ip>:8081`, and sign-in is on `https://<host-ip>:8443`
 
 | Setting | Why |
 |---|---|
-| `--drafter` matched to the target | fast: `assistant.q8full.ninferno` (Google's regular assistant) for the BF16-derived turbo. With the QAT assistant there, chat was 85 tok/s against 109. Max context: `qat-assistant.q40qat.ninferno`, the QAT-paired assistant losslessly in Q4_0, with acceptance 0.80–0.90 on code against 0.37 for the regular one, and decode 57 → 106 tok/s |
+| `--drafter` matched to the target | fast: `assistant.nvfp4.ninferno` (Google's regular assistant, in NVFP4) for the BF16-derived turbo. With the QAT assistant there, chat was 85 tok/s against 109; NVFP4 against Q8 frees 0.22 GiB and adds 3.7% decode at the same acceptance. Max context: `qat-assistant.q40qat.ninferno`, the QAT-paired assistant losslessly in Q4_0, with acceptance 0.80–0.90 on code against 0.37 for the regular one, and decode 57 → 106 tok/s |
 | `--sliding-kv-dtype fp8`, `NINFERNO_GEMMA4_EMBED_HOST=1` (fast) | FP8 sliding rings (0.77 GB) and the token table in host memory (1.4 GB): 202K with vision instead of 155K text-only, at the same speed; short agent turns 0.24 s instead of 0.28 s |
 | `NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64` (fast) | the wide attention tile from 64 tokens: first token 11% sooner on agent turns that append about 900 tokens |
 | `--vision` (fast) | images at about 290 tokens each; needs patch 12 with MTP |
@@ -230,5 +239,6 @@ Stats are on `http://<host-ip>:8081`, and sign-in is on `https://<host-ip>:8443`
 | `NINFERNO_GEMMA4_SHARED_VALUES=2` | K-only FP8 KV for the ten k_eq_v full-attention layers, V rebuilt as unrope(K)/c in the kernel. This is what fits 155K (NVFP4) and 262K (Q4) |
 | `NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1` | gate/up as a plain GEMM plus GELU·mul at every width. Prefill: 2.5K → 3.9K at 8K on NVFP4. Decode: +6–9% (NVFP4) and +10% (Q4). Our patch 01 adds the switch; its default (0) keeps the fused kernel |
 | `--kv-dtype fp8` | half the KV of BF16, at unchanged quality scores |
-| `--prefill-chunk 1024` (fast) / `512` (max context) | the context ceiling depends on the chunk: NVFP4 fits 92.7K at 2048, 155.8K at 1024 and 185.3K at 512. Chunk 1024 costs no prefill speed against 2048 |
-| `--max-context 202112` (fast) | the largest that fits at chunk 1024 with vision, the regular assistant and both levers. Without `--vision` the same unit fits 262,144 |
+| `--prefill-chunk 1280` (fast) / `512` (max context) | the context ceiling depends on the chunk, and speed doesn't rise steadily with it: on 82 SMs chunk 1280 beats 1024 by 3–6% from 8K to 64K, while 1152 and 1408 lose to it ([night 5 §4](research/2026-11-05-night5.md#4-prefill-chunk)). 1792 doesn't fit at any useful context |
+| `NINFERNO_GEMMA4_SKIP_LAST_LAYER=1` (fast) | patch 19: mid-prompt calls stop the last layer at its cache write. Prefill +4% at 32K, +7.6% at 130K, identical answers |
+| `--max-context 203136` (fast) | the largest at chunk 1280 that keeps production's margin (144.6 MiB, plan `reserve kept`) with vision. 206,848 starts, but with 70.6 MiB and `reserve warm_up`. Without `--vision` the unit fits 262,144 at chunk 1024 |

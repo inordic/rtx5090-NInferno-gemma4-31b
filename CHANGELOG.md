@@ -2,11 +2,26 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-05 02:45: fast unit on apps-up4, chunk 1280, the assistant in NVFP4
+
+- **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) runs `/opt/NInferno-up/build/apps-up4`, branch `kvshare-up4` at `a0d4feb`: `kvshare-up3`, upstream #324, `c6e54d7` from #326, #327, #325, #318 and #319, patch 12 reverted (#318 carries its fix) and our new patch 19, on with `NINFERNO_GEMMA4_SKIP_LAST_LAYER=1`. Flags: `--prefill-chunk 1280` (was 1024), `--drafter assistant.nvfp4.ninferno` (was the Q8 one), `--max-context 203136` (was 202,112).
+  - **Restart:** 02:45 with no request in flight ([`deploy_up4.sh`](bench/runs/night5/deploy_up4.sh)); 8080 answered again after 34 s, with 144.6 MiB left on the device, as before, and the same cache (host 18 states, 8 GiB). Host memory pinned: 24.1 GiB (22.3 before).
+- **Why** ([night 5 report](research/2026-11-05-night5.md)), production against the new setup, turn about:
+  - prefill 4,192 / 4,732 / 3,710 / 2,766 / 1,819 tok/s at 2K / 8K / 32K / 64K / 130K, against 4,190 / 4,455 / 3,449 / 2,553 / 1,664: the same at 2K, then +6.2%, +7.6%, +8.3%, +9.3%;
+  - chat decode 113.6 against 109.4 (+3.8%), hard50 decode 153.6 against 145.1 (+5.8%);
+  - upstream's fixes turn the kind of engine exit we have had into a failed request, and a tool result ending in an image now answers 200.
+- **Quality:** all 929 items of MMLU-Pro (178/280), MMLU (249/285), GSM8K (197/200) and HumanEval (161/164) kept their score, and hard50 stayed at 42/50 with no change on any question.
+- **Gates on the exact setup:** verify, tool calls, vision 7/7, image tool result, turns, head reuse, agent loop, three cache replays, 300 stress steps, needles at 129K, 159K and a new high of 192K tokens: all passed, no exit, no failed request.
+- **Measured on the live unit after the switch:** [`verify.py`](bench/verify.py) passed (agent turns of 0.47–0.48 s with 17.6K cached); 0 tool-call leaks; vision 7/7; agent loop 29 steps, 27 calls, no markup as text, no error; new sessions sharing a 24.4K head in 0.39–0.44 s; the web UI reports 203,136. Numbers: [`n5-live-checks.out`](results/runs/n5-live-checks.out).
+- **Tested, not adopted:** skip-softmax (0.7% of tiles at 2^-10, the bar was 25%), the P0 profile (the card already runs P0), CUDA 13.4 (same tokens, no speed; the default stays 13.2).
+- **Boot:** the unit stays enabled, `Restart=on-failure`. No reboot test.
+- **Rollback:** restore `/etc/systemd/system/gemma4-31b-fast.service.bak-20261105-014504` (`apps-up3`), then `systemctl daemon-reload` and [`bench/deploy_fast.sh`](bench/deploy_fast.sh).
+
 ## 2026-11-04 22:30: research update, night 5 prepared (running setup unchanged)
 
 - **Found:** no outside release moves our numbers; the best finds are in our own code ([research update](research/2026-11-04-research-update.md)).
 - **Built, not deployed:** branch `kvshare-up4` at `a0d4feb` (`kvshare-up3`, six upstream fixes, patch 12 reverted, a new patch 19, opt-in) as `/opt/NInferno-up/build/apps-up4`, and a counting build as `apps-sk`. CPU unit tests pass; nothing has run on the GPU yet.
-- **Corrected:** the GPU's enforced power limit is 150 W (default 95 W, maximum 175 W).
+- **Corrected on 5 Nov:** this entry first gave the GPU's enforced power limit as 150 W. Under load it reads 175 W and the card draws a median 172 W ([night 5 §6](research/2026-11-05-night5.md#6-power)).
 - **Unchanged:** 8080 runs `apps-up3`.
 
 ## 2026-11-04 18:50: first two days on apps-up3 (running setup unchanged)

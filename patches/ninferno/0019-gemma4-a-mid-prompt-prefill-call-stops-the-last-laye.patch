@@ -1,0 +1,156 @@
+From a0d4feb19e73eb311a90c91070ba65629943e871 Mon Sep 17 00:00:00 2001
+From: Leon Bollerup <mail@r2x2.com>
+Date: Wed, 4 Nov 2026 21:11:43 +0000
+Subject: [PATCH 8/8] gemma4: a mid-prompt prefill call stops the last layer at
+ its cache write
+
+The last layer is a full-attention layer no later layer attends through, and on the staged prompt
+path only the prompt's last call and a call ending on a capture's frontier have their hidden read.
+Every other call's last-layer attention, O projection, MLP and final norm were thrown away. A
+rebuild reads every call's tail and a causal score every column, so they keep the full pass.
+Opt-in: NINFERNO_GEMMA4_SKIP_LAST_LAYER=1.
+---
+ src/models/gemma4/program_family.cpp   | 18 +++++++++++++++---
+ src/models/gemma4/target.cu            |  8 +++++---
+ src/models/gemma4/target.h             |  8 +++++---
+ src/models/qwen3_5/program/context.h   |  4 ++++
+ src/models/qwen3_5/program/prefill.cpp |  3 ++-
+ 5 files changed, 31 insertions(+), 10 deletions(-)
+
+diff --git a/src/models/gemma4/program_family.cpp b/src/models/gemma4/program_family.cpp
+index 27807c7b..72bdcb3d 100644
+--- a/src/models/gemma4/program_family.cpp
++++ b/src/models/gemma4/program_family.cpp
+@@ -854,6 +854,16 @@ program::PrefillChunkResult Gemma4Execution::run_prefill_call(
+     const auto layers = sequence_bindings(state, state.state_destination_slot, rows);
+     ops::set_i32_scalar(core.io.rope_delta, 0, s);
+ 
++    // Mid-prompt, nothing reads this call's hidden: the last layer is a full-attention layer
++    // that no later layer attends through, so only its keys matter. A call ending on a capture's
++    // frontier keeps the output: finish_prefill_text stores its tail in the checkpoint.
++    static const bool skip_last_layer = [] {
++        const char* e = std::getenv("NINFERNO_GEMMA4_SKIP_LAST_LAYER");
++        return e != nullptr && std::atoi(e) != 0;
++    }();
++    const bool stores_tail = split_frontier && *split_frontier == base + len &&
++                             state.rewrite_checkpoint_hidden != nullptr;
++    const bool output = !skip_last_layer || !state.hidden_at_frontiers_only || is_last || stores_tail;
+     Tensor hidden = core.prefill_hidden.slice(1, 0, t);
+     {
+         auto scope          = core.work.scope();
+@@ -861,9 +871,11 @@ program::PrefillChunkResult Gemma4Execution::run_prefill_call(
+             core.work, device_ids, positions,
+             {.layers = layers, .image_block = embeddings != nullptr},
+             {.max_visible_keys = base + len, .max_tokens = t}, Activations::Recorded, nullptr,
+-            embeddings);
+-        CUDA_CHECK(cudaMemcpyAsync(hidden.data, normed.data, hidden.bytes(),
+-                                   cudaMemcpyDeviceToDevice, s));
++            embeddings, output);
++        if (output) {
++            CUDA_CHECK(cudaMemcpyAsync(hidden.data, normed.data, hidden.bytes(),
++                                       cudaMemcpyDeviceToDevice, s));
++        }
+     }
+     const Tensor last = hidden.slice(1, t - 1, 1);
+     program::finish_prefill_text(state, call, split_frontier, last, traits_.public_tokens,
+diff --git a/src/models/gemma4/target.cu b/src/models/gemma4/target.cu
+index 0a7088ed..e5f0d531 100644
+--- a/src/models/gemma4/target.cu
++++ b/src/models/gemma4/target.cu
+@@ -287,7 +287,7 @@ std::size_t Target::workspace_bytes(const Model& model, std::int32_t max_context
+ // closing residual update writes the next reader's normalized input in the same launch.
+ void TargetPass::layers(DeviceArena& work_, Tensor& x, Tensor& h, const Tensor& pos, KvBindings kv,
+                         ops::Gemma4AttentionEnvelope envelope, Activations activations,
+-                        const FeatureTap* tap, const Tensor* ple) const {
++                        const FeatureTap* tap, const Tensor* ple, bool output) const {
+     const cudaStream_t s     = device_.stream;
+     const std::int32_t t     = x.ne[1];
+     const std::int32_t batch = kv.batch;
+@@ -389,6 +389,8 @@ void TargetPass::layers(DeviceArena& work_, Tensor& x, Tensor& h, const Tensor&
+                                         eps, pos, g.rope_theta, g.rotary_pairs, q, kv.layers[i], s,
+                                         qkv_released);
+             }
++            // Its keys are in the cache; the rest of the last layer only feeds the result.
++            if (!output && i + 1 == c_.layers) { return; }
+             Tensor context = work_.alloc(DType::BF16, {d, c_.query_heads, t});
+             {
+                 // Ops that own a workspace see all of it as theirs; give them a carved span.
+@@ -564,7 +566,7 @@ void Model::embed(const Tensor& ids, Tensor& out, cudaStream_t stream) const {
+ 
+ Tensor TargetPass::forward(DeviceArena& work, const Tensor& ids, const Tensor& pos, KvBindings kv,
+                            ops::Gemma4AttentionEnvelope envelope, Activations activations,
+-                           const FeatureTap* tap, const Tensor* embeddings) const {
++                           const FeatureTap* tap, const Tensor* embeddings, bool output) const {
+     const std::int32_t t = ids.ne[0];
+     const auto& w        = model_.weights();
+     Tensor x             = work.alloc(DType::BF16, {c_.hidden_size, t});
+@@ -596,7 +598,7 @@ Tensor TargetPass::forward(DeviceArena& work, const Tensor& ids, const Tensor& p
+                                c_.ple_embedding_scale, c_.ple_input_scale, ple, device_.stream);
+     }
+     ops::rmsnorm(x, w.layers.front().input_norm, c_.rms_norm_eps, false, h, device_.stream);
+-    layers(work, x, h, pos, kv, envelope, activations, tap, c_.ple() ? &ple : nullptr);
++    layers(work, x, h, pos, kv, envelope, activations, tap, c_.ple() ? &ple : nullptr, output);
+     return h;
+ }
+ 
+diff --git a/src/models/gemma4/target.h b/src/models/gemma4/target.h
+index 4e982bc9..69cabc9b 100644
+--- a/src/models/gemma4/target.h
++++ b/src/models/gemma4/target.h
+@@ -70,11 +70,13 @@ public:
+ 
+     // Embeds the T ids already on the device and runs every layer over them at the absolute
+     // positions `pos`; returns final_norm(x), the head's input, carved from `work`. `embeddings`
+-    // (BF16 [hidden, T]) replaces the ids' embedding rows: an image's soft tokens.
++    // (BF16 [hidden, T]) replaces the ids' embedding rows: an image's soft tokens. With `output`
++    // false the caller reads nothing of the result: the last layer stops at its cache write.
+     Tensor forward(DeviceArena& work, const Tensor& ids, const Tensor& pos, KvBindings kv,
+                    ops::Gemma4AttentionEnvelope envelope,
+                    Activations activations = Activations::Recorded,
+-                   const FeatureTap* tap = nullptr, const Tensor* embeddings = nullptr) const;
++                   const FeatureTap* tap = nullptr, const Tensor* embeddings = nullptr,
++                   bool output = true) const;
+ 
+     // Soft-capped head over the columns of `normed`, which already carries final_norm.
+     void head(DeviceArena& work, const Tensor& normed, Tensor& out) const;
+@@ -88,7 +90,7 @@ public:
+ private:
+     void layers(DeviceArena& work, Tensor& x, Tensor& h, const Tensor& pos, KvBindings kv,
+                 ops::Gemma4AttentionEnvelope envelope, Activations activations,
+-                const FeatureTap* tap, const Tensor* ple) const;
++                const FeatureTap* tap, const Tensor* ple, bool output) const;
+ 
+     const Model& model_;
+     const Config& c_;
+diff --git a/src/models/qwen3_5/program/context.h b/src/models/qwen3_5/program/context.h
+index a30330cc..e2c3801c 100644
+--- a/src/models/qwen3_5/program/context.h
++++ b/src/models/qwen3_5/program/context.h
+@@ -78,6 +78,10 @@ struct PrefillContext {
+     std::uint32_t mtp_proposal_extent                          = 0;
+     std::int32_t dflash_kv_table_row                           = 0;
+     qwen3_5::DFlashPrefillIngress* dflash_prefill_host_ingress = nullptr;
++    // The staged prompt path: only the prompt's last call and a call ending on a capture's
++    // frontier have their hidden read. A rebuild reads every call's tail and a causal score
++    // every column, so they leave this false.
++    bool hidden_at_frontiers_only = false;
+ };
+ 
+ struct OrdinaryBatchContext {
+diff --git a/src/models/qwen3_5/program/prefill.cpp b/src/models/qwen3_5/program/prefill.cpp
+index 22df46eb..017ca722 100644
+--- a/src/models/qwen3_5/program/prefill.cpp
++++ b/src/models/qwen3_5/program/prefill.cpp
+@@ -1142,7 +1142,8 @@ runtime::PrefillStepResult ProgramImpl::advance_prefill(SequenceState& sequence,
+             selectors.destination,
+             staged.initial_mtp_extent,
+             0,
+-            dflash_prefill_host_ingress};
++            dflash_prefill_host_ingress,
++            true};
+         // Forced tokens of another lane, or another lane's bind, may have repointed the prefill KV
+         // row scalars since this lane's bind; every prefill step publishes its own rows.
+         publish_kv_rows(sequence);
+-- 
+2.43.0
+

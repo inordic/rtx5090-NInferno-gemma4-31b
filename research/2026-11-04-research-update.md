@@ -8,7 +8,7 @@ Eight research passes looked at what changed since 25 Oct: the engine's upstream
 - **The best finds are in our own code.** Layer 59 computes attention and MLP for every prompt token and then throws them away, and the GEMM tile was tuned for 170 SMs, where this card has 82.
 - **Upstream's value now is stability.** Six fixes from 2 Nov turn the kind of engine exit we have had into a failed request.
 
-Gains below are estimates unless they say measured. The night tests them; none is proven on this box yet.
+Gains below are estimates unless they say measured. The night tests them; none is proven on this box yet. The results are in the [night 5 report](2026-11-05-night5.md).
 
 | Candidate | Expected | Evidence | Night 5 |
 |---|---|---|---|
@@ -86,7 +86,7 @@ Among other models, Qwen3.8-27B is the only candidate. Third-party tests show it
 
 ## 7. Drivers and power
 
-The enforced power limit is **150 W** (default 95 W, maximum 175 W), not the 175 W of our earlier notes. That suggests Dynamic Boost is off, but we have never traced power or clocks under load. W1 does that first: if prefill sits on the power cap, more power is worth a look on the host. If it doesn't, that idea can go.
+**Corrected 5 Nov:** this section first said the enforced limit was 150 W and that Dynamic Boost looked off. W1's trace shows otherwise. Under load the enforced limit read 175 W, the card drew a median 172 W, and it was already at P0 with full memory clock ([night 5 §6](2026-11-05-night5.md#6-power)). It runs at its full limit, so there is no more power to give it.
 
 No driver after 595.58.03 claims faster GeForce Blackwell compute. Neither NInferno's sm_120 path nor our shapes use cuBLASLt or CUTLASS, so their updates change nothing for us.
 

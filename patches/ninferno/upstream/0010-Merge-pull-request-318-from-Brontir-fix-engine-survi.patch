@@ -1,0 +1,477 @@
+From 98be1515ddcf79026367c888c2c3158aefcee21a Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Mon, 2 Nov 2026 15:45:37 +0100
+Subject: [PATCH 6/8] Merge pull request #318 from
+ Brontir/fix/engine-survives-request-errors
+
+Engine: one request's failure no longer stops the server
+(cherry picked from commit 7fe1dece6dbbbaf3ab7b76110cd090af5b5a6905)
+---
+ docs/reference/serving.md                     |  8 +-
+ src/models/gemma4/program_family.cpp          | 60 ++++++++++++---
+ src/models/gemma4/vision.cpp                  |  6 +-
+ .../qwen3_5/frontend/output_session.cpp       | 57 ++++++++++++++
+ src/runtime/engine/engine_core.h              | 76 +++++++++++++++++--
+ tests/models/qwen3_5/test_frontend.cpp        | 39 ++++++++++
+ 6 files changed, 227 insertions(+), 19 deletions(-)
+
+diff --git a/docs/reference/serving.md b/docs/reference/serving.md
+index 0487e087..4bff19ec 100644
+--- a/docs/reference/serving.md
++++ b/docs/reference/serving.md
+@@ -508,6 +508,12 @@ prefix, with the same behavior, errors, and request IDs.
+   `Retry-After`, the Engine resets its sequence state and the context cache, and the queued
+   requests go on. A second such error within five minutes is treated as Engine-wide, so a condition
+   the reset did not cure ends in a restart.
++- **Request failure.** Any other error raised while serving requests on a healthy device (a defect
++  met by one request's output decoding, media prefill or admission) does not stop the server. A
++  request being admitted when it happened is answered with the error (HTTP 500); the requests
++  already running are answered HTTP 503 with `Retry-After`; the Engine resets its sequence state
++  and the context cache as above, and the queued requests go on. Three such failures with no
++  token generated between them are Engine-wide: the server restarts.
+ 
+ ### Request IDs
+ 
+@@ -2388,7 +2394,7 @@ Compatible prefixes are reused for both text and multimodal histories unless the
+ | 500 | `numerical_failure` | non-finite hidden state for one request |
+ | 502 / 504 | `media_fetch_failed` / `media_fetch_timeout` | remote media unreachable or 5xx / timed out |
+ | 503 | `request_queue_timeout` | admission deadline passed (`Retry-After` 5 s) |
+-| 503 | `service_unavailable` | CUDA failure; drain; `Retry-After` set |
++| 503 | `service_unavailable` | the Engine reset its running requests (a CUDA failure, or another request's contained failure: retry, the server goes on) or the server is restarting; `Retry-After` set |
+ | 529 / 504 | (Anthropic) | local admission overload / queue and media timeouts |
+ | 200 + error event | (any code above) | a streamed request that fails after its headers were sent (a queue timeout, an Engine failure): the event carries the code and message, the stream ends |
+ | any | `compaction_not_supported` | `POST /v1/responses/compact` |
+diff --git a/src/models/gemma4/program_family.cpp b/src/models/gemma4/program_family.cpp
+index 59d796ec..27807c7b 100644
+--- a/src/models/gemma4/program_family.cpp
++++ b/src/models/gemma4/program_family.cpp
+@@ -27,9 +27,9 @@
+ #include <cmath>
+ #include <cstdlib>
+ #include <cstring>
+-#include <limits>
+ #include <array>
+ #include <functional>
++#include <limits>
+ #include <optional>
+ #include <stdexcept>
+ #include <vector>
+@@ -78,13 +78,30 @@ public:
+                         qwen3_5::PreparedPromptData& prompt, const VisionPrefillPlan& plan,
+                         std::size_t& handoff_peak_bytes)
+         : device_(device), encoder_(encoder), workspace_(workspace), workspace_plan_(workspace_plan),
+-          prompt_(prompt), plan_(plan), handoff_peak_bytes_(handoff_peak_bytes) {
++          prompt_(prompt), plan_(plan), uses_(plan.uses),
++          handoff_peak_bytes_(handoff_peak_bytes) {
+         if (workspace_.data == nullptr || workspace_.bytes < workspace_plan_.capacity_bytes ||
+-            plan_.uses.empty()) {
++            uses_.empty()) {
+             throw std::invalid_argument("Gemma 4 Vision prefill plan or workspace is invalid");
+         }
++        // Under MTP the request plan opens each image's span one token early, for a drafter that
++        // fills its own keys over the prompt (Qwen's MTP head). Gemma 4's drafter keeps none and
++        // an image call's embeddings are its soft tokens alone, so the image call begins at its
++        // first soft token and the token before it stays in the text call. The soft tokens end
++        // the span, and their count is the encoder's for the item's patch grid (Gemma's plan
++        // carries no Qwen control plan to read the item's own begin from).
++        for (VisionUseSpan& use : uses_) {
++            if (use.prepared_item_index >= prompt_.vision_items.size()) { continue; }
++            const qwen3_5::VisionItem& item = prompt_.vision_items[use.prepared_item_index];
++            const std::int64_t patches =
++                static_cast<std::int64_t>(item.grid.width) * item.grid.height;
++            if (patches <= 0 || patches > std::numeric_limits<std::int32_t>::max()) { continue; }
++            const auto soft = static_cast<std::uint32_t>(
++                encoder_.soft_tokens(static_cast<std::int32_t>(patches)));
++            if (use.end >= soft && use.end - use.begin > soft) { use.begin = use.end - soft; }
++        }
+         std::uint32_t previous_end = 0;
+-        for (const VisionUseSpan& use : plan_.uses) {
++        for (const VisionUseSpan& use : uses_) {
+             if (use.begin >= use.end || use.begin < previous_end ||
+                 use.end > prompt_.token_ids.size() ||
+                 use.prepared_item_index >= prompt_.vision_items.size() ||
+@@ -94,14 +111,14 @@ public:
+             }
+             previous_end = use.end;
+         }
+-        timers_.reserve(plan_.uses.size());
++        timers_.reserve(uses_.size());
+     }
+ 
+     // An image is one call: a unit whose end would cut one ends where it begins (a prompt of 1900
+     // text tokens and a 282-token image no longer asks for a larger --prefill-chunk at a 2048 one).
+     [[nodiscard]] std::uint32_t unit_end(std::uint32_t cursor,
+                                          std::uint32_t end) const noexcept override {
+-        for (const VisionUseSpan& use : plan_.uses) {
++        for (const VisionUseSpan& use : uses_) {
+             if (use.begin > cursor && use.begin < end && end < use.end) { return use.begin; }
+         }
+         return end;
+@@ -109,7 +126,7 @@ public:
+ 
+     // The image whose soft tokens hold `position`, or null.
+     [[nodiscard]] const VisionUseSpan* use_at(std::uint32_t position) const noexcept {
+-        for (const VisionUseSpan& use : plan_.uses) {
++        for (const VisionUseSpan& use : uses_) {
+             if (use.begin <= position && position < use.end) { return &use; }
+         }
+         return nullptr;
+@@ -117,7 +134,7 @@ public:
+ 
+     // The first image beginning at or after `position`, or null.
+     [[nodiscard]] const VisionUseSpan* next_use(std::uint32_t position) const noexcept {
+-        for (const VisionUseSpan& use : plan_.uses) {
++        for (const VisionUseSpan& use : uses_) {
+             if (use.begin >= position) { return &use; }
+         }
+         return nullptr;
+@@ -137,10 +154,27 @@ public:
+             scratch.bytes      = workspace_plan_.handoff_offset_bytes;
+             timers_.emplace_back(device_);
+             timers_.back().start();
+-            encoder_.encode(VisionImage{.patches = payload->span(),
+-                                        .width   = item.grid.width,
+-                                        .rows    = item.grid.height},
+-                            output, scratch, device_.stream);
++            try {
++                encoder_.encode(VisionImage{.patches = payload->span(),
++                                            .width   = item.grid.width,
++                                            .rows    = item.grid.height},
++                                output, scratch, device_.stream);
++            } catch (const std::invalid_argument& error) {
++                // The span the call took and the item's own, for a shape the plan got wrong.
++                std::string spans = "; use [" + std::to_string(use.begin) + ", " +
++                                    std::to_string(use.end) + ")";
++                if (plan_.control_plan != nullptr &&
++                    use.prepared_item_index < plan_.control_plan->items.size()) {
++                    const auto& own = plan_.control_plan->items[use.prepared_item_index];
++                    spans += ", item [" + std::to_string(own.token_begin) + ", " +
++                             std::to_string(own.token_end) + ")";
++                }
++                for (const VisionUseSpan& planned : plan_.uses) {
++                    spans += ", planned [" + std::to_string(planned.begin) + ", " +
++                             std::to_string(planned.end) + ")";
++                }
++                throw std::invalid_argument(error.what() + spans);
++            }
+             timers_.back().record_stop();
+             active_item_          = use.prepared_item_index;
+             active_handoff_bytes_ = static_cast<std::size_t>(output.bytes());
+@@ -179,6 +213,8 @@ private:
+     const VisionWorkspacePlan& workspace_plan_;
+     qwen3_5::PreparedPromptData& prompt_;
+     const VisionPrefillPlan& plan_;
++    // plan_.uses with each image beginning at its first soft token.
++    std::vector<VisionUseSpan> uses_;
+     std::size_t& handoff_peak_bytes_;
+     std::optional<std::uint32_t> active_item_;
+     std::size_t active_handoff_bytes_ = 0;
+diff --git a/src/models/gemma4/vision.cpp b/src/models/gemma4/vision.cpp
+index 22152a0b..67a383fb 100644
+--- a/src/models/gemma4/vision.cpp
++++ b/src/models/gemma4/vision.cpp
+@@ -120,7 +120,11 @@ void VisionEncoder::encode(const VisionImage& image, Tensor& output, DeviceSpan
+     const std::int32_t tokens = soft_tokens(patches);
+     if (output.dtype != DType::BF16 || !output.is_contiguous() ||
+         output.ne[0] != c.output_hidden || output.ne[1] != tokens || output.ne[2] != 1) {
+-        throw std::invalid_argument("gemma4 vision: output must be BF16 [text hidden, tokens]");
++        throw std::invalid_argument(
++            "gemma4 vision: output must be BF16 [text hidden, tokens]: [" +
++            std::to_string(c.output_hidden) + ", " + std::to_string(tokens) + "] wanted, [" +
++            std::to_string(output.ne[0]) + ", " + std::to_string(output.ne[1]) + ", " +
++            std::to_string(output.ne[2]) + "] given");
+     }
+     const Layout layout = build_layout(c, weights_, patches);
+     if (workspace.data == nullptr || workspace.bytes < layout.bytes) {
+diff --git a/src/models/qwen3_5/frontend/output_session.cpp b/src/models/qwen3_5/frontend/output_session.cpp
+index 90ccdd2f..882fdcd2 100644
+--- a/src/models/qwen3_5/frontend/output_session.cpp
++++ b/src/models/qwen3_5/frontend/output_session.cpp
+@@ -759,13 +759,38 @@ runtime::OutputDecision OutputSession::preview_model(std::span<const TokenId> to
+                     impl_->preview_output, count);
+         return complete(count, limit_reason);
+     }
++    // The control span follows a quote-adjacent close held for its next byte, so the control
++    // preview reads the held bytes as reasoning text. When they complete a stop string the output
++    // ends in this round instead: a control preview cannot finish a request.
++    const auto held_close_stop = [&]() -> std::optional<runtime::OutputDecision> {
++        const std::string_view model_close = impl_->conventions->reasoning_close;
++        if (model_close.empty() || !impl_->preview_state.quoted_close_is_text ||
++            !impl_->preview_state.in_reasoning ||
++            !impl_->preview_state.think_marker_pending.ends_with(model_close)) {
++            return std::nullopt;
++        }
++        DecoderState flushed = impl_->preview_state;
++        const std::string held = std::move(flushed.think_marker_pending);
++        flushed.think_marker_pending.clear();
++        PublishedOutput output = impl_->preview_output;
++        StopMatch match;
++        feed_channel(flushed, OutputChannel::Reasoning, held, impl_->policy, output, count,
++                     &match);
++        if (!match.found) { return std::nullopt; }
++        impl_->preview_state                    = terminal_state(std::move(flushed));
++        impl_->preview_state.matched_stop_order = match.declaration_order;
++        impl_->preview_output                   = std::move(match.output);
++        return complete(count, FinishReason::StopString);
++    };
+     if (conclude_thinking && impl_->preview_semantic.in_reasoning) {
++        if (auto stopped = held_close_stop()) { return *stopped; }
+         impl_->preview_semantic.control_pending = true;
+         impl_->preview_semantic.loop_concluded  = true;
+         return complete(count, FinishReason::None, runtime::ContinuationAction::ApplyTargetControl);
+     }
+     if (impl_->preview_semantic.in_reasoning && impl_->preview_semantic.budget &&
+         impl_->preview_semantic.model_thinking_tokens == *impl_->preview_semantic.budget) {
++        if (auto stopped = held_close_stop()) { return *stopped; }
+         impl_->preview_semantic.control_pending = true;
+         return complete(count, FinishReason::None, runtime::ContinuationAction::ApplyTargetControl);
+     }
+@@ -817,6 +842,36 @@ runtime::OutputDecision OutputSession::preview_control(std::span<const TokenId>
+     impl_->preview_prefix_execution = impl_->prefix_execution;
+     impl_->preview_execution_split_after.reset();
+     impl_->preview_output.clear();
++    // The span is the engine's own close, never a quotation: a close right after a quote byte
++    // (Gemma 4's control is <channel|> alone, with no line break after it) still ends the
++    // thinking. The model's own later closes keep the quoted-close rule.
++    // A close the model wrote right after a quote byte, held for its next byte, is followed by the
++    // injected span, not by a line break: it was the model's quotation, text of the reasoning.
++    const std::string_view model_close = impl_->conventions->reasoning_close;
++    if (!model_close.empty() && impl_->preview_state.quoted_close_is_text &&
++        impl_->preview_state.in_reasoning &&
++        impl_->preview_state.think_marker_pending.ends_with(model_close)) {
++        std::string held = std::move(impl_->preview_state.think_marker_pending);
++        impl_->preview_state.think_marker_pending.clear();
++        // The model round that requested this control already matched these bytes against the
++        // stop strings (held_close_stop in preview_model): they complete none.
++        StopMatch match;
++        feed_channel(impl_->preview_state, OutputChannel::Reasoning, held, impl_->policy,
++                     impl_->preview_output, 0, &match);
++        if (match.found) {
++            throw std::logic_error("a held close completed a stop string after control was due");
++        }
++        impl_->preview_state.reasoning_last = held.back();
++    }
++    if (!model_close.empty() && impl_->preview_semantic.quoted_close_is_text &&
++        impl_->preview_semantic.in_reasoning &&
++        impl_->preview_semantic.close_pending.ends_with(model_close)) {
++        impl_->preview_semantic.last = impl_->preview_semantic.close_pending.back();
++        impl_->preview_semantic.close_pending.clear();
++    }
++    const bool quoted_close_is_text              = impl_->preview_state.quoted_close_is_text;
++    impl_->preview_state.quoted_close_is_text    = false;
++    impl_->preview_semantic.quoted_close_is_text = false;
+     for (std::size_t index = 0; index < tokens.size(); ++index) {
+         const TokenId token                = tokens[index];
+         const text::DecodedTokenView decoded = impl_->tokenizer->decoded_token(token);
+@@ -833,6 +888,8 @@ runtime::OutputDecision OutputSession::preview_control(std::span<const TokenId>
+         feed_token_bytes(impl_->preview_state, presentation_bytes, impl_->policy, conventions,
+                          impl_->preview_output, static_cast<std::uint32_t>(index + 1), nullptr);
+     }
++    impl_->preview_state.quoted_close_is_text    = quoted_close_is_text;
++    impl_->preview_semantic.quoted_close_is_text = quoted_close_is_text;
+     if (impl_->preview_semantic.in_reasoning) {
+         throw std::logic_error("canonical thinking control did not close the thinking phase");
+     }
+diff --git a/src/runtime/engine/engine_core.h b/src/runtime/engine/engine_core.h
+index eab12fc8..a599649a 100644
+--- a/src/runtime/engine/engine_core.h
++++ b/src/runtime/engine/engine_core.h
+@@ -1807,6 +1807,15 @@ private:
+     }
+ 
+     AdmissionProgress try_admit_one() {
++        // The request being inspected or admitted: a failure contained after a throw here answers
++        // it, which a throw left queued (the next boundary would inspect it again and throw again).
++        struct AdmissionSubject {
++            std::shared_ptr<Request>& subject;
++            int exceptions = std::uncaught_exceptions();
++            ~AdmissionSubject() {
++                if (std::uncaught_exceptions() == exceptions) { subject.reset(); }
++            }
++        } admission_guard{admission_subject_};
+         const auto other_runnable = static_cast<std::uint32_t>(
+             std::count_if(slots_.begin(), slots_.end(), [](const auto& request) {
+                 return request && !request->capture_pending &&
+@@ -1860,6 +1869,7 @@ private:
+                 control_progress = true;
+                 continue;
+             }
++            admission_subject_   = head;
+             auto head_inspection = inspect_admission(head, allowance);
+             if (head_inspection.readiness == Readiness::PermanentlyInfeasible) {
+                 (void)remove_pending_error(
+@@ -1934,6 +1944,7 @@ private:
+                     control_progress = true;
+                     continue;
+                 }
++                admission_subject_        = candidate;
+                 auto candidate_inspection = inspect_admission(candidate, allowance);
+                 if (candidate_inspection.readiness == Readiness::PermanentlyInfeasible) {
+                     (void)remove_pending_error(
+@@ -2301,12 +2312,18 @@ private:
+         std::exception_ptr error;
+         bool device_failed = false;
+         bool transient     = false;
++        // Neither the device's nor a CUDA error: a defect or an invalid state met while serving
++        // the unit's requests (an output decoding or a media prefill that throws). The device is
++        // healthy and the Program is reset with the unit's requests, so the Engine goes on.
++        bool contained = false;
+         std::string detail; // what() of the raised exception
+     };
+ 
+     // A second transient CUDA error within this window ends the Engine as a device failure does,
+     // so a condition the reset did not cure ends in a restart (within 3 to 5 minutes).
+     static constexpr std::chrono::minutes kTransientCudaErrorWindow{5};
++    // Contained failures in a row (no decode token committed between them) that end the Engine.
++    static constexpr std::uint32_t kContainedFailureStreak = 3;
+ 
+     [[nodiscard]] static std::exception_ptr unavailable(const std::string& message) noexcept {
+         try {
+@@ -2353,19 +2370,20 @@ private:
+         try {
+             if (device_failed) {
+                 return {unavailable("the GPU failed (" + detail + "); the server is restarting"),
+-                        true, false, detail};
++                        true, false, false, detail};
+             }
+             if (memory) {
+                 return {unavailable("out of memory (" + detail + "); retry the request"), false,
+-                        true, detail};
++                        true, false, detail};
+             }
+-            if (!cuda_error) { return {raised, false, false, detail}; }
++            if (!cuda_error) { return {raised, false, false, true, detail}; }
+             return {unavailable("a CUDA error (" + detail + "); retry the request"), false, true,
+-                    detail};
++                    false, detail};
+         } catch (...) {
+             // The messages need memory too (an out-of-memory failure may leave none): the raw
+             // failure, classified the same way.
+-            return {raised, device_failed, !device_failed && (memory || cuda_error), {}};
++            return {raised, device_failed, !device_failed && (memory || cuda_error),
++                    !device_failed && !memory && !cuda_error, {}};
+         }
+     }
+ 
+@@ -2556,6 +2574,49 @@ private:
+                 WorkerFailure failure        = classify_failure(std::current_exception());
+                 HostPhaseMeasurement cleanup = begin_host_phase();
+                 const auto now               = std::chrono::steady_clock::now();
++                // Contained failures in a row with no decode token committed between them: the
++                // Engine is broken rather than one request, and the server restarts.
++                const bool contained_streak =
++                    failure.contained &&
++                    cumulative_stats_.committed_decode_tokens == committed_at_contained_ &&
++                    ++contained_streak_ >= kContainedFailureStreak;
++                if (failure.contained && !contained_streak) {
++                    // One request's defect must not stop the server for every client. The request
++                    // that was being admitted gets the failure (a throw left it queued); the
++                    // started ones are answered Unavailable (they did nothing wrong, and a retry
++                    // runs), the Program and the resource catalog are reset as after a transient
++                    // error, and the queue goes on.
++                    if (cumulative_stats_.committed_decode_tokens != committed_at_contained_) {
++                        contained_streak_ = 1;
++                    }
++                    committed_at_contained_ = cumulative_stats_.committed_decode_tokens;
++                    std::fprintf(stderr,
++                                 "ninferno: request failure (%s); the requests in flight are "
++                                 "answered 503, the Engine goes on\n",
++                                 failure.detail.c_str());
++                    if (const std::shared_ptr<Request> subject = std::move(admission_subject_)) {
++                        (void)remove_pending_error(subject, failure.error);
++                    }
++                    recover_after_transient_locked(
++                        unavailable("a request in flight failed and the Engine was reset (" +
++                                    failure.detail + "); retry the request"));
++                    try {
++                        publish_runtime_stats();
++                    } catch (...) {}
++                    finish_engine_phase(cleanup, EngineHostPhase::Maintenance);
++                    previous_unit_was_decode = false;
++                    continue;
++                }
++                if (contained_streak) {
++                    std::fprintf(stderr,
++                                 "ninferno: %d request failures with no token committed between "
++                                 "them; the server restarts\n",
++                                 static_cast<int>(kContainedFailureStreak));
++                    // Every request in flight and queued is answered as the restart it is (503
++                    // with Retry-After), not with the last request's own defect.
++                    failure.error = unavailable("request failures in a row (" + failure.detail +
++                                                "); the server is restarting");
++                }
+                 if (failure.transient) {
+                     const bool repeated = last_transient_error &&
+                                           now - *last_transient_error < kTransientCudaErrorWindow;
+@@ -2616,6 +2677,11 @@ private:
+     std::uint64_t next_publication_order_ = 1;
+     std::array<std::shared_ptr<Request>, kMaximumConcurrency> slots_{};
+     std::optional<MaterializingRequest> materializing_;
++    // try_admit_one's request under inspection (AdmissionSubject).
++    std::shared_ptr<Request> admission_subject_;
++    // The contained failures in a row and the committed decode tokens at the last one.
++    std::uint32_t contained_streak_         = 0;
++    std::uint64_t committed_at_contained_   = 0;
+     // Requests that have finished and left their lanes; a preempted request resumes after one.
+     std::uint64_t slot_releases_ = 0;
+     Scheduling scheduler_;
+diff --git a/tests/models/qwen3_5/test_frontend.cpp b/tests/models/qwen3_5/test_frontend.cpp
+index 46d30fce..de2d1a17 100644
+--- a/tests/models/qwen3_5/test_frontend.cpp
++++ b/tests/models/qwen3_5/test_frontend.cpp
+@@ -2456,6 +2456,44 @@ int test_quoted_reasoning_close(const Frontend& frontend) {
+     return failures;
+ }
+ 
++// A quoted close held for its next byte when the thinking budget runs out is read as reasoning
++// text before the control. When those bytes complete a stop string, the model round ends the
++// output with StopString; the control preview, which cannot finish a request, never sees it.
++int test_held_close_stop_before_control(const Frontend& frontend) {
++    ninferno::ChatMessage message;
++    message.role = ninferno::ChatRole::User;
++    message.parts.push_back(
++        ninferno::MessagePart{.kind = ninferno::MessagePartKind::Text, .text = "x", .media = {}});
++    ninferno::PromptInput input;
++    input.messages.push_back(std::move(message));
++    input.options.continuation    = ninferno::PromptContinuationMode::NewAssistantTurn;
++    input.options.enable_thinking = true;
++    const auto prompt             = frontend.prepare(std::move(input));
++    ninferno::StopPolicy stop;
++    stop.strings.push_back(ninferno::StopString{.text    = "\"</think>",
++                                                .channel = ninferno::OutputChannel::Reasoning});
++    const auto tokens = fixture_tokenizer().encode("It is \"</think>");
++    auto session      = frontend.make_output_session(
++        prompt, stop, {},
++        ninferno::ThinkingControlOptions{.budget = static_cast<std::uint32_t>(tokens.size())},
++        true);
++    std::string reasoning;
++    ninferno::runtime::OutputDecision last;
++    for (const ninferno::TokenId token : tokens) {
++        last = session.preview_model(std::array<ninferno::TokenId, 1>{token}, 4096U,
++                                     ninferno::FinishReason::OutputLimit);
++        reasoning += channel_text(session.commit_preview(), ninferno::OutputChannel::Reasoning);
++        if (last.finished()) { break; }
++    }
++    return check(last.finish_reason == ninferno::FinishReason::StopString &&
++                     last.accepted_tokens == 1 &&
++                     last.continuation == ninferno::runtime::ContinuationAction::Decode &&
++                     reasoning == "It is " && session.pending_control_tokens().empty() &&
++                     session.matched_stop_string() == std::optional<std::string>("\"</think>"),
++                 "a held close completing a stop string at the thinking budget did not end the "
++                 "output in the model round");
++}
++
+ int test_reasoning_split(const Frontend& frontend) {
+     ninferno::ChatMessage message;
+     message.role = ninferno::ChatRole::User;
+@@ -3358,6 +3396,7 @@ int main() {
+     failures += test_tools_none_without_tools();
+     failures += test_reasoning_split(frontend);
+     failures += test_quoted_reasoning_close(frontend);
++    failures += test_held_close_stop_before_control(frontend);
+     failures += test_special_token_reasoning_markers();
+     failures += test_reasoning_declined_by_thinking_switch();
+     failures += test_thinking_budget_after_model_opener();
+-- 
+2.43.0
+

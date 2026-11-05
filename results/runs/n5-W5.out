@@ -1,0 +1,18 @@
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- speed
+PP 2048: 4250.4 tok/s (n=1706) [4298.355524877015, 4202.369088776072]
+PP 8192: 4567.7 tok/s (n=7468) [4608.157924023707, 4527.338413029665]
+PP 32768: 3619.5 tok/s (n=28972) [3637.108840760143, 3601.9478821927332]
+PP 65536: 2726.4 tok/s (n=57942) [2727.1602133092415, 2725.614279620502]
+PP 131072: 1812.0 tok/s (n=118244) [1815.001500847489, 1808.9751717513604]
+TG@8192 greedy: 106.5 tok/s [108.63287280876638, 104.39483509630045] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 109.6 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "N5 p0", "ts": "2026-11-04 22:37:54", "pp2048_ntok": 1706, "pp2048": 4250.4, "pp8192_ntok": 7468, "pp8192": 4567.7, "pp32768_ntok": 28972, "pp32768": 3619.5, "pp65536_ntok": 57942, "pp65536": 2726.4, "pp131072_ntok": 118244, "pp131072": 1812.0, "
+TRACE n5/trace_p0.csv: 541 load samples | P-state {'P0': 541} | SM median 2010 low 1590 high 2152 MHz | memory median 14001 high 14001 MHz | power median 172 max 174 W | temp max 83 | sw power cap 99% sw thermal 0% hw thermal 0% brake 0%
+COUNTS N5_p0: privately 0 | request failure 0 | exits 0
+MTP N5_p0 accepted 4405/8166 (53.9%)
+=== 22:42:10 restoring the fast unit
+active

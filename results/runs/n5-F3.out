@@ -1,0 +1,62 @@
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- speed
+PP 2048: 4210.5 tok/s (n=1706) [4237.569937762852, 4183.441240205825]
+PP 8192: 4453.4 tok/s (n=7468) [4495.030500353196, 4411.778325453072]
+PP 32768: 3451.4 tok/s (n=28972) [3474.331697278231, 3428.471891919868]
+PP 65536: 2555.0 tok/s (n=57942) [2557.534103535046, 2552.5302699764898]
+PP 131072: 1668.0 tok/s (n=118244) [1671.6727629234194, 1664.357306742206]
+TG@8192 greedy: 114.0 tok/s [111.57006611352602, 116.50535593098606] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 109.4 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F3 before1", "ts": "2026-11-05 00:48:42", "pp2048_ntok": 1706, "pp2048": 4210.5, "pp8192_ntok": 7468, "pp8192": 4453.4, "pp32768_ntok": 28972, "pp32768": 3451.4, "pp65536_ntok": 57942, "pp65536": 2555.0, "pp131072_ntok": 118244, "pp131072": 1668
+COUNTS F3_before1: privately 0 | request failure 0 | exits 0
+MTP F3_before1 accepted 4421/8044 (55.0%)
+plan | rung 3 of 3: 203,136 tokens x 1 context (203,136 KV tokens), 0 cached states, chunk 1280 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.84 GiB more would serve rung 2, 1.73 G
+plan | rung 3: below the top rung of the asked --max-context 203,136 | 0.84 GiB more free memory would serve rung 2 (203,136 tokens x 1 context (203,136 KV tokens for 1 lane), 1 cached states, chunk 1280), 1.74 GiB the t
+capacity | KV 203,136 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,174/3,174 | runtime 5.39 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- speed
+PP 2048: 4164.3 tok/s (n=1706) [4208.647331507921, 4119.8623279177755]
+PP 8192: 4738.0 tok/s (n=7468) [4753.187291083729, 4722.756328742804]
+PP 32768: 3707.7 tok/s (n=28972) [3731.677948907793, 3683.703005731543]
+PP 65536: 2764.2 tok/s (n=57942) [2763.579404178358, 2764.776726543429]
+PP 131072: 1818.6 tok/s (n=118244) [1823.6079050584417, 1813.560041751244]
+TG@8192 greedy: 113.3 tok/s [119.40917076054836, 107.14171738052997] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.6 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F3 after1", "ts": "2026-11-05 00:53:46", "pp2048_ntok": 1706, "pp2048": 4164.3, "pp8192_ntok": 7468, "pp8192": 4738.0, "pp32768_ntok": 28972, "pp32768": 3707.7, "pp65536_ntok": 57942, "pp65536": 2764.2, "pp131072_ntok": 118244, "pp131072": 1818.
+COUNTS F3_after1: privately 0 | request failure 0 | exits 0
+MTP F3_after1 accepted 4371/6326 (69.1%)
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- speed
+PP 2048: 4170.0 tok/s (n=1706) [4195.38472457284, 4144.587979645837]
+PP 8192: 4456.2 tok/s (n=7468) [4494.198171298842, 4418.300558315107]
+PP 32768: 3445.7 tok/s (n=28972) [3468.004839429183, 3423.4296410317997]
+PP 65536: 2550.8 tok/s (n=57942) [2552.747084829116, 2548.829117384859]
+PP 131072: 1659.3 tok/s (n=118244) [1657.6445724024377, 1660.9773461520313]
+TG@8192 greedy: 114.0 tok/s [110.66560157413872, 117.305550053271] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 109.4 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F3 before2", "ts": "2026-11-05 00:58:30", "pp2048_ntok": 1706, "pp2048": 4170.0, "pp8192_ntok": 7468, "pp8192": 4456.2, "pp32768_ntok": 28972, "pp32768": 3445.7, "pp65536_ntok": 57942, "pp65536": 2550.8, "pp131072_ntok": 118244, "pp131072": 1659
+COUNTS F3_before2: privately 0 | request failure 0 | exits 0
+MTP F3_before2 accepted 4421/8049 (54.9%)
+plan | rung 3 of 3: 203,136 tokens x 1 context (203,136 KV tokens), 0 cached states, chunk 1280 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.84 GiB more would serve rung 2, 1.73 G
+plan | rung 3: below the top rung of the asked --max-context 203,136 | 0.84 GiB more free memory would serve rung 2 (203,136 tokens x 1 context (203,136 KV tokens for 1 lane), 1 cached states, chunk 1280), 1.74 GiB the t
+capacity | KV 203,136 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,174/3,174 | runtime 5.39 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- speed
+PP 2048: 4219.2 tok/s (n=1706) [4227.375581165661, 4211.011703287662]
+PP 8192: 4725.5 tok/s (n=7468) [4727.399896238458, 4723.633242496331]
+PP 32768: 3712.1 tok/s (n=28972) [3735.1512061786966, 3689.0477255083806]
+PP 65536: 2767.2 tok/s (n=57942) [2767.8620594094045, 2766.557233030454]
+PP 131072: 1819.6 tok/s (n=118244) [1823.2110521310062, 1816.0094670849594]
+TG@8192 greedy: 117.7 tok/s [120.51954280554358, 114.8270872329526] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 113.5 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "F3 after2", "ts": "2026-11-05 01:03:37", "pp2048_ntok": 1706, "pp2048": 4219.2, "pp8192_ntok": 7468, "pp8192": 4725.5, "pp32768_ntok": 28972, "pp32768": 3712.1, "pp65536_ntok": 57942, "pp65536": 2767.2, "pp131072_ntok": 118244, "pp131072": 1819.
+COUNTS F3_after2: privately 0 | request failure 0 | exits 0
+MTP F3_after2 accepted 4381/6255 (70.0%)
+=== 01:07:49 restoring the fast unit
+active

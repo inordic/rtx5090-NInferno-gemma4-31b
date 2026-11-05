@@ -1,0 +1,318 @@
+From fe438baac7ca7374ac711f2288e36071e0b5963b Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Mon, 2 Nov 2026 15:36:58 +0100
+Subject: [PATCH 3/8] Merge pull request #327 from
+ Brontir/fix/shared-alias-accounting
+
+Program: an item two owners shared returns to the active request when the other owner is released (#317)
+(cherry picked from commit cfd61ef5e1fce45ef02be8b3eccf181f1efb6644)
+---
+ src/models/qwen3_5/program/program_impl.h     |  20 +++-
+ .../qwen3_5/program/storage/context.cpp       |  17 ++-
+ .../qwen3_5/program/transactions/capture.cpp  |  54 ++++++++-
+ .../qwen3_5/program/transactions/commit.cpp   | 108 +++++++++++++++++-
+ 4 files changed, 184 insertions(+), 15 deletions(-)
+
+diff --git a/src/models/qwen3_5/program/program_impl.h b/src/models/qwen3_5/program/program_impl.h
+index b6083c8a..e80507d9 100644
+--- a/src/models/qwen3_5/program/program_impl.h
++++ b/src/models/qwen3_5/program/program_impl.h
+@@ -998,6 +998,10 @@ private:
+         bool replaces_shared = false;
+         std::optional<runtime::CheckpointRef> private_replacement;
+         std::optional<std::uint32_t> shared_index;
++        // Full pages the owners this capture released shared with its own sequence alone: the
++        // new prefix shares them again at the publication; an abort gives them to the request
++        // (kv_alias_transfers).
++        detail::PhysicalResources deferred_kv_transfer;
+         std::uint64_t replacement_generation = 0;
+         StateImageHandle source_state;
+         StateImageHandle destination_state;
+@@ -1244,7 +1248,15 @@ private:
+     [[nodiscard]] SequenceState& active_sequence(std::uint32_t lane);
+     [[nodiscard]] const SequenceState& active_sequence(std::uint32_t lane) const;
+     [[nodiscard]] bool can_release_continuation_slot_strict(std::uint32_t index) const;
+-    void release_continuation_slot_strict(std::uint32_t index) noexcept;
++    void release_continuation_slot_strict(
++        std::uint32_t index, std::optional<std::uint32_t> resharing_lane = std::nullopt,
++        detail::PhysicalResources* resharing_deferred = nullptr) noexcept;
++    [[nodiscard]] std::array<detail::PhysicalResources, kMaximumConcurrency>
++    kv_alias_transfers(const SequenceKVBundle& released,
++                       std::uint32_t released_continuation) const;
++    void apply_kv_alias_transfers(
++        std::array<detail::PhysicalResources, kMaximumConcurrency> transfers,
++        std::optional<std::uint32_t> resharing_lane, detail::PhysicalResources* resharing_deferred);
+     void release_continuation_slot_best_effort(std::uint32_t index) noexcept;
+     void retire_continuation_slot(std::uint32_t index) noexcept;
+     void clear_execution_failure_lanes(std::span<const std::uint32_t> lanes) noexcept;
+@@ -1282,8 +1294,10 @@ private:
+     [[nodiscard]] bool can_release_shared_prefix_state(std::uint32_t index,
+                                                        SharedPrefixSlotRole expected_role) const;
+     [[nodiscard]] detail::PhysicalResources
+-    release_shared_prefix_state_strict(std::uint32_t index,
+-                                       SharedPrefixSlotRole expected_role) noexcept;
++    release_shared_prefix_state_strict(
++        std::uint32_t index, SharedPrefixSlotRole expected_role,
++        std::optional<std::uint32_t> resharing_lane = std::nullopt,
++        detail::PhysicalResources* resharing_deferred = nullptr) noexcept;
+     [[nodiscard]] detail::PhysicalResources
+     install_private_capture(SequenceState& sequence, const CaptureGroup& group,
+                             StateImageHandle checkpoint,
+diff --git a/src/models/qwen3_5/program/storage/context.cpp b/src/models/qwen3_5/program/storage/context.cpp
+index 2093f122..f938c4ed 100644
+--- a/src/models/qwen3_5/program/storage/context.cpp
++++ b/src/models/qwen3_5/program/storage/context.cpp
+@@ -201,14 +201,21 @@ bool ProgramImpl::can_release_continuation_slot_strict(std::uint32_t index) cons
+     return true;
+ }
+ 
+-void ProgramImpl::release_continuation_slot_strict(std::uint32_t index) noexcept {
++void ProgramImpl::release_continuation_slot_strict(
++    std::uint32_t index, std::optional<std::uint32_t> resharing_lane,
++    detail::PhysicalResources* resharing_deferred) noexcept {
+     try {
+         if (!can_release_continuation_slot_strict(index)) { std::terminate(); }
++        SequenceState& sequence = continuation_states[index];
++        // Full pages it shares with an active sequence alone return to that request (#317).
++        const auto kv_transfers =
++            sequence.kv ? kv_alias_transfers(*sequence.kv, index)
++                        : std::array<detail::PhysicalResources, kMaximumConcurrency>{};
++        release_sequence_kv_strict(sequence);
++        release_sequence_state_strict(sequence);
++        retire_continuation_slot(index);
++        apply_kv_alias_transfers(kv_transfers, resharing_lane, resharing_deferred);
+     } catch (...) { std::terminate(); }
+-    SequenceState& sequence = continuation_states[index];
+-    release_sequence_kv_strict(sequence);
+-    release_sequence_state_strict(sequence);
+-    retire_continuation_slot(index);
+ }
+ 
+ void ProgramImpl::release_continuation_slot_best_effort(std::uint32_t index) noexcept {
+diff --git a/src/models/qwen3_5/program/transactions/capture.cpp b/src/models/qwen3_5/program/transactions/capture.cpp
+index 1da1eb76..89f60f49 100644
+--- a/src/models/qwen3_5/program/transactions/capture.cpp
++++ b/src/models/qwen3_5/program/transactions/capture.cpp
+@@ -447,6 +447,35 @@ runtime::ContextTransactionReserveStatus ProgramImpl::reserve_active_capture_imp
+         skip_capture(std::move(offer));
+         return runtime::ContextTransactionReserveStatus::Aborted;
+     }
++    // A shared victim that shares its StateImage with a checkpoint this capture drops would hand
++    // that image to the sequence mid-capture, after the assessment priced the drop without it
++    // (#317). The capture is optional: it waits for another round. A victim aliasing a checkpoint
++    // the sequence keeps is transferred to its request at the release and needs no abort.
++    if (pressure_details != nullptr && assessment.publishes_private) {
++        const std::uint32_t capture_lane = ContractAccess::lane(offer).value;
++        const SequenceState& owner       = active_sequence(capture_lane);
++        const RequestControl::Prefill& prefill = *requests[capture_lane].prefill;
++        const CaptureGroup& group              = prefill.capture_groups[prefill.next_capture];
++        for (const std::uint32_t victim : pressure_details->shared_pressure_indices) {
++            if (victim >= shared_prefix_capacity) { continue; }
++            const StateImageHandle state = shared_prefix_states[victim].state;
++            const bool drops_rewrite =
++                group.rewrite && owner.rewrite_state && *owner.rewrite_state == state;
++            const bool drops_anchor =
++                private_replacement &&
++                private_replacement->kind == runtime::CheckpointKind::LongAnchor &&
++                std::any_of(owner.long_anchors.begin(), owner.long_anchors.end(),
++                            [&](const LongAnchorCheckpoint& anchor) {
++                                return anchor.state == state &&
++                                       anchor.frontier == private_replacement->frontier &&
++                                       anchor.ordinal == private_replacement->ordinal;
++                            });
++            if (drops_rewrite || drops_anchor) {
++                skip_capture(std::move(offer));
++                return runtime::ContextTransactionReserveStatus::Aborted;
++            }
++        }
++    }
+ 
+     const std::uint32_t lane         = ContractAccess::lane(offer).value;
+     RequestControl::Prefill& prefill = *requests[lane].prefill;
+@@ -685,7 +714,8 @@ void ProgramImpl::prepare_active_capture(ActiveCaptureTransaction& transaction)
+                 throw std::logic_error("shared capture replacement is not strictly releasable");
+             }
+             const detail::PhysicalResources removed = release_shared_prefix_state_strict(
+-                *transaction.shared_index, SharedPrefixSlotRole::ReservedReplacement);
++                *transaction.shared_index, SharedPrefixSlotRole::ReservedReplacement,
++                transaction.lane, &transaction.deferred_kv_transfer);
+             if (removed != transaction.capacity_preparation_removed) {
+                 throw std::logic_error("shared capture preparation release changed");
+             }
+@@ -819,6 +849,15 @@ void ProgramImpl::enqueue_active_capture_transfers(ActiveCaptureTransaction& tra
+ void ProgramImpl::abort_active_capture(ActiveCaptureTransaction& transaction) noexcept {
+     if (transaction.lane < max_concurrency &&
+         active_continuations[transaction.lane] < continuation_capacity) {
++        // Pages the released owners shared with this sequence are not shared again: they are its
++        // request's (kv_alias_transfers).
++        if (transaction.deferred_kv_transfer != detail::PhysicalResources{}) {
++            try {
++                requests[transaction.lane].active_resources = checked_resource_sum(
++                    requests[transaction.lane].active_resources, transaction.deferred_kv_transfer);
++            } catch (...) { std::terminate(); }
++            transaction.deferred_kv_transfer = {};
++        }
+         SequenceState& sequence = active_sequence(transaction.lane);
+         if (transaction.backend_snapshot) {
+             backend_kv_addresses->abort_active_snapshot(*transaction.backend_snapshot);
+@@ -1114,8 +1153,11 @@ ProgramImpl::progress_active_capture_transaction(runtime::CancellationFlagView c
+                     throw std::logic_error(
+                         "capture shared pressure victim is not strictly releasable");
+                 }
+-                const detail::PhysicalResources released =
+-                    release_shared_prefix_state_strict(index, SharedPrefixSlotRole::Catalogued);
++                const detail::PhysicalResources released = release_shared_prefix_state_strict(
++                    index, SharedPrefixSlotRole::Catalogued,
++                    transaction.publish_shared ? std::optional<std::uint32_t>(transaction.lane)
++                                               : std::nullopt,
++                    &transaction.deferred_kv_transfer);
+                 if (released != exclusive ||
+                     work.option.effect.added != detail::PhysicalResources{}) {
+                     throw std::logic_error("capture shared pressure eviction changed");
+@@ -1158,7 +1200,11 @@ ProgramImpl::progress_active_capture_transaction(runtime::CancellationFlagView c
+                 }
+                 const detail::PhysicalResources exclusive =
+                     owner_exclusive_resources(continuation_states[index]);
+-                release_continuation_slot_strict(index);
++                release_continuation_slot_strict(
++                    index,
++                    transaction.publish_shared ? std::optional<std::uint32_t>(transaction.lane)
++                                               : std::nullopt,
++                    &transaction.deferred_kv_transfer);
+                 work.committed_delta    = detail::PhysicalDelta{.removed = exclusive};
+                 work.completed          = true;
+                 work.mutation_published = true;
+diff --git a/src/models/qwen3_5/program/transactions/commit.cpp b/src/models/qwen3_5/program/transactions/commit.cpp
+index dc77d0cc..f08c7754 100644
+--- a/src/models/qwen3_5/program/transactions/commit.cpp
++++ b/src/models/qwen3_5/program/transactions/commit.cpp
+@@ -889,21 +889,123 @@ bool ProgramImpl::can_release_shared_prefix_state(std::uint32_t index,
+             state_store->can_release_after_checkpoint_references(shared.state, 1));
+ }
+ 
++std::array<detail::PhysicalResources, kMaximumConcurrency>
++ProgramImpl::kv_alias_transfers(const SequenceKVBundle& released,
++                                std::uint32_t released_continuation) const {
++    // A full page an owner being released shares with one active sequence alone (a capture
++    // published it, or the request was admitted retaining it) is counted by neither: each owner
++    // counts what it holds alone, and the request's active resources gave the page up. Once the
++    // owner is released the page is the sequence's alone, and its request takes it back
++    // (apply_kv_alias_transfers).
++    std::array<detail::PhysicalResources, kMaximumConcurrency> transfers{};
++    const auto count = [](const KVAddressSpaceStore& addresses, const LogicalKVPageStore& pages,
++                          KVAddressSpaceHandle owner, KVAddressSpaceHandle sequence_kv,
++                          std::uint32_t& transferred) {
++        const std::uint32_t common =
++            std::min(addresses.mapped_pages(owner), addresses.mapped_pages(sequence_kv));
++        for (std::uint32_t page = 0; page < common; ++page) {
++            const LogicalKVPageHandle logical = addresses.logical_page(owner, page);
++            if (addresses.logical_page(sequence_kv, page) != logical) { break; }
++            if (pages.address_references(logical) == 2 && pages.device_resident(logical)) {
++                ++transferred;
++            }
++        }
++    };
++    for (std::uint32_t lane = 0; lane < max_concurrency; ++lane) {
++        if (active_continuations[lane] >= continuation_capacity ||
++            active_continuations[lane] == released_continuation) {
++            continue;
++        }
++        const SequenceState& sequence = active_sequence(lane);
++        if (!sequence.kv) { continue; }
++        count(*text_kv_addresses, *text_kv_pages, released.text, sequence.kv->text,
++              transfers[lane].device.main_kv_pages);
++        if (released.backend && sequence.kv->backend) {
++            count(*backend_kv_addresses, *backend_kv_pages, *released.backend,
++                  *sequence.kv->backend, transfers[lane].device.backend_kv_pages);
++        }
++    }
++    return transfers;
++}
++
++// A capture that publishes a shared prefix of its own sequence (resharing_lane) shares the pages
++// again at its publication, which subtracts only the pages unique when it was assessed: that
++// lane's transfer waits in `resharing_deferred` (the capture's), and only an abort applies it.
++void ProgramImpl::apply_kv_alias_transfers(
++    std::array<detail::PhysicalResources, kMaximumConcurrency> transfers,
++    std::optional<std::uint32_t> resharing_lane, detail::PhysicalResources* resharing_deferred) {
++    if (resharing_lane && *resharing_lane < max_concurrency) {
++        if (resharing_deferred != nullptr) {
++            *resharing_deferred =
++                checked_resource_sum(*resharing_deferred, transfers[*resharing_lane]);
++        }
++        transfers[*resharing_lane] = {};
++    }
++    for (std::uint32_t lane = 0; lane < max_concurrency; ++lane) {
++        if (transfers[lane] == detail::PhysicalResources{}) { continue; }
++        requests[lane].active_resources =
++            checked_resource_sum(requests[lane].active_resources, transfers[lane]);
++    }
++}
++
+ detail::PhysicalResources
+ ProgramImpl::release_shared_prefix_state_strict(std::uint32_t index,
+-                                                SharedPrefixSlotRole expected_role) noexcept {
++                                                SharedPrefixSlotRole expected_role,
++                                                std::optional<std::uint32_t> resharing_lane,
++                                                detail::PhysicalResources* resharing_deferred) noexcept {
+     try {
+         if (!can_release_shared_prefix_state(index, expected_role)) { std::terminate(); }
+         SharedPrefixState& shared               = shared_prefix_states[index];
+         SharedPrefixSlot& slot                  = shared_prefix_slots[index];
+         const detail::PhysicalResources removed = owner_exclusive_resources(shared);
+         const bool last_state_reference = state_store->checkpoint_references(shared.state) == 1;
++        // Full pages this prefix shares with an active sequence alone return to its request once
++        // the prefix is released (kv_alias_transfers), as a released checkpoint below (#317).
++        const auto kv_transfers =
++            kv_alias_transfers(*shared.kv, continuation_capacity);
+         if (shared.kv->backend && !backend_kv_addresses->release(*shared.kv->backend)) {
+             std::terminate();
+         }
+         if (!text_kv_addresses->release(shared.kv->text)) { std::terminate(); }
+-        state_store->release_checkpoint_reference(shared.state);
+-        if (last_state_reference && !state_store->release(shared.state)) { std::terminate(); }
++        const StateImageHandle released_state = shared.state;
++        state_store->release_checkpoint_reference(released_state);
++        if (last_state_reference && !state_store->release(released_state)) { std::terminate(); }
++        // A checkpoint an active sequence keeps (its rewrite state or an anchor) that this prefix
++        // also referenced was counted by neither owner (each counts only what it holds alone).
++        // It is the sequence's alone now: its request takes it in its optional and active
++        // resources, so the slot it occupies is counted and a later drop of it subtracts what the
++        // request holds (#317). A capture never evicts a prefix aliasing its own sequence's
++        // checkpoints (reserve_active_capture_impl), and a replaced one is priced by its
++        // assessment, so the capture that drops it later sees it as the sequence's.
++        if (!last_state_reference) {
++            for (std::uint32_t lane = 0; lane < max_concurrency; ++lane) {
++                if (active_continuations[lane] >= continuation_capacity) { continue; }
++                const SequenceState& sequence = active_sequence(lane);
++                const bool kept =
++                    (sequence.rewrite_state && *sequence.rewrite_state == released_state) ||
++                    std::any_of(sequence.long_anchors.begin(), sequence.long_anchors.end(),
++                                [&](const LongAnchorCheckpoint& anchor) {
++                                    return anchor.state == released_state;
++                                });
++                if (!kept || !state_exclusive_to_sequence(sequence, released_state)) { continue; }
++                detail::PhysicalResources transferred;
++                const StateReplicaResidency residency = state_store->residency(released_state);
++                if (residency == StateReplicaResidency::DeviceOnly ||
++                    residency == StateReplicaResidency::Both) {
++                    transferred.device.state_slots = 1;
++                }
++                if (residency == StateReplicaResidency::HostOnly ||
++                    residency == StateReplicaResidency::Both) {
++                    transferred.host.state_slots = 1;
++                }
++                requests[lane].optional_resources =
++                    checked_resource_sum(requests[lane].optional_resources, transferred);
++                requests[lane].active_resources =
++                    checked_resource_sum(requests[lane].active_resources, transferred);
++                break;
++            }
++        }
++        apply_kv_alias_transfers(kv_transfers, resharing_lane, resharing_deferred);
+ 
+         shared    = SharedPrefixState{};
+         slot.role = SharedPrefixSlotRole::Free;
+-- 
+2.43.0
+

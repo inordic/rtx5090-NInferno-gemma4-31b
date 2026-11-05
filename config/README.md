@@ -4,15 +4,16 @@
 
 | Unit | Model | Context | Notes |
 |---|---|---|---|
-| [`gemma4-31b-fast.service`](systemd/gemma4-31b-fast.service) | LilaRest NVFP4-turbo, Q/K/V packed, with vision (`turbo-qkv-vision-nvfp4.r31.ninferno`) | 202,112, chunk 1024 | production on port 8080 |
+| [`gemma4-31b-fast.service`](systemd/gemma4-31b-fast.service) | LilaRest NVFP4-turbo, Q/K/V packed, with vision (`turbo-qkv-vision-nvfp4.r31.ninferno`) | 203,136, chunk 1280 | production on port 8080 |
 | [`gemma4-31b-262k.service`](systemd/gemma4-31b-262k.service) | QAT-UD Q4 | 262,144, chunk 512 | the max-context option, text only |
 
 The fast unit:
-- runs `/opt/NInferno-up/build/apps-up3/ninferno-serve` (our branch `kvshare-up3` at `e4b9bbd`: patches 01–16 on upstream NInferno `8359583`, four upstream fixes, and patches 17–18) with `--vision`;
+- runs `/opt/NInferno-up/build/apps-up4/ninferno-serve` (our branch `kvshare-up4` at `a0d4feb`: patches 01–16 on upstream NInferno `8359583`, ten upstream fixes, patches 17–19, patch 12 reverted because upstream's #318 carries its fix) with `--vision`;
 - lets a new session's system head and tool list compete for the cache (`--auto-tools-shared-prefix --auto-shared-prefix-requested`, patch 16), and keeps up to 18 states and 8 GiB of KV in host memory (`--host-state-slots 18 --host-kv-mib 8192`; without them NInferno caps that cache at 30% of RAM). Both are pinned at start: 14.3 GiB for the states and 8 GiB of KV, so the unit holds about 26 GB of the container's 48 GB;
-- drafts with Google's regular assistant (`assistant.q8full.ninferno`), 7 drafts;
+- drafts with Google's regular assistant in NVFP4 (`assistant.nvfp4.ninferno`), 7 drafts;
 - keeps its sliding rings in FP8 (`--sliding-kv-dtype fp8`) and its token table in host memory (`NINFERNO_GEMMA4_EMBED_HOST=1`);
-- takes the wide prefill tile from 64 tokens (`NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64`).
+- takes the wide prefill tile from 64 tokens (`NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64`);
+- stops the last layer on mid-prompt prefill calls (`NINFERNO_GEMMA4_SKIP_LAST_LAYER=1`, patch 19).
 
 The max-context unit runs `build/apps-final7/ninferno-serve` (NInferno `e9203c5`, patches 01–09) with the QAT assistant, 7 drafts.
 

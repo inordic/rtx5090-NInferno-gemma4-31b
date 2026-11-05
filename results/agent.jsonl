@@ -8,3 +8,6 @@
 {"label": "CF CF_t234", "time": "2026-11-02 06:50:43", "steps": 29, "calls": 27, "markup_as_text": 0, "text_with_calls": 4, "final": 2, "errors": 0, "examples": []}
 {"label": "CF CF_t3", "time": "2026-11-02 06:56:53", "steps": 31, "calls": 29, "markup_as_text": 0, "text_with_calls": 5, "final": 2, "errors": 0, "examples": []}
 {"label": "CF up3", "time": "2026-11-02 07:07:34", "steps": 29, "calls": 27, "markup_as_text": 0, "text_with_calls": 4, "final": 2, "errors": 0, "examples": []}
+{"label": "N5 up4", "time": "2026-11-04 22:04:36", "steps": 29, "calls": 27, "markup_as_text": 0, "text_with_calls": 4, "final": 2, "errors": 0, "examples": []}
+{"label": "F2 final", "time": "2026-11-05 00:12:02", "steps": 29, "calls": 27, "markup_as_text": 0, "text_with_calls": 4, "final": 2, "errors": 0, "examples": []}
+{"label": "live up4", "time": "2026-11-05 01:46:19", "steps": 29, "calls": 27, "markup_as_text": 0, "text_with_calls": 4, "final": 2, "errors": 0, "examples": []}

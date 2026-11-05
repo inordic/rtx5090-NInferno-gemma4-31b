@@ -1,0 +1,52 @@
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- ab-off
+48000 'The provided text consists of a series of disparate federal '
+64000 'This text consists of a series of federal regulatory notices'
+100000 'This text consists of a series of official government notice'
+--- speed
+PP 2048: 4155.7 tok/s (n=1706) [4107.350586947336, 4204.000799706421]
+PP 8192: 4450.5 tok/s (n=7468) [4494.280683990472, 4406.766241649031]
+PP 32768: 3444.4 tok/s (n=28972) [3454.877173295147, 3433.9771316924225]
+PP 65536: 2564.8 tok/s (n=57942) [2559.2010522023115, 2570.404849206491]
+PP 131072: 1682.2 tok/s (n=118244) [1683.9776793381823, 1680.3743826534503]
+TG@8192 greedy: 107.6 tok/s [111.3887236114803, 103.76785660426224] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 109.7 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "N5 up4off", "ts": "2026-11-04 21:49:01", "pp2048_ntok": 1706, "pp2048": 4155.7, "pp8192_ntok": 7468, "pp8192": 4450.5, "pp32768_ntok": 28972, "pp32768": 3444.4, "pp65536_ntok": 57942, "pp65536": 2564.8, "pp131072_ntok": 118244, "pp131072": 1682.
+COUNTS N5_ab0: privately 0 | request failure 0 | exits 0
+MTP N5_ab0 accepted 5092/10240 (49.7%)
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- ab-off2
+48000 'The provided text consists of a series of disparate federal '
+64000 'This text consists of a series of federal regulatory notices'
+100000 'This text consists of a series of official government notice'
+COUNTS N5_ab1: privately 0 | request failure 0 | exits 0
+MTP N5_ab1 accepted 685/2102 (32.6%)
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- ab-on
+48000 'The provided text consists of a series of disparate federal '
+64000 'This text consists of a series of federal regulatory notices'
+100000 'This text consists of a series of official government notice'
+--- speed
+PP 2048: 4211.6 tok/s (n=1706) [4189.61166582965, 4233.6187981092235]
+PP 8192: 4525.4 tok/s (n=7468) [4542.161495013492, 4508.68655729446]
+PP 32768: 3581.6 tok/s (n=28972) [3593.317083125425, 3569.9133513285515]
+PP 65536: 2709.9 tok/s (n=57942) [2705.1547010576533, 2714.5540331280363]
+PP 131072: 1809.3 tok/s (n=118244) [1810.9701824994656, 1807.7146356526312]
+TG@8192 greedy: 109.3 tok/s [113.34499393063619, 105.27713881587873] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 109.6 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "N5 up4on", "ts": "2026-11-04 21:58:33", "pp2048_ntok": 1706, "pp2048": 4211.6, "pp8192_ntok": 7468, "pp8192": 4525.4, "pp32768_ntok": 28972, "pp32768": 3581.6, "pp65536_ntok": 57942, "pp65536": 2709.9, "pp131072_ntok": 118244, "pp131072": 1809.3
+COUNTS N5_ab2: privately 0 | request failure 0 | exits 0
+MTP N5_ab2 accepted 5096/10218 (49.9%)
+same 30/30: n5/ab_off.json n5/ab_off2.json
+same 30/30: n5/ab_off.json n5/ab_on.json
+=== 22:02:49 restoring the fast unit
+active

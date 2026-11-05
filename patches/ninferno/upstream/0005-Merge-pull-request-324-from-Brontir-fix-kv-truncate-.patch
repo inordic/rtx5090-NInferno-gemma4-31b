@@ -1,0 +1,82 @@
+From 99c588a9bca1ec15b736f1bb3dbfa4cf75a8d557 Mon Sep 17 00:00:00 2001
+From: MichaelDementii <136074657+MichaelDementii@users.noreply.github.com>
+Date: Mon, 2 Nov 2026 15:22:48 +0100
+Subject: [PATCH 1/8] Merge pull request #324 from
+ Brontir/fix/kv-truncate-full-tail
+
+KV: a trim to the committed frontier keeps a shared full tail (#314)
+(cherry picked from commit 281ec98272d2b4cdf3b95cf5d2118b0c1bc4de19)
+---
+ src/models/qwen3_5/program/storage/kv_store.h | 10 +++++--
+ tests/models/qwen3_5/test_context_store.cpp   | 27 +++++++++++++++++++
+ 2 files changed, 35 insertions(+), 2 deletions(-)
+
+diff --git a/src/models/qwen3_5/program/storage/kv_store.h b/src/models/qwen3_5/program/storage/kv_store.h
+index fbe44305..52bbfc1d 100644
+--- a/src/models/qwen3_5/program/storage/kv_store.h
++++ b/src/models/qwen3_5/program/storage/kv_store.h
+@@ -1498,7 +1498,13 @@ public:
+                 throw std::logic_error("KV truncate would partially release a protected page");
+             }
+         }
+-        if (target != 0) {
++        // A tail kept at its committed coverage is not rewritten: only the pages
++        // past it are released, so a full tail shared with a prefix may stay.
++        const bool tail_changes =
++            target != 0 &&
++            frontier - (target - 1U) * static_cast<std::uint32_t>(kPagedKVPageSize) !=
++                pages_->committed_columns(membership(address, target - 1U));
++        if (tail_changes) {
+             const std::uint32_t columns =
+                 frontier - (target - 1U) * static_cast<std::uint32_t>(kPagedKVPageSize);
+             if (!pages_->can_destructive_truncate(membership(address, target - 1U), columns)) {
+@@ -1512,7 +1518,7 @@ public:
+             pages_->release_active_reference(page);
+             pages_->dematerialize(page, address.reservation);
+         }
+-        if (target != 0) {
++        if (tail_changes) {
+             const std::uint32_t columns =
+                 frontier - (target - 1U) * static_cast<std::uint32_t>(kPagedKVPageSize);
+             pages_->destructive_truncate(membership(address, target - 1U), columns);
+diff --git a/tests/models/qwen3_5/test_context_store.cpp b/tests/models/qwen3_5/test_context_store.cpp
+index ecfd4ae0..ecead80e 100644
+--- a/tests/models/qwen3_5/test_context_store.cpp
++++ b/tests/models/qwen3_5/test_context_store.cpp
+@@ -388,6 +388,33 @@ void test_kv_store(ninferno::DeviceContext& device) {
+                pages.occupied() == 0,
+            "active KV snapshot references close with both address spaces");
+ 
++    // #314: a trim to the committed frontier keeps a full tail shared with a prefix and
++    // releases only the speculative pages past it.
++    const auto aligned_source      = addresses.create_active(3, 0, device.stream);
++    const auto aligned_destination = addresses.create_inactive();
++    expect(aligned_source && aligned_destination, "aligned KV snapshot endpoints allocate");
++    addresses.ensure_mapped_to_tokens(*aligned_source, 64, device.stream);
++    addresses.commit_frontier(*aligned_source, 64);
++    const auto aligned_full = addresses.logical_page(*aligned_source, 0);
++    addresses.commit_active_snapshot(
++        addresses.prepare_active_snapshot(*aligned_source, *aligned_destination, 64),
++        device.stream);
++    addresses.ensure_mapped_to_tokens(*aligned_destination, 71, device.stream);
++    expect(addresses.mapped_pages(*aligned_destination) == 2 &&
++               addresses.logical_page(*aligned_destination, 0) == aligned_full &&
++               pages.address_references(aligned_full) == 2,
++           "aligned KV snapshot shares its full tail page");
++    addresses.destructive_truncate(*aligned_destination, 64);
++    expect(addresses.mapped_pages(*aligned_destination) == 1 &&
++               addresses.committed_frontier(*aligned_destination) == 64 &&
++               pages.address_references(aligned_full) == 2 &&
++               pages.committed_columns(aligned_full) == 64,
++           "trim to the committed frontier keeps a shared full tail");
++    addresses.deactivate(*aligned_destination);
++    expect(addresses.release(*aligned_destination) && addresses.release(*aligned_source) &&
++               pages.occupied() == 0,
++           "aligned KV snapshot closes with both address spaces");
++
+     const auto alternating = addresses.create_active(4, 0, device.stream);
+     expect(alternating.has_value(), "alternating Host release address allocation");
+     addresses.ensure_mapped_to_tokens(*alternating, 193, device.stream);
+-- 
+2.43.0
+

@@ -1,0 +1,76 @@
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.74 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- speed
+PP 2048: 4300.8 tok/s (n=1706) [4346.583491130087, 4254.948704872428]
+PP 8192: 4529.0 tok/s (n=7468) [4586.951381152372, 4471.0437408184125]
+PP 32768: 3486.2 tok/s (n=28972) [3511.1455278640688, 3461.227173946593]
+PP 65536: 2592.2 tok/s (n=57942) [2595.74172994965, 2588.720150379015]
+PP 131072: 1689.6 tok/s (n=118244) [1693.0367928722956, 1686.2017713029877]
+TG@8192 greedy: 111.0 tok/s [107.36588478800168, 114.57406136856055] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 110.2 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "N5 base", "ts": "2026-11-04 21:34:47", "pp2048_ntok": 1706, "pp2048": 4300.8, "pp8192_ntok": 7468, "pp8192": 4529.0, "pp32768_ntok": 28972, "pp32768": 3486.2, "pp65536_ntok": 57942, "pp65536": 2592.2, "pp131072_ntok": 118244, "pp131072": 1689.6,
+TRACE n5/trace_base.csv: 580 load samples | P-state {'P0': 580} | SM median 2032 low 1590 high 2152 MHz | memory median 14001 high 14001 MHz | power median 172 max 174 W | temp max 82 | sw power cap 99% sw thermal 0% hw thermal 0% brake 0%
+COUNTS N5_base: privately 0 | request failure 0 | exits 0
+MTP N5_base accepted 4414/8092 (54.5%)
+grep: /root/gbench/logs/N5_c1280.log: No such file or directory
+DIED
+2026-11-04 21:39:27.742  INFO  engine start refused | finalizing target | 67.2 ms
+2026-11-04 21:39:27.881  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 202,112 tokens x 1 context (202,112 KV
+no fit: N5_c1280 chunk 1280 context 202112
+plan | rung 3 of 3: 198,656 tokens x 1 context (198,656 KV tokens), 0 cached states, chunk 1280 for 1 lane (step states, reserve warm_up) | free 5.37 GiB after 17.91 GiB of weights | 0.97 GiB more would serve rung 2, 1.8
+plan | rung 3: below the top rung of the asked --max-context 198,656 | 0.98 GiB more free memory would serve rung 2 (198,656 tokens x 1 context (198,656 KV tokens for 1 lane), 1 cached states, chunk 1280), 1.87 GiB the t
+capacity | KV 198,656 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,104/3,104 | runtime 5.30 GiB | free 8.56 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+FIT N5_c1280 chunk 1280 context 198656
+--- speed
+PP 2048: 4166.3 tok/s (n=1706) [4193.331828977647, 4139.215300616637]
+PP 8192: 4677.0 tok/s (n=7468) [4692.231966447627, 4661.685331295056]
+PP 32768: 3594.9 tok/s (n=28972) [3611.2872196229287, 3578.529381070884]
+PP 65536: 2637.2 tok/s (n=57942) [2638.7909574074865, 2635.668816236781]
+PP 131072: 1706.5 tok/s (n=118244) [1708.7990847020837, 1704.2091145048735]
+TG@8192 greedy: 111.7 tok/s [109.73466303859591, 113.69295665180694] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 109.8 tok/s (4861 tok) spec=mtp K=7
+ROW {"label": "N5 c1280", "ts": "2026-11-04 21:40:07", "pp2048_ntok": 1706, "pp2048": 4166.3, "pp8192_ntok": 7468, "pp8192": 4677.0, "pp32768_ntok": 28972, "pp32768": 3594.9, "pp65536_ntok": 57942, "pp65536": 2637.2, "pp131072_ntok": 118244, "pp131072": 1706.5
+TRACE n5/trace_c1280.csv: 521 load samples | P-state {'P0': 521} | SM median 2017 low 1582 high 2235 MHz | memory median 14001 high 14001 MHz | power median 172 max 178 W | temp max 84 | sw power cap 100% sw thermal 0% hw thermal 0% brake 0%
+COUNTS N5_c1280: privately 0 | request failure 0 | exits 0
+MTP N5_c1280 accepted 4416/8076 (54.7%)
+DIED
+2026-11-04 21:44:36.181  INFO  engine start refused | finalizing target | 82.4 ms
+2026-11-04 21:44:36.321  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 202,112 tokens x 1 context (202,112 KV
+no fit: N5_c1792 chunk 1792 context 202112
+DIED
+2026-11-04 21:44:45.290  INFO  engine start refused | finalizing target | 59.1 ms
+2026-11-04 21:44:45.428  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 198,656 tokens x 1 context (198,656 KV
+no fit: N5_c1792 chunk 1792 context 198656
+DIED
+2026-11-04 21:44:54.386  INFO  engine start refused | finalizing target | 59.0 ms
+2026-11-04 21:44:54.520  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 196,608 tokens x 1 context (196,608 KV
+no fit: N5_c1792 chunk 1792 context 196608
+DIED
+2026-11-04 21:45:03.599  INFO  engine start refused | finalizing target | 58.7 ms
+2026-11-04 21:45:03.736  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 194,560 tokens x 1 context (194,560 KV
+no fit: N5_c1792 chunk 1792 context 194560
+DIED
+2026-11-04 21:45:12.578  INFO  engine start refused | finalizing target | 58.6 ms
+2026-11-04 21:45:12.713  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 192,512 tokens x 1 context (192,512 KV
+no fit: N5_c1792 chunk 1792 context 192512
+DIED
+2026-11-04 21:45:21.800  INFO  engine start refused | finalizing target | 60.4 ms
+2026-11-04 21:45:21.930  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 190,464 tokens x 1 context (190,464 KV
+no fit: N5_c1792 chunk 1792 context 190464
+DIED
+2026-11-04 21:45:30.861  INFO  engine start refused | finalizing target | 59.1 ms
+2026-11-04 21:45:30.999  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 188,416 tokens x 1 context (188,416 KV
+no fit: N5_c1792 chunk 1792 context 188416
+DIED
+2026-11-04 21:45:39.990  INFO  engine start refused | finalizing target | 58.8 ms
+2026-11-04 21:45:40.126  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 184,320 tokens x 1 context (184,320 KV
+no fit: N5_c1792 chunk 1792 context 184320
+DIED
+2026-11-04 21:45:49.093  INFO  engine start refused | finalizing target | 61.8 ms
+2026-11-04 21:45:49.233  FATAL server failed during startup | no rung of the 3-rung plan ladder fits the 5.38 GiB of Device memory free after the weights (17.91 GiB): its last rung, 180,224 tokens x 1 context (180,224 KV
+no fit: N5_c1792 chunk 1792 context 180224
+=== 21:45:54 restoring the fast unit
+active

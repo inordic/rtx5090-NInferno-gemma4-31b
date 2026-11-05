@@ -1,0 +1,14 @@
+plan | rung 3 of 3: 202,112 tokens x 1 context (202,112 KV tokens), 0 cached states, chunk 1024 for 1 lane (step states, reserve kept) | free 5.37 GiB after 17.91 GiB of weights | 0.74 GiB more would serve rung 2, 1.53 G
+plan | rung 3: below the top rung of the asked --max-context 202,112 | 0.75 GiB more free memory would serve rung 2 (202,112 tokens x 1 context (202,112 KV tokens for 1 lane), 1 cached states, chunk 1024), 1.54 GiB the t
+capacity | KV 202,112 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,158/3,158 | runtime 5.17 GiB | free 144.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+--- skip
+SKIP 8192: tiles 31614384 2^-6=8.4% 2^-8=1.6% 2^-10=0.3% 2^-12=0.1% 2^-14=0.1%
+SKIP 32768: tiles 461932272 2^-6=14.2% 2^-8=3.5% 2^-10=0.6% 2^-12=0.1% 2^-14=0.0%
+SKIP 65536: tiles 2251895088 2^-6=16.1% 2^-8=4.0% 2^-10=0.7% 2^-12=0.1% 2^-14=0.0%
+SKIP 131072: tiles 8370906080 2^-6=17.7% 2^-8=4.4% 2^-10=0.7% 2^-12=0.1% 2^-14=0.0%
+--- skip2
+SKIP 32768: tiles 714810400 2^-6=16.8% 2^-8=4.3% 2^-10=0.8% 2^-12=0.1% 2^-14=0.0%
+SKIP 131072: tiles 8737081792 2^-6=16.9% 2^-8=4.1% 2^-10=0.7% 2^-12=0.1% 2^-14=0.0%
+=== 22:36:48 restoring the fast unit
+active
