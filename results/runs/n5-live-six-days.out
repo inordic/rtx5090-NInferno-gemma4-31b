@@ -1,0 +1,66 @@
+=== apps-up4, 5 Nov 19:00 to 11 Nov 22:05 UTC (reqstats)
+requests 1697 | tool-markup warnings 2
+prompt tokens: median 32,935 | p90 54,096 | max 125,697 | total 59,971,515
+cached tokens: 49,405,197 of 59,971,515 (82.4%)
+  cache turn closure: 554 requests, median hit 99.0%
+  cache shared prefix: 437 requests, median hit 91.2%
+  cache none: 305 requests, median hit 0.0%
+  cache response replay: 232 requests, median hit 98.8%
+  cache private endpoint: 138 requests, median hit 99.9%
+  cache long anchor: 31 requests, median hit 91.6%
+  requests with >=90% cached: 1097 | 50-90%: 284 | <50%: 316
+TTFT s: median 0.71 | p90 8.10 | max 71.0
+prefill tok/s,      0- 2,048 new tokens: n 990 | median 1,405
+prefill tok/s,  2,048- 8,192 new tokens: n 404 | median 2,510
+prefill tok/s,  8,192-32,768 new tokens: n 229 | median 3,710
+prefill tok/s, 32,768-     0 new tokens: n 72 | median 3,570
+decode tok/s (output >= 32): n 1238 | median 91.5 | p10 61.1 | p90 138.3
+MTP acceptance: 171874/266951 (64.4%)
+output tokens: median 69 | total 295,611
+<2K new tokens, context 0K-32K: n 429 | median prefill 1,680 tok/s | median TTFT 0.22 s
+<2K new tokens, context 32K-64K: n 479 | median prefill 1,220 tok/s | median TTFT 0.20 s
+<2K new tokens, context 64K-K: n 82 | median prefill 1,100 tok/s | median TTFT 1.05 s
+>=32K new tokens, context 32K-64K: n 50 | median prefill 3,605 tok/s
+>=32K new tokens, context 64K-K: n 22 | median prefill 1,835 tok/s
+
+=== apps-up4, same window (livecache; failure lines are client disconnects, HTTP 499)
+  new sessions with tools (2 messages): none
+    of them heads >= 20K tokens: none
+    of them heads < 20K tokens: none
+  continuing turns (3+ messages): none
+after: 2026-11-05 19:24 .. 2026-11-11 22:05 UTC, failure lines 23
+  all: 1692 requests | mean prompt 35.1K | cached 83.2% of prompt tokens | half-or-more cached 1381/1692 | TTFT mean 2.49s median 0.70s p90 7.80s | prefill time 70.2 min
+      reuse paths: turn closure 554, shared prefix 437, none 300, response replay 232, private endpoint 138, long anchor 31
+  new sessions with tools (2 messages): 481 requests | mean prompt 30.7K | cached 57.3% of prompt tokens | half-or-more cached 305/481 | TTFT mean 4.14s median 2.30s p90 9.10s | prefill time 33.2 min
+      reuse paths: shared prefix 305, none 176
+    of them heads >= 20K tokens: 463 requests | mean prompt 31.6K | cached 57.9% of prompt tokens | half-or-more cached 305/463 | TTFT mean 4.12s median 2.50s p90 9.10s | prefill time 31.8 min
+      reuse paths: shared prefix 305, none 158
+    of them heads < 20K tokens: 18 requests | mean prompt 9.1K | cached 0.0% of prompt tokens | half-or-more cached 0/18 | TTFT mean 4.51s median 2.30s p90 12.90s | prefill time 1.4 min
+      reuse paths: none 18
+  continuing turns (3+ messages): 1058 requests | mean prompt 41.3K | cached 92.6% of prompt tokens | half-or-more cached 1022/1058 | TTFT mean 1.97s median 0.38s p90 2.30s | prefill time 34.7 min
+      reuse paths: turn closure 554, response replay 232, private endpoint 137, shared prefix 75, long anchor 31, none 29
+
+=== apps-up3, 4 Nov 00:00 to 21:10 UTC (reqstats)
+requests 315 | tool-markup warnings 3
+prompt tokens: median 37,419 | p90 104,644 | max 147,624 | total 17,262,783
+cached tokens: 14,678,929 of 17,262,783 (85.0%)
+  cache turn closure: 118 requests, median hit 99.0%
+  cache shared prefix: 79 requests, median hit 88.4%
+  cache none: 38 requests, median hit 0.0%
+  cache response replay: 37 requests, median hit 99.2%
+  cache private endpoint: 27 requests, median hit 99.9%
+  cache long anchor: 16 requests, median hit 95.0%
+  requests with >=90% cached: 217 | 50-90%: 52 | <50%: 46
+TTFT s: median 1.40 | p90 10.90 | max 81.2
+prefill tok/s,      0- 2,048 new tokens: n 173 | median 1,130
+prefill tok/s,  2,048- 8,192 new tokens: n 83 | median 2,350
+prefill tok/s,  8,192-32,768 new tokens: n 35 | median 3,390
+prefill tok/s, 32,768-     0 new tokens: n 24 | median 1,655
+decode tok/s (output >= 32): n 227 | median 79.2 | p10 51.7 | p90 127.9
+MTP acceptance: 21339/53250 (40.1%)
+output tokens: median 68 | total 41,664
+<2K new tokens, context 0K-32K: n 55 | median prefill 1,630 tok/s | median TTFT 0.20 s
+<2K new tokens, context 32K-64K: n 59 | median prefill 1,370 tok/s | median TTFT 0.34 s
+<2K new tokens, context 64K-K: n 59 | median prefill 975 tok/s | median TTFT 1.40 s
+>=32K new tokens, context 32K-64K: n 9 | median prefill 3,250 tok/s
+>=32K new tokens, context 64K-K: n 15 | median prefill 1,420 tok/s
