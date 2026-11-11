@@ -2,6 +2,18 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-12 00:15: more host room for the prompt cache
+
+- **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) keeps 12 GiB of KV in host memory instead of 8, and 10 shared prefixes instead of 7: `--host-kv-mib 12288 --max-shared-prefixes 10`, with 18 host states as before. Pinned host memory goes from 24.1 to 28.1 GiB, and the container has 18.5 GB left. The device plan is the same: 203,136 tokens with the reserve kept, and 136.6 MiB free instead of 144.6.
+- **Why:** in six days of live traffic, the agent's scheduled jobs sent the same system prompt again 378 times, and 76 of those found nothing cached. The longer since that prompt was last sent, the more often it missed: 17% within 15 minutes, 34% after 35–65 minutes, 56% after two hours. That points at a full cache, not a capture fault. Another 95 misses were prompts the client had changed, which no server setting can help.
+- **Checks after the restart:** verify (17.6K cold in 4.2 s, follow-up turns 0.46–0.49 s), new sessions on a 24.4K head 0.40–0.42 s, agent loop 25 steps with no error. An overnight guard rolls the change back if the unit restarts, a request fails, or free memory falls under 3 GB ([scripts](bench/runs/cache/)).
+- **How the restart went:**
+  - The first try asked for 16 GiB of KV and 21 host states, 34.7 GiB in all. NInferno refused to start, because it pins at most 60% of RAM, 28.8 GiB here. The deploy script took 15 minutes to notice and roll back, 23:55–00:10 CET; the agent's jobs used its fallback meanwhile.
+  - Two more tries started fine, but the script's own checks misread the logs and rolled them back, each after about 40 seconds.
+  - The fourth try went in at 00:15.
+- **To judge:** whether repeated prompts miss less often. One night of jobs may be too few to tell.
+- **Rollback:** restore `/etc/systemd/system/gemma4-31b-fast.service.bak-20261111-231504`, then `systemctl daemon-reload` and `systemctl restart gemma4-31b-fast`.
+
 ## 2026-11-05 07:55: the live unit under load, setup unchanged
 
 - **Tested:** with agent traffic moved away, the running `apps-up4` unit took three cache replays, 300 agent stress steps, 60 branch stress rounds, needles and hard50 ([night 5 §11](research/2026-11-05-night5.md#11-the-live-unit-under-load)). 1,016 requests, none failed, no engine exit. Replays 91.5 / 75.1 / 77.9 s, hard50 42/50.

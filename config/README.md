@@ -9,7 +9,7 @@
 
 The fast unit:
 - runs `/opt/NInferno-up/build/apps-up4/ninferno-serve` (our branch `kvshare-up4` at `a0d4feb`: patches 01–16 on upstream NInferno `8359583`, ten upstream fixes, patches 17–19, patch 12 reverted because upstream's #318 carries its fix) with `--vision`;
-- lets a new session's system head and tool list compete for the cache (`--auto-tools-shared-prefix --auto-shared-prefix-requested`, patch 16), and keeps up to 18 states and 8 GiB of KV in host memory (`--host-state-slots 18 --host-kv-mib 8192`; without them NInferno caps that cache at 30% of RAM). Both are pinned at start: 14.3 GiB for the states and 8 GiB of KV, so the unit holds about 26 GB of the container's 48 GB;
+- lets a new session's system head and tool list compete for the cache (`--auto-tools-shared-prefix --auto-shared-prefix-requested`, patch 16), and keeps up to 18 states and 12 GiB of KV in host memory, with room for 10 shared prefixes (`--host-state-slots 18 --host-kv-mib 12288 --max-shared-prefixes 10`; without them NInferno caps that cache at 30% of RAM). Both are pinned at start: 16.1 GiB for the states and 12 GiB of KV, so the unit holds about 30 GB of the container's 48 GB. NInferno refuses to pin more than 60% of RAM (28.8 GiB here), so 16 GiB of KV with 21 states does not start;
 - drafts with Google's regular assistant in NVFP4 (`assistant.nvfp4.ninferno`), 7 drafts;
 - keeps its sliding rings in FP8 (`--sliding-kv-dtype fp8`) and its token table in host memory (`NINFERNO_GEMMA4_EMBED_HOST=1`);
 - takes the wide prefill tile from 64 tokens (`NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64`);

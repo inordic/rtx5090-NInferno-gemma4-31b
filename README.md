@@ -98,7 +98,7 @@ Perplexity on a 32K window (lower is better) is how the attention kernels were j
 | Vision | fast profile, `--vision`; `/v1/models` reports `capabilities.images` (patch 14) |
 | Chat template | Google's Gemma 4 template of 2026-07-09 with an agent patch ([`config/templates/`](config/templates/)) |
 | Speculative decoding | MTP, 7 draft tokens |
-| Prompt cache | fast profile: a new session's system head and tool list compete for the cache like a marked prefix (`--auto-tools-shared-prefix --auto-shared-prefix-requested`, patch 16), and the host keeps up to 18 states and 8 GiB of KV (`--host-state-slots 18 --host-kv-mib 8192`) |
+| Prompt cache | fast profile: a new session's system head and tool list compete for the cache like a marked prefix (`--auto-tools-shared-prefix --auto-shared-prefix-requested`, patch 16), and the host keeps up to 18 states and 12 GiB of KV, with room for 10 shared prefixes (`--host-state-slots 18 --host-kv-mib 12288 --max-shared-prefixes 10`) |
 | KV cache | FP8. The full-attention layers store K only (`NINFERNO_GEMMA4_SHARED_VALUES=2`). The fast profile also keeps its sliding-window rings in FP8 (`--sliding-kv-dtype fp8`) and its token table in host memory (`NINFERNO_GEMMA4_EMBED_HOST=1`) |
 | Prefill | W4A4 (fast profile), chunk 1280 (fast) or 512 (max context). Mid-prompt calls stop the last layer at its cache write (`NINFERNO_GEMMA4_SKIP_LAST_LAYER=1`, patch 19). GeGLU split at every width (`NINFERNO_GEMMA4_GEGLU_SPLIT_MIN_T=1`); the fast profile takes the wide attention tile from 64 tokens (`NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64`) |
 | Serving | systemd units [`gemma4-31b-fast`](config/systemd/gemma4-31b-fast.service) (port 8080) and [`gemma4-31b-262k`](config/systemd/gemma4-31b-262k.service), which exclude each other |
