@@ -1,0 +1,34 @@
+# Night after the cache change: gemma4-31b-fast, 2026-11-11 23:15 UTC to 2026-11-12 05:00 UTC
+
+## unit
+NRestarts=0
+ActiveState=active
+ActiveEnterTimestamp=Wed 2026-11-11 23:15:08 UTC
+host state pinned | 16.1 GiB | 3.1s
+host KV pinned | 12.0 GiB | 2.5s
+context cache | 1 active + 0 (auto: the default 2 does not fit in free memory) cached device states | host 18 states, 12.0 GiB KV | private 9 | shared 10 | anchors 2
+
+## guard (every 2 min until 05:00 UTC; last check, then its log)
+04:56 active=active mem_avail_mib=18619 bad=0
+04:58 active=active mem_avail_mib=18617 bad=0
+05:00:26 watch ended, no rollback
+
+## requests after the deploy checks (from 23:17 UTC)
+requests 12 | tool-markup warnings 0
+prompt tokens: median 28,172 | p90 30,299 | max 30,750 | total 283,011
+cached tokens: 178,773 of 283,011 (63.2%)
+  cache shared prefix: 5 requests, median hit 70.6%
+  cache none: 3 requests, median hit 0.0%
+  cache turn closure: 3 requests, median hit 95.1%
+  cache response replay: 1 requests, median hit 98.5%
+  requests with >=90% cached: 4 | 50-90%: 4 | <50%: 4
+TTFT s: median 2.65 | p90 3.40 | max 7.2
+prefill tok/s,      0- 2,048 new tokens: n 4 | median 2,255
+prefill tok/s,  2,048- 8,192 new tokens: n 1 | median 3,100
+prefill tok/s,  8,192-32,768 new tokens: n 7 | median 3,890
+decode tok/s (output >= 32): n 10 | median 106.0 | p10 93.7 | p90 151.7
+output tokens: median 303 | total 6,223
+<2K new tokens, context 0K-32K: n 4 | median prefill 2,255 tok/s | median TTFT 0.50 s
+
+## failed requests, engine exits, client disconnects since the restart
+0

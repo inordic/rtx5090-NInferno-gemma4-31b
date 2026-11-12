@@ -11,7 +11,10 @@ Every change to the running setup, newest first. Each entry names what changed o
   - The first try asked for 16 GiB of KV and 21 host states, 34.7 GiB in all. NInferno refused to start, because it pins at most 60% of RAM, 28.8 GiB here. The deploy script took 15 minutes to notice and roll back, 23:55–00:10 CET; the agent's jobs used its fallback meanwhile.
   - Two more tries started fine, but the script's own checks misread the logs and rolled them back, each after about 40 seconds.
   - The fourth try went in at 00:15.
-- **To judge:** whether repeated prompts miss less often. One night of jobs may be too few to tell.
+- **Overnight, to 06:00:** the change held. It ran the same process from 00:15 with no restart, no failed request and no client disconnect, free memory stayed at 18.6 GB, and the guard never rolled back ([numbers](results/runs/n6-cache-overnight.out)). The client sent only 14 requests, 7 of them new sessions:
+  - The four that repeated an earlier prompt all reused its cached prefix (20,160 tokens each). Two of them came 60 and 165 minutes after the last copy, an age at which 34% and 56% missed before.
+  - The other three had nothing to reuse. One arrived as the server came back with an empty cache, and two used prompts the client had changed.
+- **Still to judge:** four repeats are far too few to say the misses dropped. That needs a few days of daytime traffic.
 - **Rollback:** restore `/etc/systemd/system/gemma4-31b-fast.service.bak-20261111-231504`, then `systemctl daemon-reload` and `systemctl restart gemma4-31b-fast`.
 
 ## 2026-11-05 07:55: the live unit under load, setup unchanged
