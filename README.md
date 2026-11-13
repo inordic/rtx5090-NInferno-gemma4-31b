@@ -1,5 +1,8 @@
 # Gemma 4 31B on an RTX 5090 Laptop GPU with NInferno
 
+> [!IMPORTANT]
+> **Want the models used here?** The builds this repository describes can be provided on request: our NVFP4 quantizations and the converted NInferno artifacts, ready to serve. Contact **[info@inordic.io](mailto:info@inordic.io)**.
+
 This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GPU, in a Proxmox container, through [NInferno](https://github.com/Brontir/NInferno) with our patches. Its main client is an agent (Hermes). The headline numbers, measured server-side through the OpenAI API on port 8080 at one request at a time:
 
 - **Prefill: 4,812 tok/s at 8K**, 4,277 at 2K, 3.77K at 32K, 2.80K at 64K and about 1.8K at 130K. We started from 1.4K.
