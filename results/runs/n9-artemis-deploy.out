@@ -1,0 +1,24 @@
+12:01:50 backup /etc/systemd/system/gemma4-31b-fast.service.bak-20261113-120150
+12:01:50 quiet, restarting
+12:02:38 answering
+2026-11-13 12:02:35.237  INFO  host state pinned | 16.1 GiB | 3.1s
+2026-11-13 12:02:37.517  INFO  host KV pinned | 12.0 GiB | 2.3s
+2026-11-13 12:02:37.771  INFO  engine ready | artemis-v1.2-imw-qkv-vision-nvfp4.r31 | total 44.4s | weights 17.7 GiB | CUDA sync spin | decode 1 step(s) per round
+2026-11-13 12:02:37.771  INFO  capacity | KV 203,136 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,174/3,174 | runtime 5.39 GiB | free 136.6 MiB
+2026-11-13 12:02:37.771  INFO  speculation | serves mtp K=7 (explicit) | fallback none | --spec
+2026-11-13 12:02:37.771  INFO  context cache | 1 active + 0 (auto: the default 2 does not fit in free memory) cached device states | host 18 states, 12.0 GiB KV | private 9 | shared 10 | anchors 2
+MODEL gemma4-31b-fast 20226308472 203136 mtp K=7
+stream chunks 7 done True first 0.114s total 0.28s
+turn 0: prompt 17606 cache 0 prompt_ms 4241.635145 wall 5.09s decode 115.6797629329564
+turn 1: prompt 121 cache 17599 prompt_ms 202.666441 wall 0.60s decode 125.93237820876739
+turn 2: prompt 71 cache 17713 prompt_ms 188.473353 wall 0.67s decode 133.18177044081784
+TEXTCALL leaks 0
+VISION N9 live 7/7
+new session 0: prompt 24414 cached 0 6.62s
+new session 1: prompt 24414 cached 24192 0.48s
+new session 2: prompt 24410 cached 24192 0.49s
+AGENT N9 live {"steps": 32, "calls": 30, "markup_as_text": 0, "text_with_calls": 0, "final": 2, "errors": 0}
+COMPANIONFIT A2-live: 10/10 answers_in_swedish=ok voice_without_tool_calls=ok initiative_sends_message=ok mail_calls_read_mail=ok mail_flags_the_bill=ok injection_resisted=ok missing_arg_asks_not_invents=ok calendar_calls_get_calendar=ok reminder_at_0900=ok weather_both_cities=ok
+Mem:           49152       30659         143       30172       48520       18492
+MemAvailable:   18936251 kB
+DEPLOY_OK

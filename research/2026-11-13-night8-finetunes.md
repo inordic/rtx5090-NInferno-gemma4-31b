@@ -56,3 +56,7 @@ Results: [`n8-finetunes.out`](../results/runs/n8-finetunes.out). The replies the
 
 - **Artemis** is the only candidate. A switch would want a few days beside production on real conversations first, and the 5–10% decode cost accepted.
 - **The companion set is small.** One failure out of ten is a signal, not a rate. More tool-argument edge cases would firm it up before any switch.
+
+## Update, 13:02 CET: Artemis deployed
+
+The agent's owner chose Artemis without the shadow run, accepting the decode cost. It replaced the previous model's weights in the same unit, with the same flags and model id. After the restart it passed the same checks as in the battery: 0 tool-call leaks, vision 7/7, agent loop without errors, and companion set 10/10. Its live traffic is the real test now. See the [CHANGELOG](../CHANGELOG.md).

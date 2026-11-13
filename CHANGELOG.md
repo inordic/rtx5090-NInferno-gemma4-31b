@@ -2,6 +2,23 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-13 13:02: the fast profile serves Artemis v1.2
+
+- **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) loads `artemis-v1.2-imw-qkv-vision-nvfp4.r31.ninferno` in place of LilaRest's NVFP4-turbo. That is [TheDrummer/Artemis-31B-v1.2](https://huggingface.co/TheDrummer/Artemis-31B-v1.2), quantized with importance-weighted NVFP4 rounding and converted exactly like the previous model. Everything else is the same: binary `apps-up4`, flags, the NVFP4 drafter, the agent template, the prompt-cache settings, 203,136 tokens with vision, and the model id `gemma4-31b-fast`. Clients need no change.
+- **Why:** the agent's owner wanted Artemis's conversational voice. In [night 8](research/2026-11-13-night8-finetunes.md) it matched the previous model on every tool and agent check. The cost is known:
+  - chat decode 108.2 greedy / 99.2 sampled against 113.6 / 110.6, because the drafter accepts 58.4% of its drafts against 61.2%;
+  - prefill within 2%;
+  - quality 819 of 979 items against 827.
+- **Checks after the restart:**
+  - verify: 17.6K cold in 4.24 s, follow-up turns 0.60–0.67 s;
+  - 0 tool-call leaks, vision 7/7;
+  - new sessions on a 24.4K head: 6.62 s cold, then 0.48–0.49 s from the shared prefix;
+  - agent loop: 32 steps, 30 calls, no markup as text, no error;
+  - the companion-agent set: 10 of 10.
+  - Memory: the host pins 28.1 GiB as before, and the container has 18.5 GB left.
+- **How the restart went:** a first try at 13:00 loaded Artemis correctly but rolled itself back after 50 seconds. The deploy script compared `/v1/models`' size field with the file size, and that field reports the same number for any model of this layout. The fixed script went in at 13:02.
+- **Rollback:** the previous unit file (LilaRest's artifact path), then `systemctl daemon-reload` and a restart. LilaRest's artifact stays on the box.
+
 ## 2026-11-13 11:20: night 8, two creative fine-tunes (running setup unchanged)
 
 - **Ran:** with agent traffic moved off, MeroMero v2 and Artemis v1.2 (Gemma 4 31B fine-tunes) went through the full battery in importance-weighted NVFP4 on production's binary and flags, plus a companion-agent tool set and a sampled-voice test ([night 8 report](research/2026-11-13-night8-finetunes.md)). Production was stopped from 10:27 to 11:17 CET and is back as it was.
