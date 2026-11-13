@@ -1,0 +1,20 @@
+19:36:59 drafter sha256 1c474170bd1149a0
+19:36:59 backup /etc/systemd/system/gemma4-31b-fast.service.bak-20261113-193659
+19:36:59 quiet, restarting
+19:37:44 answering
+2026-11-13 19:37:41.722  INFO  host state pinned | 16.1 GiB | 3.1s
+2026-11-13 19:37:44.036  INFO  host KV pinned | 12.0 GiB | 2.3s
+2026-11-13 19:37:44.282  INFO  engine ready | artemis-v1.2-imw-qkv-vision-nvfp4.r31 | total 41.3s | weights 17.7 GiB | CUDA sync spin | decode 1 step(s) per round
+2026-11-13 19:37:44.282  INFO  capacity | KV 203,136 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,174/3,174 | runtime 5.39 GiB | free 136.6 MiB
+2026-11-13 19:37:44.282  INFO  speculation | serves mtp K=7 (explicit) | fallback none | --spec
+2026-11-13 19:37:44.282  INFO  context cache | 1 active + 0 (auto: the default 2 does not fit in free memory) cached device states | host 18 states, 12.0 GiB KV | private 9 | shared 10 | anchors 2
+turn 0: prompt 17606 cache 0 prompt_ms 4163.703547 wall 5.04s decode 110.96632834578897
+turn 1: prompt 121 cache 17599 prompt_ms 201.945388 wall 0.52s decode 157.83433560375224
+turn 2: prompt 71 cache 17713 prompt_ms 185.4277 wall 0.59s decode 159.1658257883905
+VERIFY OK
+TEXTCALL leaks 0
+VISION N9 drafter live 7/7
+COMPANIONFIT N9-drafter-live: 10/10 transport_errors 0 answers_in_swedish=ok voice_without_tool_calls=ok initiative_sends_mes
+AGENT N9 drafter live {"steps": 29, "calls": 28, "markup_as_text": 0, "text_with_calls": 0, "final": 2, "errors": 0, "unknown_tool": 0, "invalid_args": 0, "extra_args": 0, "tasks": 4, "tasks_done": 2} OK
+Mem:           49152       30802         900       30172       47621       18349
+DEPLOY_OK

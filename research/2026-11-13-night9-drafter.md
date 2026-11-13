@@ -2,7 +2,7 @@
 
 The fast profile switched to Artemis v1.2 at 13:02, with everything else unchanged, Google's MTP assistant included. Artemis is a fine-tune with its own style, and the assistant accepts fewer of its drafts than it did on LilaRest's build: chat decode 108.2 / 98.1 tok/s against 113.7 / 110.6. Tonight's question: does fine-tuning the assistant on Artemis's own text and hidden states win that back?
 
-**Result:** a small gain that is real on conversation and tool calls, and none on code or maths. It was not deployed.
+**Result:** a small gain that is real on conversation and tool calls, and none on code or maths. It went live at 20:37 on the owner's request ([CHANGELOG](../CHANGELOG.md)).
 
 | Measured on production's binary and flags, one run each | Google's assistant | Retrained |
 |---|---:|---:|

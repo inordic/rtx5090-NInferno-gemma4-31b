@@ -2,10 +2,21 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-13 20:37: the fast profile drafts with the assistant retrained on Artemis
+
+- **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) drafts with `assistant-artemis-n9.nvfp4.ninferno`, Google's MTP assistant fine-tuned on Artemis's own text and states ([night 9](research/2026-11-13-night9-drafter.md)), in place of `assistant.nvfp4.ninferno`. Weights, flags, K=7, context and model id are unchanged. A drafter can't change what the target writes beyond numerical noise.
+- **Why:** on the same held-out prompts the retrained assistant accepted more drafts on 24 of 32 greedy requests. Greedy held-out decode went from 90.1 to 94.2 tok/s and tool calls from 148 to 152. Code and maths are flat. The agent's owner asked for it live.
+- **Checks after the restart** ([`deploy_drafter.sh`](bench/runs/night9/deploy_drafter.sh), every check enforced with automatic rollback; [output](results/runs/n9/deploy_drafter.out)):
+  - verify OK: follow-up turns at 0.52–0.59 s and 158–159 tok/s;
+  - 0 tool-call leaks, vision 7/7;
+  - the companion set 10/10 under the stricter checks;
+  - agent loop: 29 steps, 28 calls, no error, no markup as text, no unknown tool or invalid argument, 2 of 4 tasks done (the first baseline for the new outcome checks).
+- **Rollback:** the previous unit file (`--drafter /opt/models/dl2/assistant.nvfp4.ninferno`), then `systemctl daemon-reload` and a restart.
+
 ## 2026-11-13 20:21: night 9, the drafter retrained on Artemis, and a review's fixes (running setup unchanged)
 
 - **Ran:** Google's MTP assistant was fine-tuned on 1.84M tokens of Artemis's own replies to public and synthetic prompts, with Artemis's hidden states and K/V captured layer by layer ([night 9](research/2026-11-13-night9-drafter.md)). Production was down from 18:00 to 20:21 CET for the capture, the training and the measurement.
-- **Result:** a small, real gain on conversation and tool calls, none on code or maths. On the same held-out greedy prompts the retrained assistant accepted more drafts on 24 of 32 requests and fewer on 8. Decode went from 90.1 to 94.2 tok/s on the greedy held-out set and from 148 to 152 on tool calls. The chat benchmark moved from 108.2 to 108.9, and hard50 acceptance from 58.4% to 57.9%. **Not deployed.** The candidate is on the box for a live trial.
+- **Result:** a small, real gain on conversation and tool calls, none on code or maths. On the same held-out greedy prompts the retrained assistant accepted more drafts on 24 of 32 requests and fewer on 8. Decode went from 90.1 to 94.2 tok/s on the greedy held-out set and from 148 to 152 on tool calls. The chat benchmark moved from 108.2 to 108.9, and hard50 acceptance from 58.4% to 57.9%. Deployed at 20:37 (next entry up).
 - **Also measured:**
   - long-prompt prefill on a rested GPU: 1,720 tok/s on 128,932 tokens, against 1,562 right after the afternoon's deployment, so that gap was heat;
   - Artemis's MLP activations exceed the calibrated LilaRest scales in 100 of 240 places;
