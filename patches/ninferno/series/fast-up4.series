@@ -1,0 +1,34 @@
+# fast-up4: the fast unit's build (apps-up4), tip a0d4feb1 on our kvshare-up4
+# git checkout -b BRANCH 83595831b790ca2ec9ed6567879063acec2a6c83
+# git am -3 $(grep -v -e '^#' -e '^base ' THIS_FILE | sed 's#^#patches/ninferno/#')
+base 83595831b790ca2ec9ed6567879063acec2a6c83
+0001-gemma4-K-only-KV-for-k_eq_v-full-layers-and-GeGLU-sp.patch
+0002-gemma4-attention-INT8-scores-on-the-D512-FP8-prefill.patch
+on-8359583/0003-gemma4-activations-int8-runs-NVFP4-W4A8-prefill.patch
+0004-gemma4-attention-FP8-P-V-on-the-D512-FP8-prefill-rou.patch
+0005-gemma4-attention-FP8-scores-on-the-D512-FP8-prefill-.patch
+0006-nvfp4-shapes-four-K-warps-on-the-Gemma-4-31B-qkv-eig.patch
+0007-q6-head-the-sliced-8-column-tile-for-the-Gemma-4-31B.patch
+0008-serve-finished-request-sums-and-finish-reasons-on-me.patch
+0009-program-a-consumed-endpoint-is-entitled-only-to-the-.patch
+0010-gemma4-NINFERNO_GEMMA4_EMBED_HOST-1-maps-the-token-t.patch
+0011-gemma4-attention-NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T-.patch
+0012-gemma4-vision-an-image-starts-at-its-own-first-token.patch
+0013-convert-NINFERNO_CONVERT_NORMED_QKV_DIVISOR-1-packs-.patch
+0014-serve-v1-models-carries-capabilities.images.patch
+0015-program-a-consumed-endpoint-takes-over-the-checkpoin.patch
+0016-serve-opt-in-automatic-shared-prefix-candidates-afte.patch
+upstream/0001-Merge-pull-request-226-from-Brontir-fix-tma-proxy-fe.patch
+upstream/0002-state-a-checkpoint-s-Host-transfers-move-only-its-ri.patch
+upstream/0003-Merge-pull-request-217-from-Brontir-fix-token-domain.patch
+upstream/0004-Merge-pull-request-234-from-Brontir-det-capture-rais.patch
+0017-program-a-turn-end-capture-publishes-privately-when-.patch
+0018-program-a-resource-subtraction-underflow-names-its-c.patch
+upstream/0005-Merge-pull-request-324-from-Brontir-fix-kv-truncate-.patch
+upstream/0006-Capture-a-dropped-checkpoint-that-the-replaced-share.patch
+upstream/0007-Merge-pull-request-327-from-Brontir-fix-shared-alias.patch
+upstream/0008-Merge-pull-request-325-from-Brontir-fix-api-output-b.patch
+upstream/0009-Revert-gemma4-vision-an-image-starts-at-its-own-firs.patch
+upstream/0010-Merge-pull-request-318-from-Brontir-fix-engine-survi.patch
+upstream/0011-Merge-pull-request-319-from-Brontir-fix-keep-alive-a.patch
+0019-gemma4-a-mid-prompt-prefill-call-stops-the-last-laye.patch

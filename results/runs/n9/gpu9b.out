@@ -1,0 +1,34 @@
+=== 17:46:45 stopping production
+=== 17:46:53 training
+17:48:17 base drafter: {"sequences": 105, "top1_by_step": [0.7187, 0.6636, 0.6337, 0.6102, 0.5886, 0.5661, 0.5467], "accepted_per_round": 2.152, "accepted_per_round_greedy": 2.342, "rounds": 71893}
+17:48:18 train: 1825 sequences, 1122727 anchors per epoch, 2 epochs, ~548 optimizer steps, lr 5e-05
+18:14:30 epoch 1: {"sequences": 105, "top1_by_step": [0.7385, 0.6751, 0.6429, 0.6177, 0.5983, 0.5809, 0.5659], "accepted_per_round": 2.237, "accepted_per_round_greedy": 2.423, "rounds": 71893}
+18:40:44 epoch 2: {"sequences": 105, "top1_by_step": [0.7425, 0.6826, 0.65, 0.6268, 0.6096, 0.5928, 0.5795], "accepted_per_round": 2.281, "accepted_per_round_greedy": 2.465, "rounds": 71893}
+=== 18:40:46 converting epoch 2
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/n9/assistant-artemis-ep2.nvf
+=== 18:40:50 resting the GPU 5 min
+TG@2048 greedy: 123.9 tok/s [117.9745677671508, 129.78328319289105] spec=['mtp K=7', 'mtp K=7']
+TG@2048 sampled: 131.9 tok/s [132.53533048317377, 131.30648924332382] spec=['mtp K=7', 'mtp K=7']
+TG@8192 greedy: 125.8 tok/s [129.057440013569, 122.49883094583139] spec=['mtp K=7', 'mtp K=7']
+TG@8192 sampled: 116.7 tok/s [126.03063428699352, 107.37450224721385] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 108.2 tok/s (4856 tok) spec=mtp K=7
+CHAT C=1 sampled: 98.1 tok/s (4855 tok) spec=mtp K=7
+HARD50 old 43 / 50 drafts accepted 58.4%
+HELDOUT old all: {'requests': 78, 'tokens': 24166, 'decode_tok_s': 83.9, 'accepted': 27.0}
+HELDOUT old greedy: {'requests': 39, 'tokens': 11617, 'decode_tok_s': 90.1, 'accepted': 30.0}
+HELDOUT old sampled: {'requests': 39, 'tokens': 12549, 'decode_tok_s': 78.9, 'accepted': 24.6}
+=== 18:57:35 needle 140K on a rested GPU (prefill check)
+{"L": 140000, "depth": 0.5, "ok": true, "ptok": 128932, "pp": 1719.8, "tg": 137.1, "wall": 75.2, "ans": "amber-falcon-5506", "want": "amber-falcon-5506"}
+=== 19:04:24 resting the GPU 5 min
+TG@2048 greedy: 127.0 tok/s [118.04579179823905, 135.89615728159356] spec=['mtp K=7', 'mtp K=7']
+TG@2048 sampled: 131.7 tok/s [123.44641496988203, 140.00220052773815] spec=['mtp K=7', 'mtp K=7']
+TG@8192 greedy: 124.1 tok/s [123.51190025544977, 124.66824754657328] spec=['mtp K=7', 'mtp K=7']
+TG@8192 sampled: 123.7 tok/s [135.84996739596795, 111.59915030800549] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 108.9 tok/s (4856 tok) spec=mtp K=7
+CHAT C=1 sampled: 98.2 tok/s (4894 tok) spec=mtp K=7
+HARD50 new 45 / 50 drafts accepted 57.9%
+HELDOUT new all: {'requests': 78, 'tokens': 23895, 'decode_tok_s': 86.1, 'accepted': 28.1}
+HELDOUT new greedy: {'requests': 39, 'tokens': 11650, 'decode_tok_s': 94.2, 'accepted': 31.9}
+HELDOUT new sampled: {'requests': 39, 'tokens': 12245, 'decode_tok_s': 79.6, 'accepted': 24.9}
+=== 19:20:44 production back (done)
+=== 19:21:32 GPU9_END: done; production active

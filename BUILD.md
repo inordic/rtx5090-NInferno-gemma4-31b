@@ -58,9 +58,11 @@ mkdir -p build/apps-up4 && cp build/apps/ninferno-serve build/apps/ninferno-gemm
 
 The max-context unit still runs the build at patch 09 on the original base (`/opt/NInferno/build/apps-final7`); it hasn't been re-measured on newer builds. Step 3 converts with that tree's `build/apps/ninferno-convert` at the branch tip (patch 13 packs the fast model's Q/K/V). To set it up:
 1. Clone into `/opt/NInferno` and run `git checkout -b kvshare-main 9895ebc62e2bdfb367083a72cb2c4a714cf41542`.
-1. Run `git am $P/00*.patch`; all sixteen apply cleanly on this base.
-1. For the max-context binaries, run `git checkout HEAD~7` (patch 09), build as above, and copy them to `build/apps-final7`.
+1. Apply patches 01–16 by name: `git am $P/000[1-9]-*.patch $P/001[0-6]-*.patch`. They apply cleanly on this base. Patches 17–19 belong to the newer base above; a glob such as `00*.patch` would pick them up too.
+1. For the max-context binaries, make a branch with patches 01–09 only: `git checkout -b kvshare-p09 9895ebc62e2bdfb367083a72cb2c4a714cf41542 && git am $P/000[1-9]-*.patch`. Build as above and copy the binaries to `build/apps-final7`.
 1. Run `git checkout kvshare-main` and build again for the converter.
+
+The exact series of each build, base commit first, is in [`patches/ninferno/series/`](patches/ninferno/series/). Check a tree with `git log --oneline BASE..HEAD` against it.
 
 The full build takes a long time; the kernels are many. Add `-DNINFERNO_BUILD_BENCHMARKS=ON` and `ninja -C build bench/ninferno_linear_bench` if you want the kernel microbenchmark used in [`bench/lb.sh`](bench/lb.sh).
 
@@ -140,6 +142,36 @@ cd $D && NINFERNO_CONVERT_NORMED_QKV_DIVISOR=1 /opt/NInferno/build/apps/ninferno
 - The artifact is 20,259,160,836 bytes.
 - Its `.conversion.json` lists `nvfp4: 240, bf16: 636, q8_g32_fp16: 1, q6_g64_fp16: 1, fp32: 60` and the components `text` and `vision`.
 - Every object holding `attention/query` also holds `attention/key`.
+
+### 3b2. The fast profile's target since 13 Nov: Artemis v1.2, imw NVFP4, Q/K/V packed, with vision
+
+[TheDrummer/Artemis-31B-v1.2](https://huggingface.co/TheDrummer/Artemis-31B-v1.2) is a BF16 fine-tune in Google's full layout, vision tower included. It is quantized here with [`bench/hlquant2.py`](bench/hlquant2.py) (importance-weighted rounding, using bartowski's public importance matrix for this model), then converted as in 3b ([night 8](research/2026-11-13-night8-finetunes.md)).
+
+```bash
+M=/opt/models/n8/A2
+# TheDrummer/Artemis-31B-v1.2, every file, into $M/bf16;
+# bartowski/TheDrummer_Artemis-31B-v1.2-GGUF: the imatrix file, as /opt/models/n8/ref/A2.imatrix.gguf.
+# lila_scales.json: the input_scale and weight_scale_2 values of LilaRest's checkpoint from 3b:
+/opt/venv-cu/bin/python - <<'EOF'
+import glob, json
+from safetensors import safe_open
+out = {}
+for f in glob.glob("/opt/models/dl2/turbo-src/*.safetensors"):
+    with safe_open(f, "pt") as s:
+        for k in s.keys():
+            if k.endswith((".input_scale", ".weight_scale_2")):
+                out[k] = float(s.get_tensor(k).float())
+json.dump(out, open("lila_scales.json", "w"))
+EOF
+/opt/venv-cu/bin/python bench/hlquant2.py $M/bf16 $M/q lila_scales.json /opt/models/n8/ref/A2.imatrix.gguf --device=cuda --methods=imw
+bench/runs/night7/conv.sh $M/q-imw $M/bf16 /opt/models/artemis/artemis-v1.2-imw-qkv-vision-nvfp4.r31.ninferno
+```
+
+**Check:**
+- `hlquant2.py` prints `imatrix missing for 0 matrices`. A matrix without importance data falls back to uniform weights; the count must be 0.
+- The artifact is 20,259,164,164 bytes, with sha256 `c40d5d9a9cd91af5787c64aa7440d9e711f07e855be213eb867dee4a93520ee7`.
+
+The activation scales are LilaRest's, not Artemis's own. Measured on 208K tokens of Artemis's own replies, the inputs of the MLP projections exceed them in 100 of 240 places (up to 12× in a few down projections), so those activations clip. The served model still picks the same greedy token as a pass with the same weights and BF16 activations 97.9% of the time. This first comparison is indicative (the attention output projection's numbers don't line up with the calibrated ones); calibrating Artemis's own scales is an open experiment.
 
 ### 3c. The max-context profile's target: QAT-UD Q4
 

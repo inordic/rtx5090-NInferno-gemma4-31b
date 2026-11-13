@@ -1,0 +1,13 @@
+# maxctx-p09: the max-context unit's build (apps-final7)
+# git checkout -b BRANCH 9895ebc62e2bdfb367083a72cb2c4a714cf41542
+# git am -3 $(grep -v -e '^#' -e '^base ' THIS_FILE | sed 's#^#patches/ninferno/#')
+base 9895ebc62e2bdfb367083a72cb2c4a714cf41542
+0001-gemma4-K-only-KV-for-k_eq_v-full-layers-and-GeGLU-sp.patch
+0002-gemma4-attention-INT8-scores-on-the-D512-FP8-prefill.patch
+0003-gemma4-activations-int8-runs-NVFP4-W4A8-prefill.patch
+0004-gemma4-attention-FP8-P-V-on-the-D512-FP8-prefill-rou.patch
+0005-gemma4-attention-FP8-scores-on-the-D512-FP8-prefill-.patch
+0006-nvfp4-shapes-four-K-warps-on-the-Gemma-4-31B-qkv-eig.patch
+0007-q6-head-the-sliced-8-column-tile-for-the-Gemma-4-31B.patch
+0008-serve-finished-request-sums-and-finish-reasons-on-me.patch
+0009-program-a-consumed-endpoint-is-entitled-only-to-the-.patch

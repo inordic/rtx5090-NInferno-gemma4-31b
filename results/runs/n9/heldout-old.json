@@ -1,0 +1,679 @@
+{
+ "label": "old",
+ "summary": {
+  "all": {
+   "requests": 78,
+   "tokens": 24166,
+   "decode_tok_s": 83.9,
+   "accepted": 27.0
+  },
+  "greedy": {
+   "requests": 39,
+   "tokens": 11617,
+   "decode_tok_s": 90.1,
+   "accepted": 30.0
+  },
+  "sampled": {
+   "requests": 39,
+   "tokens": 12549,
+   "decode_tok_s": 78.9,
+   "accepted": 24.6
+  },
+  "companion": {
+   "requests": 14,
+   "tokens": 684,
+   "decode_tok_s": 73.2,
+   "accepted": 22.6
+  },
+  "oasst2": {
+   "requests": 16,
+   "tokens": 7349,
+   "decode_tok_s": 86.5,
+   "accepted": 28.1
+  },
+  "swedish": {
+   "requests": 16,
+   "tokens": 7740,
+   "decode_tok_s": 76.1,
+   "accepted": 23.2
+  },
+  "tools": {
+   "requests": 16,
+   "tokens": 2245,
+   "decode_tok_s": 148.0,
+   "accepted": 58.3
+  },
+  "ultrachat": {
+   "requests": 16,
+   "tokens": 6148,
+   "decode_tok_s": 80.1,
+   "accepted": 25.2
+  }
+ },
+ "rows": [
+  {
+   "cat": "companion",
+   "temp": 0.0,
+   "out": 16,
+   "decode": 145.3,
+   "acc": 13,
+   "drafted": 21
+  },
+  {
+   "cat": "companion",
+   "temp": 1.0,
+   "out": 19,
+   "decode": 103.6,
+   "acc": 14,
+   "drafted": 35
+  },
+  {
+   "cat": "companion",
+   "temp": 0.7,
+   "out": 103,
+   "decode": 72.2,
+   "acc": 63,
+   "drafted": 287
+  },
+  {
+   "cat": "companion",
+   "temp": 0.0,
+   "out": 143,
+   "decode": 58.2,
+   "acc": 74,
+   "drafted": 497
+  },
+  {
+   "cat": "companion",
+   "temp": 0.0,
+   "out": 84,
+   "decode": 75.4,
+   "acc": 51,
+   "drafted": 224
+  },
+  {
+   "cat": "companion",
+   "temp": 0.0,
+   "out": 16,
+   "decode": 86.9,
+   "acc": 14,
+   "drafted": 35
+  },
+  {
+   "cat": "companion",
+   "temp": 1.0,
+   "out": 24,
+   "decode": 166.0,
+   "acc": 20,
+   "drafted": 28
+  },
+  {
+   "cat": "companion",
+   "temp": 0.7,
+   "out": 94,
+   "decode": 62.7,
+   "acc": 51,
+   "drafted": 301
+  },
+  {
+   "cat": "companion",
+   "temp": 0.0,
+   "out": 16,
+   "decode": 146.6,
+   "acc": 13,
+   "drafted": 21
+  },
+  {
+   "cat": "companion",
+   "temp": 0.0,
+   "out": 40,
+   "decode": 162.2,
+   "acc": 32,
+   "drafted": 49
+  },
+  {
+   "cat": "companion",
+   "temp": 1.0,
+   "out": 19,
+   "decode": 87.5,
+   "acc": 13,
+   "drafted": 42
+  },
+  {
+   "cat": "companion",
+   "temp": 0.0,
+   "out": 70,
+   "decode": 50.1,
+   "acc": 32,
+   "drafted": 280
+  },
+  {
+   "cat": "companion",
+   "temp": 1.0,
+   "out": 16,
+   "decode": 144.6,
+   "acc": 13,
+   "drafted": 21
+  },
+  {
+   "cat": "companion",
+   "temp": 0.7,
+   "out": 24,
+   "decode": 165.9,
+   "acc": 20,
+   "drafted": 28
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 80.4,
+   "acc": 325,
+   "drafted": 1294
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 81.6,
+   "acc": 328,
+   "drafted": 1276
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.7,
+   "out": 512,
+   "decode": 80.8,
+   "acc": 327,
+   "drafted": 1260
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 99.1,
+   "acc": 363,
+   "drafted": 1145
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.7,
+   "out": 222,
+   "decode": 99.9,
+   "acc": 160,
+   "drafted": 464
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 134.1,
+   "acc": 400,
+   "drafted": 772
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 69.1,
+   "acc": 295,
+   "drafted": 1493
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 97.4,
+   "acc": 358,
+   "drafted": 1071
+  },
+  {
+   "cat": "oasst2",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 87.1,
+   "acc": 340,
+   "drafted": 1192
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 89.3,
+   "acc": 344,
+   "drafted": 1171
+  },
+  {
+   "cat": "oasst2",
+   "temp": 1.0,
+   "out": 50,
+   "decode": 110.4,
+   "acc": 37,
+   "drafted": 91
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.0,
+   "out": 421,
+   "decode": 87.7,
+   "acc": 282,
+   "drafted": 980
+  },
+  {
+   "cat": "oasst2",
+   "temp": 0.7,
+   "out": 512,
+   "decode": 77.8,
+   "acc": 320,
+   "drafted": 1323
+  },
+  {
+   "cat": "oasst2",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 84.5,
+   "acc": 335,
+   "drafted": 1220
+  },
+  {
+   "cat": "oasst2",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 70.4,
+   "acc": 300,
+   "drafted": 1465
+  },
+  {
+   "cat": "oasst2",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 95.4,
+   "acc": 355,
+   "drafted": 1081
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 78.8,
+   "acc": 322,
+   "drafted": 1320
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.7,
+   "out": 512,
+   "decode": 84.0,
+   "acc": 334,
+   "drafted": 1231
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.7,
+   "out": 512,
+   "decode": 70.1,
+   "acc": 299,
+   "drafted": 1479
+  },
+  {
+   "cat": "swedish",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 66.7,
+   "acc": 288,
+   "drafted": 1548
+  },
+  {
+   "cat": "swedish",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 104.3,
+   "acc": 369,
+   "drafted": 1005
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 69.6,
+   "acc": 297,
+   "drafted": 1491
+  },
+  {
+   "cat": "swedish",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 62.2,
+   "acc": 272,
+   "drafted": 1670
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 88.8,
+   "acc": 343,
+   "drafted": 1161
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.0,
+   "out": 60,
+   "decode": 72.3,
+   "acc": 37,
+   "drafted": 168
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.7,
+   "out": 512,
+   "decode": 69.1,
+   "acc": 296,
+   "drafted": 1486
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 72.4,
+   "acc": 305,
+   "drafted": 1431
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.7,
+   "out": 512,
+   "decode": 99.2,
+   "acc": 361,
+   "drafted": 1048
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 74.9,
+   "acc": 312,
+   "drafted": 1383
+  },
+  {
+   "cat": "swedish",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 84.1,
+   "acc": 334,
+   "drafted": 1226
+  },
+  {
+   "cat": "swedish",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 63.4,
+   "acc": 277,
+   "drafted": 1633
+  },
+  {
+   "cat": "swedish",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 79.5,
+   "acc": 324,
+   "drafted": 1297
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 121,
+   "decode": 117.9,
+   "acc": 92,
+   "drafted": 203
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 36,
+   "decode": 126.7,
+   "acc": 28,
+   "drafted": 56
+  },
+  {
+   "cat": "tools",
+   "temp": 0.7,
+   "out": 84,
+   "decode": 150.2,
+   "acc": 67,
+   "drafted": 112
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 66,
+   "decode": 172.4,
+   "acc": 55,
+   "drafted": 77
+  },
+  {
+   "cat": "tools",
+   "temp": 0.7,
+   "out": 34,
+   "decode": 134.7,
+   "acc": 27,
+   "drafted": 49
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 186.6,
+   "acc": 434,
+   "drafted": 560
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 140,
+   "decode": 92.0,
+   "acc": 97,
+   "drafted": 301
+  },
+  {
+   "cat": "tools",
+   "temp": 0.7,
+   "out": 118,
+   "decode": 216.5,
+   "acc": 103,
+   "drafted": 129
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 177,
+   "decode": 186.5,
+   "acc": 150,
+   "drafted": 197
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 29,
+   "decode": 164.0,
+   "acc": 24,
+   "drafted": 35
+  },
+  {
+   "cat": "tools",
+   "temp": 0.7,
+   "out": 42,
+   "decode": 199.2,
+   "acc": 36,
+   "drafted": 42
+  },
+  {
+   "cat": "tools",
+   "temp": 0.7,
+   "out": 512,
+   "decode": 142.9,
+   "acc": 411,
+   "drafted": 753
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 190,
+   "decode": 99.7,
+   "acc": 136,
+   "drafted": 378
+  },
+  {
+   "cat": "tools",
+   "temp": 0.7,
+   "out": 32,
+   "decode": 128.7,
+   "acc": 25,
+   "drafted": 49
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 52,
+   "decode": 180.0,
+   "acc": 44,
+   "drafted": 64
+  },
+  {
+   "cat": "tools",
+   "temp": 0.0,
+   "out": 100,
+   "decode": 201.9,
+   "acc": 86,
+   "drafted": 106
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 62.1,
+   "acc": 271,
+   "drafted": 1668
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.7,
+   "out": 169,
+   "decode": 102.0,
+   "acc": 124,
+   "drafted": 336
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 79.7,
+   "acc": 323,
+   "drafted": 1308
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.0,
+   "out": 223,
+   "decode": 126.4,
+   "acc": 173,
+   "drafted": 365
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.7,
+   "out": 196,
+   "decode": 96.7,
+   "acc": 140,
+   "drafted": 413
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 81.1,
+   "acc": 327,
+   "drafted": 1277
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.7,
+   "out": 512,
+   "decode": 83.5,
+   "acc": 332,
+   "drafted": 1239
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 61.7,
+   "acc": 269,
+   "drafted": 1679
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 105.1,
+   "acc": 369,
+   "drafted": 983
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.0,
+   "out": 144,
+   "decode": 117.4,
+   "acc": 110,
+   "drafted": 253
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 73.9,
+   "acc": 309,
+   "drafted": 1402
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 1.0,
+   "out": 39,
+   "decode": 184.5,
+   "acc": 34,
+   "drafted": 42
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.0,
+   "out": 512,
+   "decode": 105.9,
+   "acc": 370,
+   "drafted": 977
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 71.9,
+   "acc": 304,
+   "drafted": 1434
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 0.0,
+   "out": 257,
+   "decode": 91.3,
+   "acc": 175,
+   "drafted": 582
+  },
+  {
+   "cat": "ultrachat",
+   "temp": 1.0,
+   "out": 512,
+   "decode": 64.7,
+   "acc": 281,
+   "drafted": 1592
+  }
+ ]
+}

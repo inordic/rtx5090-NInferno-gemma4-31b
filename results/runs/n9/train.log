@@ -1,0 +1,19 @@
+Loading weights:   0%|          | 0/48 [00:00<?, ?it/s]Loading weights: 100%|██████████| 48/48 [00:00<00:00, 547.78it/s]
+17:48:17 base drafter: {"sequences": 105, "top1_by_step": [0.7187, 0.6636, 0.6337, 0.6102, 0.5886, 0.5661, 0.5467], "accepted_per_round": 2.152, "accepted_per_round_greedy": 2.342, "rounds": 71893}
+17:48:18 train: 1825 sequences, 1122727 anchors per epoch, 2 epochs, ~548 optimizer steps, lr 5e-05
+17:48:25   epoch 1 step 1/548 loss 2.5022 lr 9.26e-07 (7s, peak 11.1 GiB)
+17:48:47   epoch 1 step 5/548 loss 2.7102 lr 4.63e-06 (29s, peak 14.6 GiB)
+17:50:12   epoch 1 step 20/548 loss 2.0686 lr 1.85e-05 (114s, peak 14.6 GiB)
+17:53:17   epoch 1 step 50/548 loss 1.7018 lr 4.54e-05 (299s, peak 14.6 GiB)
+17:58:00   epoch 1 step 100/548 loss 1.7670 lr 4.61e-05 (582s, peak 14.7 GiB)
+18:02:45   epoch 1 step 150/548 loss 1.7203 lr 4.14e-05 (867s, peak 14.7 GiB)
+18:07:53   epoch 1 step 200/548 loss 1.6349 lr 3.54e-05 (1175s, peak 14.7 GiB)
+18:12:54   epoch 1 step 250/548 loss 1.5922 lr 2.86e-05 (1476s, peak 14.7 GiB)
+18:14:30 epoch 1: {"sequences": 105, "top1_by_step": [0.7385, 0.6751, 0.6429, 0.6177, 0.5983, 0.5809, 0.5659], "accepted_per_round": 2.237, "accepted_per_round_greedy": 2.423, "rounds": 71893}
+18:19:15   epoch 2 step 300/548 loss 1.3136 lr 2.14e-05 (1857s, peak 14.7 GiB)
+18:23:58   epoch 2 step 350/548 loss 1.3875 lr 1.46e-05 (2140s, peak 14.7 GiB)
+18:29:01   epoch 2 step 400/548 loss 1.2865 lr 8.58e-06 (2443s, peak 14.7 GiB)
+18:33:56   epoch 2 step 450/548 loss 1.3726 lr 3.92e-06 (2738s, peak 14.7 GiB)
+18:38:54   epoch 2 step 500/548 loss 1.2898 lr 9.80e-07 (3036s, peak 14.7 GiB)
+18:40:44 epoch 2: {"sequences": 105, "top1_by_step": [0.7425, 0.6826, 0.65, 0.6268, 0.6096, 0.5928, 0.5795], "accepted_per_round": 2.281, "accepted_per_round_greedy": 2.465, "rounds": 71893}
+18:40:45 TRAIN_DONE

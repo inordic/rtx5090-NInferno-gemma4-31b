@@ -2,6 +2,23 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-13 20:21: night 9, the drafter retrained on Artemis, and a review's fixes (running setup unchanged)
+
+- **Ran:** Google's MTP assistant was fine-tuned on 1.84M tokens of Artemis's own replies to public and synthetic prompts, with Artemis's hidden states and K/V captured layer by layer ([night 9](research/2026-11-13-night9-drafter.md)). Production was down from 18:00 to 20:21 CET for the capture, the training and the measurement.
+- **Result:** a small, real gain on conversation and tool calls, none on code or maths. On the same held-out greedy prompts the retrained assistant accepted more drafts on 24 of 32 requests and fewer on 8. Decode went from 90.1 to 94.2 tok/s on the greedy held-out set and from 148 to 152 on tool calls. The chat benchmark moved from 108.2 to 108.9, and hard50 acceptance from 58.4% to 57.9%. **Not deployed.** The candidate is on the box for a live trial.
+- **Also measured:**
+  - long-prompt prefill on a rested GPU: 1,720 tok/s on 128,932 tokens, against 1,562 right after the afternoon's deployment, so that gap was heat;
+  - Artemis's MLP activations exceed the calibrated LilaRest scales in 100 of 240 places;
+  - the prompt cache since the 12 Nov change: 67% of prompts of 8K tokens or more reused 90% or more of their tokens, with a median time to first token of 0.55 s.
+- **Review of `415528a`** ([report](research/2026-11-13-review.md)), all ten points checked:
+  - the night-1 W4A4 verify switch never enabled (`e[0] == 1`), so that result is withdrawn and the switch is fixed;
+  - `verify.py`, `companionfit.py`, `agenttest.py` and `needle.py` now fail when a check fails, with a stateful agent workspace, schema checks, task outcomes and strict needle scoring;
+  - HumanEval's generated code runs in a sandbox with a self-check;
+  - `gbench.py` sets its sampling and seeds and keeps every request;
+  - the README gives actual prompt token counts, with Artemis first;
+  - BUILD.md has explicit patch series per build and the Artemis route.
+- **Checked on the box:** `verify.py` passes on production (and exits 1 on a wrong model id), the companion set scores 10/10 under the stricter checks, the sandbox probe reports `isolated`, and seeded sampling repeats exactly.
+
 ## 2026-11-13 13:02: the fast profile serves Artemis v1.2
 
 - **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) loads `artemis-v1.2-imw-qkv-vision-nvfp4.r31.ninferno` in place of LilaRest's NVFP4-turbo. That is [TheDrummer/Artemis-31B-v1.2](https://huggingface.co/TheDrummer/Artemis-31B-v1.2), quantized with importance-weighted NVFP4 rounding and converted exactly like the previous model. Everything else is the same: binary `apps-up4`, flags, the NVFP4 drafter, the agent template, the prompt-cache settings, 203,136 tokens with vision, and the model id `gemma4-31b-fast`. Clients need no change.
@@ -276,7 +293,7 @@ Every change to the running setup, newest first. Each entry names what changed o
 - **Why:** with 8 drafts the verify runs 9 tokens and lands in the slower 16-token kernel bucket. With 7 it stays in the 8-token bucket, where patch 06 (QKV schedule) and patch 07 (Q6 head on the 8-column tile) also speed it up.
 - **Measured, live:** chat decode 118.4 / 114.0 tok/s against 108.6 / 105.6; prefill 4,154 tok/s at 8K. Quality the same: GSM8K 198, MMLU-Pro 147 (inside the 147–152 band), HumanEval 161. Needles 9/9 at 32K, 67K and 130K; the 262K profile 2/2 at 185K and 231K ([night-1 report](research/2026-10-26-night1-decode.md)).
 - **Rollback:** [`bench/revert_candidate.sh`](bench/revert_candidate.sh) restores the unit-file backups `*.bak-20261026-051034` (`apps-final`, 8 drafts).
-- **Tested and not adopted:** W4A4 verify; shortlist drafter heads (64K / 96K rows); 16-token schedule variants; SIMT head kernels at 7–8 tokens; Q4_0 prefill on the W4A8 tile (+10% speed, +2% perplexity); 6, 12 and 15 drafts.
+- **Tested and not adopted:** W4A4 verify (withdrawn 13 Nov: the switch never enabled in that build, see the [review](research/2026-11-13-review.md)); shortlist drafter heads (64K / 96K rows); 16-token schedule variants; SIMT head kernels at 7–8 tokens; Q4_0 prefill on the W4A8 tile (+10% speed, +2% perplexity); 6, 12 and 15 drafts.
 
 ## 2026-10-26 00:05: NInfer web UI installed
 

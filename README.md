@@ -3,23 +3,21 @@
 > [!IMPORTANT]
 > **Want the models used here?** The builds this repository describes can be provided on request: our NVFP4 quantizations and the converted NInferno artifacts, ready to serve. Contact **[info@inordic.io](mailto:info@inordic.io)**.
 
-This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GPU, in a Proxmox container, through [NInferno](https://github.com/Brontir/NInferno) with our patches. Its main client is an agent (Hermes). The headline numbers, measured server-side through the OpenAI API on port 8080 at one request at a time:
+This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GPU, in a Proxmox container, through [NInferno](https://github.com/Brontir/NInferno) with our patches. Its main client is an agent (Hermes). Every number is measured server-side through the OpenAI API on port 8080, one request at a time.
 
-- **Prefill: 4,812 tok/s at 8K**, 4,277 at 2K, 3.77K at 32K, 2.80K at 64K and about 1.8K at 130K. We started from 1.4K.
-- **Decode: 114 tok/s on chat** (113.7 greedy / 110.6 sampled), 120–124 after 2K and 114–121 after 8K of context. That's 3.4× the 33 tok/s we started from.
+The fast profile serves [Artemis v1.2](https://huggingface.co/TheDrummer/Artemis-31B-v1.2), a conversational fine-tune of Gemma 4 31B, in our importance-weighted NVFP4, since 2026-11-13 13:02 CET. Its headline numbers, with prompt sizes as the server's actual token counts:
+
+- **Prefill: 4,672 tok/s on a 7,468-token prompt**, 4,171 on 1,706 and 3,640 on 28,972 tokens. On long prompts: 1,720 tok/s on 128,932 tokens (rested GPU), 1,343 on 158,559 and 1,157 on 191,809. We started from 1.4K.
+- **Decode: 108 tok/s on chat** (108.2 greedy / 98.1 sampled), 124–132 after a 1,706-token context and 117–126 after 7,468 tokens. That's 3.3× the 33 tok/s we started from.
 - **Context: 203,136 tokens with vision** in the fast profile and **262,144** (the model's full window) in the max-context profile, up from 32K.
-- **Quality:** MMLU-Pro 178/280 (direct answer), GSM8K 197/200, MMLU 249/285, HumanEval 161/164; see [Quality](#quality).
+- **Quality:** GSM8K 198/200, MMLU-Pro 174/280 (direct answer), MMLU 244/285, HumanEval 160/164: 776 of the 929 items; see [Quality](#quality).
 - **Vision:** images in requests (about 290 tokens each), 7/7 on our image questions.
-- **Long context:** needles pass at 170K and 205K (192K tokens) on the fast profile, and at 185K and 231K on the max-context profile. One borderline 140K needle passes 18 of 21 runs, against 7 of 10 on the previous setup.
+- **Long context:** needles pass on 128,932, 158,559 and 191,809 prompt tokens on the fast profile, and at 185K and 231K on the max-context profile.
 
 > [!NOTE]
-> **Since 2026-11-13 13:02 CET the fast profile serves [Artemis v1.2](https://huggingface.co/TheDrummer/Artemis-31B-v1.2)**, a conversational fine-tune of Gemma 4 31B, in our importance-weighted NVFP4. The agent's owner preferred its voice. Engine, flags, drafter, context and model id are unchanged. The numbers above were measured on the LilaRest build that served before. Measured on the same harness ([night 8](research/2026-11-13-night8-finetunes.md)), Artemis compares like this:
-> - **Prefill:** within 2% (4,672 against 4,732 tok/s at 8K).
-> - **Chat decode:** 108.2 greedy / 99.2 sampled against 113.6 / 110.6, because the drafter accepts fewer of its tokens.
-> - **Quality:** 776 of the 929 quality items against 785.
-> - **Tool calls, vision and the agent loop:** pass as before.
+> **Until 13 Nov the fast profile served LilaRest's NVFP4-turbo** of Google's BF16 model, on the same engine, flags and drafter. It measured 4,812 tok/s on the 7,468-token prompt and about 1.8K on 118,244 tokens, chat decode 113.7 greedy / 110.6 sampled, and 785 of the 929 quality items. On the same harness ([night 8](research/2026-11-13-night8-finetunes.md)), Artemis prefills within 2% of it (4,672 against 4,732 on 7,468 tokens) and decodes chat more slowly because the drafter accepts fewer of its tokens. The agent's owner preferred Artemis's voice. The tables below still show the LilaRest measurements as "LilaRest (until 13 Nov)".
 
-*Production since 2026-10-26 22:43 CET; since 2026-10-28 06:38 on our patches rebased onto upstream NInferno, with the prompt-cache flags; since 2026-11-02 09:33 with four upstream fixes and our patch 17, which keeps one of them from stopping the engine; since 2026-11-05 02:45 with six more upstream fixes, our patch 19, prefill chunk 1280 and the assistant in NVFP4; since 2026-11-13 13:02 with Artemis v1.2 weights in place of LilaRest's* ([CHANGELOG](CHANGELOG.md); numbers from [`results/results.jsonl`](results/results.jsonl), label `Live up4`, on the running unit with a rested GPU. Measured turn about against the previous build, the gain is +6.2% at 8K, +7.6% at 32K, +8.3% at 64K and +9.3% at 130K: [night 5](research/2026-11-05-night5.md)).
+*Production since 2026-10-26 22:43 CET; since 2026-10-28 06:38 on our patches rebased onto upstream NInferno, with the prompt-cache flags; since 2026-11-02 09:33 with four upstream fixes and our patch 17, which keeps one of them from stopping the engine; since 2026-11-05 02:45 with six more upstream fixes, our patch 19, prefill chunk 1280 and the assistant in NVFP4; since 2026-11-13 13:02 with Artemis v1.2 weights in place of LilaRest's* ([CHANGELOG](CHANGELOG.md); Artemis's numbers from [`results/results.jsonl`](results/results.jsonl), labels `N8 A2` (prefill) and `N9 old` (decode), and [`results/needle.jsonl`](results/needle.jsonl), labels `N9 Artemis needle` and `N9 rested needle`; LilaRest's from label `Live up4`, on the running unit with a rested GPU. Measured turn about against the previous build, the gain is +6.2% at 8K, +7.6% at 32K, +8.3% at 64K and +9.3% at 130K: [night 5](research/2026-11-05-night5.md)).
 
 Every number here comes from a file in [`results/`](results/), measured on the box described in [What runs](#what-runs). The night-by-night reports are in [`research/`](research/), and the build route, with a check after each step, is in [`BUILD.md`](BUILD.md).
 
@@ -37,23 +35,28 @@ What made the difference, in order of effect:
 
 **Prefill.** One cold request with a unique prompt, server-reported prompt tok/s ([`results.jsonl`](results/results.jsonl)):
 
-| Prompt | Fast profile (live) | Previous fast profile (QAT-NVFP4, same session) | Max-context profile (QAT Q4) | Start (abliterated Q4_K) |
-|---:|---:|---:|---:|---:|
-| 2K | 4,277 | 3,126 | 1,427 | 1,335 |
-| 8K | **4,812** | 4,345 | 1,531 | 1,409 |
-| 32K | 3,771 | 3,469 | 1,332 | 1,272 (24K) |
-| 64K | 2,795 | 2,571 | 1,092 | — |
-| ~130K / ~170K | 1,827 / ~1,470 | ~1,600 / — | ~710 (before FP8 attention) | — |
-| ~192K / ~231K | ~1,270 / — | — | 613 (185K) / 528 | — |
+| Prompt (nominal: actual tokens) | Artemis (live) | LilaRest (until 13 Nov) | Previous fast profile (QAT-NVFP4, same session) | Max-context profile (QAT Q4) | Start (abliterated Q4_K) |
+|---:|---:|---:|---:|---:|---:|
+| 2K: 1,706 | 4,171 | 4,277 | 3,126 | 1,427 | 1,335 |
+| 8K: 7,468 | **4,672** | **4,812** | 4,345 | 1,531 | 1,409 |
+| 32K: 28,972 | 3,640 | 3,771 | 3,469 | 1,332 | 1,272 (24K) |
+| 64K: 57,942 | — | 2,795 | 2,571 | 1,092 | — |
+| ~130K: 118,244 (LilaRest) / 128,932 (Artemis) | 1,720 | 1,827 | ~1,600 | ~710 (before FP8 attention) | — |
+| ~170K: 158,559 | 1,343 | ~1,470 | — | — | — |
+| ~192K: 191,809 / ~231K | 1,157 / — | ~1,270 / — | — | 613 (185K) / 528 | — |
+
+The nominal sizes come from the benchmark's character counts; the second number is the server's prompt token count for the same prompt (recorded per row in `results.jsonl` as `pp*_ntok`). The Artemis long-prompt numbers are needle prompts: 128,932 tokens on a rested GPU, 158,559 and 191,809 right after deployment. The other columns' long-prompt cells are approximate where marked "~".
 
 **Decode.** One user, MTP with 7 drafts (greedy / sampled tok/s):
 
-| Workload | Fast profile (live) | Previous fast profile (same session) | Max-context profile | Start |
-|---|---:|---:|---:|---:|
-| Short chat, 10 prompts × 512 tokens | **113.7 / 110.6** | 118.0 / 115.8 | 106.8 / 99.7 | 33.2 |
-| After 2K of context | 124.2 / 120.3 | 124.7 / 126.6 | 93.2 / 110.0 | 32.6 |
-| After 8K of context | 113.7 / 120.5 | 119.5 / 115.3 | 106.2 / 104.7 | 32.3 |
-| Whole-file code edit, n-gram copy drafts | 375 | 371 | — | — |
+| Workload | Artemis (live) | LilaRest (until 13 Nov) | Previous fast profile (same session) | Max-context profile | Start |
+|---|---:|---:|---:|---:|---:|
+| Short chat, 10 prompts × 512 tokens | **108.2 / 98.1** | **113.7 / 110.6** | 118.0 / 115.8 | 106.8 / 99.7 | 33.2 |
+| After a 1,706-token context (2K) | 123.9 / 131.9 | 124.2 / 120.3 | 124.7 / 126.6 | 93.2 / 110.0 | 32.6 |
+| After a 7,468-token context (8K) | 125.8 / 116.7 | 113.7 / 120.5 | 119.5 / 115.3 | 106.2 / 104.7 | 32.3 |
+| Whole-file code edit, n-gram copy drafts | — | 375 | 371 | — | — |
+
+Each "after context" cell is the median of two 512-token runs, which can differ by 10% or more; read small differences between columns as noise.
 
 Decode depends on how predictable the text is. The fast profile now drafts with Google's regular assistant, which matches its BF16-derived weights; the QAT assistant landed only 25–37% of its drafts there.
 

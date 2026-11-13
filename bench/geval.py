@@ -94,20 +94,63 @@ def humaneval(base, conc):
         if f"def {it['entry_point']}" not in code:
             code = it["prompt"] + code
         prog = code + "\n\n" + it["test"] + f"\n\ncheck({it['entry_point']})\n"
+        return {"ok": run_untrusted(prog).returncode == 0, "task": it["task_id"]}
+
+    sandbox_check()
+    return run(one, items, conc)
+
+
+# Generated code never runs as the benchmark's own user: each program runs in a throwaway systemd unit with a
+# dynamic unprivileged user, no network, a private /tmp, a read-only system and no access to /root or /home.
+SANDBOX = ["systemd-run", "--quiet", "--pipe", "--wait", "--collect",
+           "-p", "DynamicUser=yes", "-p", "PrivateNetwork=yes", "-p", "PrivateTmp=yes", "-p", "PrivateDevices=yes",
+           "-p", "ProtectSystem=strict", "-p", "ProtectHome=yes", "-p", "NoNewPrivileges=yes",
+           "-p", "MemoryMax=2G", "-p", "TasksMax=64", "-p", "RuntimeMaxSec=20",
+           "/usr/bin/python3", "-I", "-"]
+PROBE = """import os, socket
+found = []
+try:
+    socket.create_connection(("127.0.0.1", 8080), timeout=2); found.append("network")
+except OSError:
+    pass
+for path in ("/opt/models/.sandbox_probe", "/root/.sandbox_probe"):
+    try:
+        open(path, "w").close(); os.unlink(path); found.append("write " + path)
+    except OSError:
+        pass
+try:
+    os.listdir("/root"); found.append("read /root")
+except OSError:
+    pass
+print(",".join(found) or "isolated")
+"""
+
+
+def run_untrusted(prog, timeout=30):
+    if os.environ.get("GEVAL_UNSAFE_EXEC") == "1":   # explicit opt-out, for a machine with nothing to protect
         with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False, dir="/tmp") as f:
-            f.write(prog)
-            path = f.name
+            f.write(prog); path = f.name
         try:
-            r = subprocess.run([sys.executable, "-I", path], capture_output=True, timeout=20,
-                               cwd="/tmp")
-            ok = r.returncode == 0
+            return subprocess.run([sys.executable, "-I", path], capture_output=True, timeout=timeout, cwd="/tmp")
         except subprocess.TimeoutExpired:
-            ok = False
+            return subprocess.CompletedProcess(path, 124)
         finally:
             os.unlink(path)
-        return {"ok": ok, "task": it["task_id"]}
+    try:
+        return subprocess.run(SANDBOX, input=prog.encode(), capture_output=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return subprocess.CompletedProcess(SANDBOX, 124)
 
-    return run(one, items, conc)
+
+def sandbox_check():
+    """Refuse to run generated code if the sandbox doesn't hold: no network, no writes, no /root."""
+    if os.environ.get("GEVAL_UNSAFE_EXEC") == "1":
+        print("WARNING: GEVAL_UNSAFE_EXEC=1, generated code runs unsandboxed", flush=True); return
+    r = run_untrusted(PROBE)
+    got = r.stdout.decode().strip()
+    if r.returncode != 0 or got != "isolated":
+        sys.exit(f"sandbox check failed (exit {r.returncode}, {got or r.stderr.decode()[-300:]!r}); not running generated code")
+    print("sandbox: isolated", flush=True)
 
 
 def run(fn, items, conc):

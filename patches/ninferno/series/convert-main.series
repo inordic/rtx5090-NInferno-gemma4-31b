@@ -1,0 +1,20 @@
+# convert-main: the converter build (/opt/NInferno build/apps)
+# git checkout -b BRANCH 9895ebc62e2bdfb367083a72cb2c4a714cf41542
+# git am -3 $(grep -v -e '^#' -e '^base ' THIS_FILE | sed 's#^#patches/ninferno/#')
+base 9895ebc62e2bdfb367083a72cb2c4a714cf41542
+0001-gemma4-K-only-KV-for-k_eq_v-full-layers-and-GeGLU-sp.patch
+0002-gemma4-attention-INT8-scores-on-the-D512-FP8-prefill.patch
+0003-gemma4-activations-int8-runs-NVFP4-W4A8-prefill.patch
+0004-gemma4-attention-FP8-P-V-on-the-D512-FP8-prefill-rou.patch
+0005-gemma4-attention-FP8-scores-on-the-D512-FP8-prefill-.patch
+0006-nvfp4-shapes-four-K-warps-on-the-Gemma-4-31B-qkv-eig.patch
+0007-q6-head-the-sliced-8-column-tile-for-the-Gemma-4-31B.patch
+0008-serve-finished-request-sums-and-finish-reasons-on-me.patch
+0009-program-a-consumed-endpoint-is-entitled-only-to-the-.patch
+0010-gemma4-NINFERNO_GEMMA4_EMBED_HOST-1-maps-the-token-t.patch
+0011-gemma4-attention-NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T-.patch
+0012-gemma4-vision-an-image-starts-at-its-own-first-token.patch
+0013-convert-NINFERNO_CONVERT_NORMED_QKV_DIVISOR-1-packs-.patch
+0014-serve-v1-models-carries-capabilities.images.patch
+0015-program-a-consumed-endpoint-takes-over-the-checkpoin.patch
+0016-serve-opt-in-automatic-shared-prefix-candidates-afte.patch

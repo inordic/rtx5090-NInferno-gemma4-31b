@@ -43,7 +43,7 @@ The decode GEMMs at 8 tokens now run at 74–91% of the 896 GB/s bus: gate/up ab
 
 | Experiment | Result | Why not |
 |---|---|---|
-| W4A4 verify (4-bit activations in the decode pass) | Chat 108.3 / 105.5 vs 108.8 / 108.0 | No speed gain; MMLU-Pro 147 |
+| W4A4 verify (4-bit activations in the decode pass) | Chat 108.3 / 105.5 vs 108.8 / 108.0 | **Withdrawn 13 Nov:** the switch never enabled in this build (`e[0] == 1`), so both runs were A16 ([review](2026-11-13-review.md#1-the-w4a4-verify-experiment-never-enabled)) |
 | Shortlist drafter head (64K / 96K most frequent tokens) | Chat 109.4 / 108.8 and 113.7 / 108.6 vs 114.2 / 112.3 with the full head | Lost acceptance cancels the cheaper head |
 | 16-token schedule variants for down and o | Down −8% at 9 tokens, others worse | 7 drafts avoids that bucket anyway |
 | SIMT kernel for the head at 7–8 tokens | 3.0–3.3 ms (worse) | The sliced tile wins |

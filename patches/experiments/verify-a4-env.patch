@@ -2,7 +2,7 @@ diff --git a/src/models/gemma4/target.cu b/src/models/gemma4/target.cu
 index bc29767..5decf3b 100644
 --- a/src/models/gemma4/target.cu
 +++ b/src/models/gemma4/target.cu
-@@ -87,11 +87,22 @@ KvPlanes allocate_kv_planes(std::int32_t head_dim, std::int32_t capacity, std::i
+@@ -87,11 +87,25 @@ KvPlanes allocate_kv_planes(std::int32_t head_dim, std::int32_t capacity, std::i
      return planes;
  }
  
@@ -12,7 +12,10 @@ index bc29767..5decf3b 100644
 +static ops::LinearPolicy verify_policy(ops::LinearPolicy recorded) {
 +    static const bool a4 = [] {
 +        const char* e = std::getenv("NINFERNO_GEMMA4_VERIFY_A4");
-+        return e != nullptr && e[0] == 1;
++        const bool on = e != nullptr && e[0] == '1';
++        std::fprintf(stderr, "gemma4: MTP verify projections run %s\n",
++                     on ? "their recorded policy (NINFERNO_GEMMA4_VERIFY_A4=1)" : "A16 (verify_linear_policy)");
++        return on;
 +    }();
 +    return a4 ? recorded : ops::verify_linear_policy(recorded);
 +}
@@ -26,7 +29,7 @@ index bc29767..5decf3b 100644
                  stream);
  }
  
-@@ -102,7 +113,7 @@ static bool project_release_next(const Tensor& x, const Projection& p, Tensor& o
+@@ -102,7 +116,7 @@ static bool project_release_next(const Tensor& x, const Projection& p, Tensor& o
      auto scope = work.scope();
      return ops::linear_release_next(
          x, p.weight, out,
@@ -35,7 +38,7 @@ index bc29767..5decf3b 100644
  }
  
  namespace {
-@@ -120,7 +131,7 @@ bool project_side_by_side(const Tensor& x, std::span<const Projection* const> pr
+@@ -120,7 +134,7 @@ bool project_side_by_side(const Tensor& x, std::span<const Projection* const> pr
      for (std::size_t i = 0; i < projections.size(); ++i) {
          const Projection& p = *projections[i];
          requests[i]         = {&p.weight,
@@ -44,7 +47,7 @@ index bc29767..5decf3b 100644
                                 outputs[i]};
      }
      return ops::project_side_by_side(x, std::span(requests, projections.size()), work, stream);
-@@ -485,7 +496,7 @@ void TargetPass::layers(DeviceArena& work_, Tensor& x, Tensor& h, const Tensor&
+@@ -485,7 +499,7 @@ void TargetPass::layers(DeviceArena& work_, Tensor& x, Tensor& h, const Tensor&
              if (!geglu_split && ops::linear_geglu_supports(layer.gate_up.weight)) {
                  // GeGLU in the projection's epilogue: no BF16 gate/up plane, no second kernel.
                  auto geglu_scope  = work_.scope();

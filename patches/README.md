@@ -42,6 +42,6 @@ Env-gated changes that were measured and not adopted. They are diffs against `4e
 
 | Patch | Switch | Result |
 |---|---|---|
-| `verify-a4-env.patch` | `NINFERNO_GEMMA4_VERIFY_A4=1`: the MTP verify keeps each projection's recorded W4A4 policy instead of A16 | chat decode 108.3 / 105.5 against 108.8 / 108.0 tok/s; MMLU-Pro 147. No gain |
+| `verify-a4-env.patch` | `NINFERNO_GEMMA4_VERIFY_A4=1`: the MTP verify keeps each projection's recorded W4A4 policy instead of A16; the first verify pass prints the route | **Not measured yet.** The night-1 build compared `e[0] == 1` (the shell had stripped the quotes), so its "no gain" run (108.3 / 105.5 against 108.8 / 108.0 tok/s) measured A16 twice and is withdrawn ([review](../research/2026-11-13-review.md#1-the-w4a4-verify-experiment-never-enabled)). Fixed on 13 Nov; applies to the older base and needs rebasing onto `kvshare-up4` |
 | `combine-batch-4.patch` | none: `kGemma4CombineBatch` 24 → 4 (diff against `91d0b18`, patch 13) | bit-identical greedy output; chat 118.3 / 114.9 against 117.7 / 113.8, within noise |
 | `q40-w4a8-ws-env.patch` | `NINFERNO_Q40_W4A8_WS=1`: GGML Q4_0 prefill on sm_120 takes NInferno's producer-warp W4A8 tile instead of ggml's MMQ | Q4 prefill +10% at 8K (1,644 → 1,806), +8% at 32K; perplexity 90.93 → 92.81 (+2%) on the quality profile |

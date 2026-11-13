@@ -1,0 +1,23 @@
+Loading weights:   0%|          | 0/48 [00:00<?, ?it/s]Loading weights:   2%|▏         | 1/48 [00:04<03:50,  4.91s/it]Loading weights: 100%|██████████| 48/48 [00:04<00:00,  9.78it/s]
+17:43:29 base drafter: {"sequences": 105, "top1_by_step": [0.7187, 0.6636, 0.6337, 0.6102, 0.5886, 0.5661, 0.5467], "accepted_per_round": 2.152, "accepted_per_round_greedy": 2.342, "rounds": 71893}
+17:43:30 train: 1825 sequences, 1122727 anchors per epoch, 3 epochs, ~822 optimizer steps, lr 5e-05
+[W1113 17:43:32.094842873 CUDACachingAllocator.cpp:623] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 6881280, total: 25148850176).
+[W1113 17:43:33.069280652 CUDACachingAllocator.cpp:623] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 19464192, total: 25148850176).
+[W1113 17:43:34.072124185 CUDACachingAllocator.cpp:623] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 19464192, total: 25148850176).
+[W1113 17:43:35.077070116 CUDACachingAllocator.cpp:623] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 19464192, total: 25148850176).
+[W1113 17:43:36.227448269 CUDACachingAllocator.cpp:623] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 19464192, total: 25148850176).
+[W1113 17:43:36.284170775 CUDACachingAllocator.cpp:623] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 19464192, total: 25148850176).
+[W1113 17:43:36.286397246 CUDACachingAllocator.cpp:623] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 19464192, total: 25148850176).
+Traceback (most recent call last):
+  File "/root/gbench/n9/train.py", line 239, in <module>
+    main()
+  File "/root/gbench/n9/train.py", line 220, in main
+    (loss * q / accum_tokens).backward()
+  File "/opt/venv-cu/lib/python3.12/site-packages/torch/_tensor.py", line 623, in backward
+    torch.autograd.backward(
+  File "/opt/venv-cu/lib/python3.12/site-packages/torch/autograd/__init__.py", line 395, in backward
+    _engine_run_backward(
+  File "/opt/venv-cu/lib/python3.12/site-packages/torch/autograd/graph.py", line 1113, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1024.00 MiB. GPU 0 has a total capacity of 23.42 GiB of which 298.56 MiB is free. Including non-PyTorch memory, this process has 23.12 GiB memory in use. Of the allocated memory 22.54 GiB is allocated by PyTorch, and 158.84 MiB is reserved by PyTorch but unallocated. expandable_segments is enabled. If instead the process is running out of virtual address space (VSZ), expandable segments may be over-reserving VA (each segment reserves ~9/8 of device memory, times the number of streams); reduce it via PYTORCH_CUDA_ALLOC_CONF expandable_segments_reserve / expandable_segments_reserve_by_class.

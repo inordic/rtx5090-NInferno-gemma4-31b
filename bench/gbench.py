@@ -4,7 +4,11 @@
 PP   : unique-nonce prompts of ~2K/8K/24K tokens, max_tokens=1, server prompt_per_second (median).
 TG   : decode tok/s (server predicted_per_second) after a 2K / 8K context, 512 out tokens.
 CHAT : 10 short diverse prompts, 512 out tokens, aggregate decode tok/s at C=1.
-Each TG/CHAT is run greedy (t=0) and with model-default sampling (t=1, top_k 64).
+Each TG/CHAT is run greedy (t=0) and sampled with explicit parameters (t=1, top_k 64, top_p 0.95, min_p 0) and a
+fixed seed per request, so a rerun sends the same requests. Prompt sizes are nominal (characters x 3.9): the row
+records each request's actual prompt tokens (pp*_ntok, and in "reps"), and published tables use those counts.
+Every request is kept in row["reps"]: kind, size, rep, prompt/cache/output tokens, tok/s, wall time and the
+server's speculation record.
 """
 import argparse, json, statistics, sys, time, urllib.request, random
 
@@ -33,10 +37,17 @@ def post(base, body, timeout=3600):
     return out, time.time() - t
 
 
-def chat(base, prompt, max_tokens, greedy=True, extra=None):
+SAMPLED = {"temperature": 1.0, "top_k": 64, "top_p": 0.95, "min_p": 0.0}
+
+
+def chat(base, prompt, max_tokens, greedy=True, extra=None, seed=None):
     body = {"model": "x", "messages": [{"role": "user", "content": prompt}], "max_tokens": max_tokens}
     if greedy:
         body["temperature"] = 0.0
+    else:
+        body.update(SAMPLED)
+        if seed is not None:
+            body["seed"] = seed
     if extra:
         body.update(extra)
     out, wall = post(base, body)
@@ -72,7 +83,9 @@ def main():
     base = f"http://127.0.0.1:{a.port}"
     text = blob()
     cpt = 3.9  # chars per token, approx for this corpus
-    row = {"label": a.label, "ts": time.strftime("%Y-%m-%d %H:%M:%S")}
+    row = {"label": a.label, "ts": time.strftime("%Y-%m-%d %H:%M:%S"), "sampled_params": SAMPLED, "reps": []}
+    keep = lambda kind, n, r, res: row["reps"].append({"kind": kind, "n": n, "rep": r, **{k: res[k] for k in (
+        "pn", "cache", "tn", "pp", "tg", "pms", "tms", "wall", "spec")}})
     chat(base, "Say hello in one short sentence.", 16)  # warm-up
     rnd = random.Random(1234)
 
@@ -83,6 +96,7 @@ def main():
             off = rnd.randrange(0, len(text) - int(n * cpt) - 1)
             p = f"[run {time.time_ns()}]\n" + text[off:off + int(n * cpt)] + QUESTION
             res = chat(base, p, 1)
+            keep("pp", n, r, res)
             vals.append(res["pp"])
             row[f"pp{n}_ntok"] = res["pn"]
         row[f"pp{n}"] = med(vals)
@@ -96,7 +110,8 @@ def main():
             for r in range(a.reps):
                 off = rnd.randrange(0, len(text) - int(n * cpt) - 1)
                 p = f"[run {time.time_ns()}]\n" + text[off:off + int(n * cpt)] + QUESTION
-                res = chat(base, p, 512, greedy)
+                res = chat(base, p, 512, greedy, seed=None if greedy else 7000 + n + r)
+                keep("tg" + tag, n, r, res)
                 vals.append(res["tg"])
                 rounds.append(res["spec"].get("config"))
             row[f"tg{n}{tag}"] = med(vals)
@@ -106,8 +121,9 @@ def main():
     if not a.skip_chat:
         for tag, greedy in modes:
             tok, ms, specs = 0, 0.0, []
-            for p in CHAT[:a.chat_n]:
-                res = chat(base, p, 512, greedy)
+            for i, p in enumerate(CHAT[:a.chat_n]):
+                res = chat(base, p, 512, greedy, seed=None if greedy else 9000 + i)
+                keep("chat" + tag, 512, i, res)
                 tok += res["tn"] or 0
                 ms += res["tms"] or 0
                 specs.append(res["spec"])

@@ -1,0 +1,33 @@
+=== 18:45:52 old: serving Artemis with /opt/models/dl2/assistant.nvfp4.ninferno
+choice | no candidate holds 203136 tokens for each of 1 streams
+engine ready | artemis-v1.2-imw-qkv-vision-nvfp4.r31 | total 40.0s | weights 17.7 GiB | CUDA sync spin | decode 1 step(s) per round
+context | 203,136 tokens per request (--max-context; the model's own is 262,144)
+plan | rung 3 of 3: 203,136 tokens x 1 context (203,136 KV tokens), 0 cached states, chunk 1280 for 1 lane (step states, reserve kept) | free 5.59 GiB after 17.69 GiB of weights | 0.84 GiB more would serve rung 2, 1.73 GiB the top | planned in 0 ms; the rungs 
+plan | rung 3: below the top rung of the asked --max-context 203,136 | 0.84 GiB more free memory would serve rung 2 (203,136 tokens x 1 context (203,136 KV tokens for 1 lane), 1 cached states, chunk 1280), 1.74 GiB the top rung (203,136 tokens x 1 context (203
+capacity | KV 203,136 tokens, fp8, sliding rings fp8, explicit | activations fast | pages 3,174/3,174 | runtime 5.39 GiB | free 164.6 MiB
+speculation | serves mtp K=7 (explicit) | fallback none | --spec
+=== 18:46:34 checks
+turn 0: prompt 17606 cache 0 prompt_ms 4165.556467 wall 5.01s decode 115.66420860296674
+turn 1: prompt 121 cache 17599 prompt_ms 224.429095 wall 0.62s decode 126.42362347309246
+turn 2: prompt 71 cache 17713 prompt_ms 187.285284 wall 0.67s decode 133.8904860328902
+TEXTCALL leaks 0
+=== 18:46:45 speed
+TG@2048 greedy: 123.9 tok/s [117.9745677671508, 129.78328319289105] spec=['mtp K=7', 'mtp K=7']
+TG@2048 sampled: 131.9 tok/s [132.53533048317377, 131.30648924332382] spec=['mtp K=7', 'mtp K=7']
+TG@8192 greedy: 125.8 tok/s [129.057440013569, 122.49883094583139] spec=['mtp K=7', 'mtp K=7']
+TG@8192 sampled: 116.7 tok/s [126.03063428699352, 107.37450224721385] spec=['mtp K=7', 'mtp K=7']
+CHAT C=1 greedy: 108.2 tok/s (4856 tok) spec=mtp K=7
+CHAT C=1 sampled: 98.1 tok/s (4855 tok) spec=mtp K=7
+=== 18:49:04 hard50
+{"tag": "n9_old", "questions": 50, "correct": 43, "by_dataset": {"gsm8k": 18, "math_500": 17, "mmlu_pro": 8}, "tokens": 29423, "decode_ms": 
+HARD50 old 43 / 50 drafts accepted 58.4%
+=== 18:52:31 heldout
+HELDOUT old all: {'requests': 78, 'tokens': 24166, 'decode_tok_s': 83.9, 'accepted': 27.0}
+HELDOUT old greedy: {'requests': 39, 'tokens': 11617, 'decode_tok_s': 90.1, 'accepted': 30.0}
+HELDOUT old sampled: {'requests': 39, 'tokens': 12549, 'decode_tok_s': 78.9, 'accepted': 24.6}
+HELDOUT old companion: {'requests': 14, 'tokens': 684, 'decode_tok_s': 73.2, 'accepted': 22.6}
+HELDOUT old oasst2: {'requests': 16, 'tokens': 7349, 'decode_tok_s': 86.5, 'accepted': 28.1}
+HELDOUT old swedish: {'requests': 16, 'tokens': 7740, 'decode_tok_s': 76.1, 'accepted': 23.2}
+HELDOUT old tools: {'requests': 16, 'tokens': 2245, 'decode_tok_s': 148.0, 'accepted': 58.3}
+HELDOUT old ultrachat: {'requests': 16, 'tokens': 6148, 'decode_tok_s': 80.1, 'accepted': 25.2}
+=== 18:57:35 old MEASURE_DONE
