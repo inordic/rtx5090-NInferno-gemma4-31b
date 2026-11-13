@@ -1,0 +1,45 @@
+# Night 8 (2026-11-13): two creative fine-tunes of Gemma 4 31B in importance-weighted NVFP4, production flags (apps-up4)
+# M2 = zerofata/G4-MeroMero-v2-31B, A2 = TheDrummer/Artemis-31B-v1.2; production = LilaRest NVFP4-turbo
+
+## quality (bench/geval.py), greedy
+{"label": "N7-A0-q", "ts": "2026-11-13 04:17:14", "mmlupro": "178/280", "mmlupro_secs": 52, "mmlu": "249/285", "mmlu_secs": 46}
+{"label": "N8-M2", "ts": "2026-11-13 09:40:40", "mmlupro": "175/280", "mmlupro_secs": 52, "mmlu": "246/285", "mmlu_secs": 47, "gsm8k": "198/200", "gsm8k_secs": 288, "humaneval": "161/164", "humaneval_secs": 183}
+{"label": "N8-A2", "ts": "2026-11-13 09:59:19", "mmlupro": "174/280", "mmlupro_secs": 52, "mmlu": "244/285", "mmlu_secs": 68, "gsm8k": "198/200", "gsm8k_secs": 312, "humaneval": "160/164", "humaneval_secs": 174}
+
+## speed and checks
+M2 TEXTCALL leaks 0
+M2 VISION N8 M2 7/7
+M2 AGENT N8 M2 {"steps": 29, "calls": 26, "markup_as_text": 0, "text_with_calls": 0, "final": 3, "errors": 0}
+M2 PP 2048: 4197.0 tok/s (n=1706) [4181.651263818217, 4212.296088326545]
+M2 PP 8192: 4677.5 tok/s (n=7468) [4694.337172357411, 4660.585532001794]
+M2 PP 32768: 3672.4 tok/s (n=28972) [3693.7215905001453, 3651.030839018475]
+M2 TG@2048 greedy: 136.3 tok/s [129.42081266134497, 143.1720982984918] spec=['mtp K=7', 'mtp K=7']
+M2 TG@2048 sampled: 114.2 tok/s [115.49470646704266, 112.94683716063794] spec=['mtp K=7', 'mtp K=7']
+M2 TG@8192 greedy: 115.9 tok/s [120.0070973183714, 111.70770880428921] spec=['mtp K=7', 'mtp K=7']
+M2 TG@8192 sampled: 109.5 tok/s [122.67325413815156, 96.32891707273852] spec=['mtp K=7', 'mtp K=7']
+M2 CHAT C=1 greedy: 116.3 tok/s (4856 tok) spec=mtp K=7
+M2 CHAT C=1 sampled: 110.7 tok/s (4897 tok) spec=mtp K=7
+M2 HARD50 M2 41 / 50 drafts accepted 62.7%
+A2 TEXTCALL leaks 0
+A2 VISION N8 A2 7/7
+A2 AGENT N8 A2 {"steps": 32, "calls": 30, "markup_as_text": 0, "text_with_calls": 0, "final": 2, "errors": 0}
+A2 PP 2048: 4170.8 tok/s (n=1706) [4142.638354370345, 4198.9250333498885]
+A2 PP 8192: 4671.9 tok/s (n=7468) [4673.010676924656, 4670.855612735023]
+A2 PP 32768: 3640.0 tok/s (n=28972) [3683.9516441913624, 3596.0742393822757]
+A2 TG@2048 greedy: 134.1 tok/s [125.75343577594084, 142.4071090814929] spec=['mtp K=7', 'mtp K=7']
+A2 TG@2048 sampled: 126.8 tok/s [138.60631261526947, 115.07852246958349] spec=['mtp K=7', 'mtp K=7']
+A2 TG@8192 greedy: 120.7 tok/s [130.51066228283787, 110.91230607195719] spec=['mtp K=7', 'mtp K=7']
+A2 TG@8192 sampled: 107.5 tok/s [115.14033074356982, 99.77339084778194] spec=['mtp K=7', 'mtp K=7']
+A2 CHAT C=1 greedy: 108.2 tok/s (4856 tok) spec=mtp K=7
+A2 CHAT C=1 sampled: 99.2 tok/s (4846 tok) spec=mtp K=7
+A2 HARD50 A2 43 / 50 drafts accepted 58.4%
+
+## companion-agent set (synthetic persona; 10 checks; replies stay local)
+A0 10 / 10 failed: []
+M2 9 / 10 failed: ['missing_arg_asks_not_invents']
+A2 10 / 10 failed: []
+
+## sampled voice (temperature 0.9, 6 prompts x 3; replies stay local)
+A0 avg words 110 emoji per reply 0.2 distinct openings 12/18
+M2 avg words 102 emoji per reply 0.1 distinct openings 15/18
+A2 avg words 114 emoji per reply 0.8 distinct openings 14/18

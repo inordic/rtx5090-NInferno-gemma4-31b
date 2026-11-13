@@ -2,6 +2,12 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-13 11:20: night 8, two creative fine-tunes (running setup unchanged)
+
+- **Ran:** with agent traffic moved off, MeroMero v2 and Artemis v1.2 (Gemma 4 31B fine-tunes) went through the full battery in importance-weighted NVFP4 on production's binary and flags, plus a companion-agent tool set and a sampled-voice test ([night 8 report](research/2026-11-13-night8-finetunes.md)). Production was stopped from 10:27 to 11:17 CET and is back as it was.
+- **Result:** both within noise of production on quality (821 and 819 of 979 items against 827). MeroMero matches its speed but invented a tool argument once. Artemis passes every tool check but decodes 5–10% slower (drafter acceptance 58.4% against 61.2%).
+- **Changed:** nothing in the setup.
+
 ## 2026-11-13 06:00: night 7, uncensored builds and a better NVFP4 rounding (running setup unchanged)
 
 - **Ran:** with agent traffic on another model for the night, three public Heretic builds of Gemma 4 31B went through production's binary and flags, and a new quantizer through a KL test ([night 7 report](research/2026-11-13-night7.md)). Production was stopped from 00:29 to 05:16 CET and is back as it was.
