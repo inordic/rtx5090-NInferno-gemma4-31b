@@ -1,0 +1,39 @@
+# Night 7: quality (bench/geval.py), greedy. The two N7-T1-imw rows at 00:04 and 00:09 come from two copies of one battery sharing a server; N7-T1-imw-q is the re-run alone.
+{"label": "N7-T1-imw", "ts": "2026-11-13 00:04:11", "mmlupro": "166/280", "mmlupro_secs": 345, "mmlu": "246/285", "mmlu_secs": 95, "gsm8k": "198/200", "gsm8k_secs": 440, "humaneval": "159/164", "humaneval_secs": 417}
+{"label": "N7-T1-imw", "ts": "2026-11-13 00:09:03", "mmlupro": "168/280", "mmlupro_secs": 100, "mmlu": "246/285", "mmlu_secs": 281, "gsm8k": "198/200", "gsm8k_secs": 548, "humaneval": "159/164", "humaneval_secs": 742}
+{"label": "N7-T1-rtn", "ts": "2026-11-13 01:57:30", "mmlupro": "170/280", "mmlupro_secs": 52, "mmlu": "246/285", "mmlu_secs": 47}
+{"label": "N7-C1-rtn", "ts": "2026-11-13 02:02:47", "mmlupro": "160/280", "mmlupro_secs": 52, "mmlu": "245/285", "mmlu_secs": 47, "gsm8k": "197/200", "gsm8k_secs": 301, "humaneval": "161/164", "humaneval_secs": 189}
+{"label": "N7-L1-rtn", "ts": "2026-11-13 02:48:30", "mmlupro": "159/280", "mmlupro_secs": 52, "mmlu": "245/285", "mmlu_secs": 46, "gsm8k": "198/200", "gsm8k_secs": 306, "humaneval": "161/164", "humaneval_secs": 185}
+{"label": "N7-T1-mse", "ts": "2026-11-13 03:31:01", "mmlupro": "167/280", "mmlupro_secs": 52, "mmlu": "241/285", "mmlu_secs": 47}
+{"label": "N7-T1-imw-q", "ts": "2026-11-13 03:57:11", "mmlupro": "168/280", "mmlupro_secs": 53, "mmlu": "246/285", "mmlu_secs": 47}
+{"label": "N7-C1-imw", "ts": "2026-11-13 04:03:07", "mmlupro": "158/280", "mmlupro_secs": 53, "mmlu": "244/285", "mmlu_secs": 47, "gsm8k": "198/200", "gsm8k_secs": 304, "humaneval": "158/164", "humaneval_secs": 179}
+{"label": "N7-A0-q", "ts": "2026-11-13 04:17:14", "mmlupro": "178/280", "mmlupro_secs": 52, "mmlu": "249/285", "mmlu_secs": 46}
+
+# speed (bench/gbench.py), production flags
+ROW {"label": "N7 C1-rtn", "ts": "2026-11-13 02:00:19", "pp2048_ntok": 1706, "pp2048": 4213.5, "pp8192_ntok": 7468, "pp8192": 4699.9, "pp32768_ntok": 28972, "pp32768": 3676.9, "tg2048g": 130.6, "tg2048s": 113.8, "tg8192g": 132.4, "tg8192s": 116.0, "chatg": 116.7, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 112.9, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+ROW {"label": "N7 L1-rtn", "ts": "2026-11-13 02:46:01", "pp2048_ntok": 1706, "pp2048": 4228.2, "pp8192_ntok": 7468, "pp8192": 4722.3, "pp32768_ntok": 28972, "pp32768": 3704.6, "tg2048g": 130.5, "tg2048s": 120.0, "tg8192g": 125.8, "tg8192s": 116.8, "chatg": 114.3, "chatg_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}, "chats": 113.7, "chats_spec": {"config": "mtp K=7", "fallback": "none", "reason": "--spec"}}
+T1-imw (its ROW line was overwritten by a duplicate run): PP 2048 4177.7, 8192 4725.5, 32768 3684.6 tok/s; CHAT C=1 greedy 117.1, sampled 115.2 tok/s
+
+# hard50 and drafter acceptance
+n5_up4 correct 42 / 50 drafts accepted 22063 / 36066 (61.2%)
+n7_T1-imw correct 45 / 50 drafts accepted 22020 / 35850 (61.4%)
+n7_C1-rtn correct 42 / 50 drafts accepted 22989 / 37765 (60.9%)
+n7_L1-rtn correct 42 / 50 drafts accepted 22496 / 37511 (60.0%)
+n7_C1-imw correct 42 / 50 drafts accepted 22733 / 37740 (60.2%)
+
+# checks
+TEXTCALL leaks 0
+VISION N7 T1-imw 7/7
+AGENT N7 T1-imw {"steps": 29, "calls": 27, "markup_as_text": 0, "text_with_calls": 0, "final": 2, "errors": 0}
+TEXTCALL leaks 0
+VISION N7 C1-rtn 7/7
+AGENT N7 C1-rtn {"steps": 30, "calls": 28, "markup_as_text": 0, "text_with_calls": 5, "final": 2, "errors": 0}
+TEXTCALL leaks 0
+VISION N7 L1-rtn 7/7
+AGENT N7 L1-rtn {"steps": 28, "calls": 26, "markup_as_text": 0, "text_with_calls": 25, "final": 3, "errors": 0}
+
+# refusals on common subsets (counts only; prompts and answers stay local): keyword / Minos-v1 classifier / production model as judge
+A0      harmful kw 102 cls 101 judge 102 /104 | harmbench kw 85 cls 82 judge 82 /100 | xstest_safe kw 27 cls 40 judge 13 /250 | orhard kw 66 cls 74 judge 48 /150
+T1-imw  harmful kw 73 cls 89 judge 19 /104 | harmbench kw 51 cls 67 judge 19 /100 | xstest_safe kw 21 cls 31 judge 12 /250 | orhard kw 62 cls 84 judge 4 /150
+C1-rtn  harmful kw 11 cls 6 judge 14 /104 | harmbench kw 6 cls 13 judge 10 /100 | xstest_safe kw 11 cls 25 judge 12 /250 | orhard kw 19 cls 49 judge 10 /150
+L1-rtn  harmful kw 11 cls 5 judge 6 /104 | harmbench kw 8 cls 14 judge 5 /100 | xstest_safe kw 16 cls 26 judge 12 /250 | orhard kw 24 cls 43 judge 7 /150

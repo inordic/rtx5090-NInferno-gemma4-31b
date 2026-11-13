@@ -2,6 +2,13 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-13 06:00: night 7, uncensored builds and a better NVFP4 rounding (running setup unchanged)
+
+- **Ran:** with agent traffic on another model for the night, three public Heretic builds of Gemma 4 31B went through production's binary and flags, and a new quantizer through a KL test ([night 7 report](research/2026-11-13-night7.md)). Production was stopped from 00:29 to 05:16 CET and is back as it was.
+- **New rounding:** [`bench/hlquant2.py`](bench/hlquant2.py) picks each block's NVFP4 scale by importance-weighted error. Same layout, size and speed; 16% lower KL divergence against a 5-bit reference and 90.7% top-1 agreement against 89.9% for plain rounding, which is production's method.
+- **Uncensored builds:** same speed, vision, tool calls and drafter acceptance as production. MMLU-Pro 168 (trohrbaugh, with the new rounding), 160 (coder3101) and 159 (llmfan46) against 178. A model judge counts 19, 14 and 6 refusals of 104 harmful prompts, against 102 for production.
+- **Changed:** nothing in the setup.
+
 ## 2026-11-12 00:15: more host room for the prompt cache
 
 - **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) keeps 12 GiB of KV in host memory instead of 8, and 10 shared prefixes instead of 7: `--host-kv-mib 12288 --max-shared-prefixes 10`, with 18 host states as before. Pinned host memory goes from 24.1 to 28.1 GiB, and the container has 18.5 GB left. The device plan is the same: 203,136 tokens with the reserve kept, and 136.6 MiB free instead of 144.6.

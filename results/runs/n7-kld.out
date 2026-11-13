@@ -1,0 +1,11 @@
+# Night 7: KL divergence on chat text (n7/chat.txt: 550 harmless prompts with production answers, 187,759 tokens, context 4096, stride 2048)
+# references: 5-bit GGUFs with exact activations and BF16 KV; measured builds with 4-bit activations and FP8 KV
+T1-rtn_vs_t1: mean KLD: 0.154006, median: 0.004388, p99: 2.267133 top-1 agreement: 89.9222 %, PPL ratio: 0.9951 
+T1-mse_vs_t1: mean KLD: 0.136813, median: 0.003969, p99: 2.026243 top-1 agreement: 90.5027 %, PPL ratio: 1.0018 
+T1-imw_vs_t1: mean KLD: 0.129615, median: 0.003794, p99: 1.901507 top-1 agreement: 90.6646 %, PPL ratio: 1.0248 
+A0_vs_stock: mean KLD: 0.153467, median: 0.004069, p99: 2.233384 top-1 agreement: 89.9233 %, PPL ratio: 0.9683 
+T1-imw_vs_stock: mean KLD: 0.212019, median: 0.005513, p99: 3.180922 top-1 agreement: 88.4293 %, PPL ratio: 1.0694 
+
+# quantization search (objective cut against plain rounding)
+layer 59 qkv: 2 matrices, objective cut so far: mse 23.0% imw 49.2%, 404s
+QUANTIZE2 DONE: rtn, mse, imw in 427s

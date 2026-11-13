@@ -155,6 +155,15 @@ Without `--out`, the converter writes to `.ninferno-cache/gemma-4-31B-it-qat-UD-
 
 ### 3d. Optional: uncensored (Heretic, QAT-aware Q4_0)
 
+**On the fast profile ([night 7](research/2026-11-13-night7.md)):** quantize a BF16 Heretic build of the plain instruct model with [`bench/hlquant2.py`](bench/hlquant2.py) and its importance matrix, then convert as in 3b ([`bench/runs/night7/prep.sh`](bench/runs/night7/prep.sh), [`conv.sh`](bench/runs/night7/conv.sh)). For `trohrbaugh/gemma-4-31b-it-heretic-ara` and mradermacher's `gemma-4-31b-it-heretic-ara.imatrix.gguf`:
+
+```bash
+/opt/venv-cu/bin/python bench/hlquant2.py BF16_DIR OUT_PREFIX lila_scales.json heretic-ara.imatrix.gguf --device=cuda --methods=imw
+bench/runs/night7/conv.sh OUT_PREFIX-imw BF16_DIR /opt/models/heretic-ara-imw.ninferno
+```
+
+It serves at production's speed and flags. The older route below runs only on the max-context profile.
+
 [`bench/models/heretic.sh`](bench/models/heretic.sh) downloads `llmfan46/gemma-4-31B-it-qat-q4_0-unquantized-uncensored-heretic` and converts it with the same QAT-aware encoder. Then convert the GGUF as in 3c. It runs on the max-context profile's config at about 108 tok/s on chat, with GSM8K 196, MMLU-Pro 164, MMLU 246 and HumanEval 160: the same as QAT Q4 ([night 2](research/2026-10-26-night2.md#5-uncensored-builds-batches-c-and-i)).
 
 ### 3e. The previous fast target: QAT-NVFP4 (for comparison)
