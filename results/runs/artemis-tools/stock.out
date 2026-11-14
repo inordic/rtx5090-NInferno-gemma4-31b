@@ -1,0 +1,13 @@
+=== 08:22:44 stopping production (last request req#220)
+=== 08:23:30 stock listening
+IMGCALL stock plain (temp default, n=20): called 20
+IMGCALL stock rule (temp default, n=20): called 20
+IMGCALL stock echo (temp default, n=20): called 20
+IMGCALL stock-t07 plain (temp 0.7, n=20): called 20
+IMGCALL stock-t07 rule (temp 0.7, n=20): called 20
+stock malformed-markup warnings: 0
+=== 08:25:16 production back
+=== 08:25:58 production active
+VERIFY OK
+TEXTCALL leaks 0
+=== 08:26:09 STOCK_END

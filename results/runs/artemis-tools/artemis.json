@@ -1,0 +1,19 @@
+{
+ "plain": {
+  "written": 12,
+  "fake media": 3,
+  "no picture": 1,
+  "called": 4
+ },
+ "rule": {
+  "called": 8,
+  "fake media": 8,
+  "no picture": 3,
+  "written": 1
+ },
+ "echo": {
+  "called": 16,
+  "fake media": 3,
+  "written": 1
+ }
+}

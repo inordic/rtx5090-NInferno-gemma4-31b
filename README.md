@@ -5,19 +5,19 @@
 
 This build serves Google's Gemma 4 31B (dense) from one 24 GB RTX 5090 Laptop GPU, in a Proxmox container, through [NInferno](https://github.com/Brontir/NInferno) with our patches. Its main client is an agent (Hermes). Every number is measured server-side through the OpenAI API on port 8080, one request at a time.
 
-The fast profile serves [Artemis v1.2](https://huggingface.co/TheDrummer/Artemis-31B-v1.2), a conversational fine-tune of Gemma 4 31B, in our importance-weighted NVFP4, since 2026-11-13 13:02 CET. Its headline numbers, with prompt sizes as the server's actual token counts:
+The fast profile serves [LilaRest's NVFP4-turbo](https://huggingface.co/LilaRest/gemma-4-31B-it-NVFP4-turbo) of Google's Gemma 4 31B, again since 2026-11-14 09:32 CET. Its headline numbers, with prompt sizes as the server's actual token counts:
 
-- **Prefill: 4,672 tok/s on a 7,468-token prompt**, 4,171 on 1,706 and 3,640 on 28,972 tokens. On long prompts: 1,720 tok/s on 128,932 tokens (rested GPU), 1,343 on 158,559 and 1,157 on 191,809. We started from 1.4K.
-- **Decode: 108 tok/s on chat** (108.2 greedy / 98.1 sampled), 124–132 after a 1,706-token context and 117–126 after 7,468 tokens. That's 3.3× the 33 tok/s we started from. Since 20:37 on 13 Nov the assistant retrained on Artemis drafts: the same on this code-heavy chat set (108.9 / 98.2), and +4.6% on held-out conversation and +2.8% on tool calls ([night 9](research/2026-11-13-night9-drafter.md)).
+- **Prefill: 4,812 tok/s on a 7,468-token prompt**, 4,277 on 1,706, 3,771 on 28,972 and 2,795 on 57,942 tokens; about 1.8K on 118,244 tokens. We started from 1.4K.
+- **Decode: 114 tok/s on chat** (113.7 greedy / 110.6 sampled), 120–124 after a 1,706-token context and 114–121 after 7,468 tokens. That's 3.4× the 33 tok/s we started from.
 - **Context: 203,136 tokens with vision** in the fast profile and **262,144** (the model's full window) in the max-context profile, up from 32K.
-- **Quality:** GSM8K 198/200, MMLU-Pro 174/280 (direct answer), MMLU 244/285, HumanEval 160/164: 776 of the 929 items; see [Quality](#quality).
+- **Quality:** GSM8K 197/200, MMLU-Pro 178/280 (direct answer), MMLU 249/285, HumanEval 161/164: 785 of the 929 items; see [Quality](#quality).
 - **Vision:** images in requests (about 290 tokens each), 7/7 on our image questions.
-- **Long context:** needles pass on 128,932, 158,559 and 191,809 prompt tokens on the fast profile, and at 185K and 231K on the max-context profile.
+- **Long context:** needles pass up to 191,809 prompt tokens on the fast profile (measured on Artemis, same engine and flags), and at 185K and 231K on the max-context profile.
 
 > [!NOTE]
-> **Until 13 Nov the fast profile served LilaRest's NVFP4-turbo** of Google's BF16 model, on the same engine, flags and drafter. It measured 4,812 tok/s on the 7,468-token prompt and about 1.8K on 118,244 tokens, chat decode 113.7 greedy / 110.6 sampled, and 785 of the 929 quality items. On the same harness ([night 8](research/2026-11-13-night8-finetunes.md)), Artemis prefills within 2% of it (4,672 against 4,732 on 7,468 tokens) and decodes chat more slowly because the drafter accepts fewer of its tokens. The agent's owner preferred Artemis's voice. The tables below still show the LilaRest measurements as "LilaRest (until 13 Nov)".
+> **From 13 Nov 13:02 to 14 Nov 09:32 CET the fast profile served [Artemis v1.2](https://huggingface.co/TheDrummer/Artemis-31B-v1.2)**, a conversational fine-tune of Gemma 4 31B, in our importance-weighted NVFP4, on the same engine and flags. On the same harness ([night 8](research/2026-11-13-night8-finetunes.md)) it prefilled within 2% of LilaRest (4,672 against 4,732 on 7,468 tokens), decoded chat more slowly (108.2 / 98.1) because the drafter accepts fewer of its tokens, and scored 776 of the 929 quality items. It was taken out because in role-play it often acts out a tool call instead of making it: asked for a picture that a skill makes through the terminal tool, it called the tool 42 times in 100, where LilaRest called it 100 times in 100 ([14 Nov](research/2026-11-14-artemis-tools.md)). Our coding-agent tool tests had passed on it. The tables below show it as "Artemis (13–14 Nov)".
 
-*Production since 2026-10-26 22:43 CET; since 2026-10-28 06:38 on our patches rebased onto upstream NInferno, with the prompt-cache flags; since 2026-11-02 09:33 with four upstream fixes and our patch 17, which keeps one of them from stopping the engine; since 2026-11-05 02:45 with six more upstream fixes, our patch 19, prefill chunk 1280 and the assistant in NVFP4; since 2026-11-13 13:02 with Artemis v1.2 weights in place of LilaRest's; since 2026-11-13 20:37 with the MTP assistant retrained on Artemis ([night 9](research/2026-11-13-night9-drafter.md))* ([CHANGELOG](CHANGELOG.md); Artemis's numbers from [`results/results.jsonl`](results/results.jsonl), labels `N8 A2` (prefill) and `N9 old` (decode), and [`results/needle.jsonl`](results/needle.jsonl), labels `N9 Artemis needle` and `N9 rested needle`; LilaRest's from label `Live up4`, on the running unit with a rested GPU. Measured turn about against the previous build, the gain is +6.2% at 8K, +7.6% at 32K, +8.3% at 64K and +9.3% at 130K: [night 5](research/2026-11-05-night5.md)).
+*Production since 2026-10-26 22:43 CET; since 2026-10-28 06:38 on our patches rebased onto upstream NInferno, with the prompt-cache flags; since 2026-11-02 09:33 with four upstream fixes and our patch 17, which keeps one of them from stopping the engine; since 2026-11-05 02:45 with six more upstream fixes, our patch 19, prefill chunk 1280 and the assistant in NVFP4; from 2026-11-13 13:02 with Artemis v1.2 weights in place of LilaRest's and from 20:37 with the MTP assistant retrained on Artemis ([night 9](research/2026-11-13-night9-drafter.md)); since 2026-11-14 09:32 on LilaRest's weights and Google's assistant again ([14 Nov](research/2026-11-14-artemis-tools.md))* ([CHANGELOG](CHANGELOG.md); Artemis's numbers from [`results/results.jsonl`](results/results.jsonl), labels `N8 A2` (prefill) and `N9 old` (decode), and [`results/needle.jsonl`](results/needle.jsonl), labels `N9 Artemis needle` and `N9 rested needle`; LilaRest's from label `Live up4`, on the running unit with a rested GPU. Measured turn about against the previous build, the gain is +6.2% at 8K, +7.6% at 32K, +8.3% at 64K and +9.3% at 130K: [night 5](research/2026-11-05-night5.md)).
 
 Every number here comes from a file in [`results/`](results/), measured on the box described in [What runs](#what-runs). The night-by-night reports are in [`research/`](research/), and the build route, with a check after each step, is in [`BUILD.md`](BUILD.md).
 
@@ -35,7 +35,7 @@ What made the difference, in order of effect:
 
 **Prefill.** One cold request with a unique prompt, server-reported prompt tok/s ([`results.jsonl`](results/results.jsonl)):
 
-| Prompt (nominal: actual tokens) | Artemis (live) | LilaRest (until 13 Nov) | Previous fast profile (QAT-NVFP4, same session) | Max-context profile (QAT Q4) | Start (abliterated Q4_K) |
+| Prompt (nominal: actual tokens) | Artemis (13–14 Nov) | LilaRest (live) | Previous fast profile (QAT-NVFP4, same session) | Max-context profile (QAT Q4) | Start (abliterated Q4_K) |
 |---:|---:|---:|---:|---:|---:|
 | 2K: 1,706 | 4,171 | 4,277 | 3,126 | 1,427 | 1,335 |
 | 8K: 7,468 | **4,672** | **4,812** | 4,345 | 1,531 | 1,409 |
@@ -49,7 +49,7 @@ The nominal sizes come from the benchmark's character counts; the second number 
 
 **Decode.** One user, MTP with 7 drafts (greedy / sampled tok/s):
 
-| Workload | Artemis (live) | LilaRest (until 13 Nov) | Previous fast profile (same session) | Max-context profile | Start |
+| Workload | Artemis (13–14 Nov) | LilaRest (live) | Previous fast profile (same session) | Max-context profile | Start |
 |---|---:|---:|---:|---:|---:|
 | Short chat, 10 prompts × 512 tokens | **108.2 / 98.1** | **113.7 / 110.6** | 118.0 / 115.8 | 106.8 / 99.7 | 33.2 |
 | After a 1,706-token context (2K) | 123.9 / 131.9 | 124.2 / 120.3 | 124.7 / 126.6 | 93.2 / 110.0 | 32.6 |
@@ -62,7 +62,7 @@ Decode depends on how predictable the text is. The fast profile now drafts with 
 
 **Agent turns.** Each turn reuses the cached conversation. With a 17.6K-token system prompt, the first turn takes 4.9 s, and each later turn takes about 0.48 s on the fast profile (0.65–0.73 s on the max-context profile). A turn's time to first token is 0.21–0.25 s for up to 1,000 new characters and about 0.45 s for about 900 new tokens ([`bench/turnprobe.py`](bench/turnprobe.py), [night 1 report](research/2026-10-26-night1-decode.md#agent-turns-hermes-where-the-03-s-goes)). A new session whose system head and tools are already cached answers in about 0.5 s; with a 24.4K-token head and 20 tools, that took 7–8 s before the prompt-cache flags ([night 3 report](research/2026-10-28-night3.md#2-new-agent-sessions-and-the-prompt-cache-patch-16)). In live traffic, new agent sessions with 20K+ token prompts now hit the cache 26 times of 33 (7 of 34 before), and their median time to first token fell from 7.2 s to 2.7 s ([§6](research/2026-10-28-night3.md#6-live-traffic-after-the-switch-28-oct-06501819-cet)).
 
-**Tools.** OpenAI tool calls work, streamed and parallel included ([night 1 report](research/2026-10-26-night1-decode.md#tool-calling-works)). An agent loop with 20 tools ran 93 steps and 89 calls with none returned as text and no error, and replies after histories where the assistant wrote text with its calls came back as clean calls ([`bench/agenttest.py`](bench/agenttest.py), [`bench/textcalltest.py`](bench/textcalltest.py), [CHANGELOG](CHANGELOG.md)).
+**Tools.** OpenAI tool calls work, streamed and parallel included ([night 1 report](research/2026-10-26-night1-decode.md#tool-calling-works)). An agent loop with 20 tools ran 93 steps and 89 calls with none returned as text and no error, and replies after histories where the assistant wrote text with its calls came back as clean calls ([`bench/agenttest.py`](bench/agenttest.py), [`bench/textcalltest.py`](bench/textcalltest.py), [CHANGELOG](CHANGELOG.md)). Calls must also survive role-play: [`bench/imgcalltest.py`](bench/imgcalltest.py) asks a companion persona for a picture that a skill makes through the terminal tool. LilaRest calls it 100 times in 100; Artemis did 42 times in 100, writing the command or a made-up picture into its reply instead ([14 Nov](research/2026-11-14-artemis-tools.md)).
 
 ## Quality
 
@@ -73,8 +73,8 @@ Greedy decoding throughout, on the same 200 GSM8K, 280 MMLU-Pro, 285 MMLU (both 
 | Start: abliterated Q4_K | 197 | 161 | — | 159 |
 | **Max-context profile: QAT-UD Q4** (FP8 KV, K-only KV or BF16 KV) | 196 | **164–165** | **248** | 159 |
 | pajari Q4_0_V2 (same QAT weights) | 196 | 164 | — | 159 |
-| **Fast profile, live since 13 Nov: Artemis v1.2, imw NVFP4, Q/K/V packed** (with vision) | **198** | 174 | 244 | 160 |
-| **Fast profile until 13 Nov: LilaRest NVFP4-turbo, Q/K/V packed** (with vision) | 197 | **178** | **249** | **161** |
+| **Fast profile, live: LilaRest NVFP4-turbo, Q/K/V packed** (with vision) | 197 | **178** | **249** | **161** |
+| Fast profile 13–14 Nov: Artemis v1.2, imw NVFP4, Q/K/V packed (with vision) | **198** | 174 | 244 | 160 |
 | LilaRest NVFP4-turbo, as published (Q/K/V apart) | 197 | 171 | 246 | 159 |
 | yasu-oh QAT NVFP4 | 196 | 160 | 243 | 160 |
 | Previous fast profile: QAT-NVFP4, day 1 (INT8 attention) | **198** | 150–152 | 244–245 | **161** |
@@ -106,7 +106,7 @@ Perplexity on a 32K window (lower is better) is how the attention kernels were j
 | Host | Proxmox VE, kernel 6.17.13-2-pve. The GPU is also passed to a second container; only one serves at a time |
 | Container | Ubuntu 24.04, 8 cores, 48 GB RAM, CUDA 13.2. The fast unit pins 24.1 GiB of host memory at start (16.1 GiB for the 18 host states, 8 GiB of host KV) and uses about 28 GB in all; the rest serves as file cache |
 | Engine | NInferno ([Brontir/NInferno](https://github.com/Brontir/NInferno)) + [our patches](patches/ninferno/): 01–16 on upstream `8359583`, ten upstream fixes and 17–19 for the fast unit (12 reverted, upstream carries it), 01–09 on `9895ebc` for the max-context unit. CUDA arch `120a`, Release |
-| Fast model | Since 2026-11-13: [`TheDrummer/Artemis-31B-v1.2`](https://huggingface.co/TheDrummer/Artemis-31B-v1.2), quantized from its BF16 weights to NVFP4 with [`bench/hlquant2.py`](bench/hlquant2.py) (importance-weighted block scales, [bartowski's importance matrix](https://huggingface.co/bartowski/TheDrummer_Artemis-31B-v1.2-GGUF), LilaRest's activation scales), then converted exactly as below: 18.9 GiB ([night 8](research/2026-11-13-night8-finetunes.md)). Before that: [`LilaRest/gemma-4-31B-it-NVFP4-turbo`](https://huggingface.co/LilaRest/gemma-4-31B-it-NVFP4-turbo), Google's BF16 weights in NVFP4 (ModelOpt). Converted with NInferno's `gemma4_31b_nvfp4` recipe (Q8 embedding table, Q6 head), Q/K/V packed into one plane (patch 13). Adds the vision tower of Google's original model ([`unsloth/gemma-4-31B-it-GGUF`](https://huggingface.co/unsloth/gemma-4-31B-it-GGUF) `mmproj-BF16.gguf`): 18.9 GiB |
+| Fast model | [`LilaRest/gemma-4-31B-it-NVFP4-turbo`](https://huggingface.co/LilaRest/gemma-4-31B-it-NVFP4-turbo), Google's BF16 weights in NVFP4 (ModelOpt). Converted with NInferno's `gemma4_31b_nvfp4` recipe (Q8 embedding table, Q6 head), Q/K/V packed into one plane (patch 13). Adds the vision tower of Google's original model ([`unsloth/gemma-4-31B-it-GGUF`](https://huggingface.co/unsloth/gemma-4-31B-it-GGUF) `mmproj-BF16.gguf`): 18.9 GiB. From 13 Nov 13:02 to 14 Nov 09:32: [`TheDrummer/Artemis-31B-v1.2`](https://huggingface.co/TheDrummer/Artemis-31B-v1.2), quantized from its BF16 weights to NVFP4 with [`bench/hlquant2.py`](bench/hlquant2.py) (importance-weighted block scales, [bartowski's importance matrix](https://huggingface.co/bartowski/TheDrummer_Artemis-31B-v1.2-GGUF), LilaRest's activation scales), converted the same way: 18.9 GiB ([night 8](research/2026-11-13-night8-finetunes.md), [14 Nov](research/2026-11-14-artemis-tools.md)) |
 | Max-context model | [`unsloth/gemma-4-31B-it-qat-GGUF`](https://huggingface.co/unsloth/gemma-4-31B-it-qat-GGUF) `UD-Q4_K_XL` (all Q4_0 inside, on the QAT grid): 16.1 GiB |
 | Drafters | fast: [`google/gemma-4-31B-it-assistant`](https://huggingface.co/google/gemma-4-31B-it-assistant) in NVFP4, 0.30 GB. Max context: [`google/gemma-4-31B-it-qat-q4_0-unquantized-assistant`](https://huggingface.co/google/gemma-4-31B-it-qat-q4_0-unquantized-assistant), QAT-aware Q4_0 through [our llama.cpp patch](patches/llama.cpp/), 0.28 GB |
 | Vision | fast profile, `--vision`; `/v1/models` reports `capabilities.images` (patch 14) |
@@ -151,8 +151,8 @@ This build stands on:
 - **NInferno** by Brontir ([Brontir/NInferno](https://github.com/Brontir/NInferno), Apache-2.0), which started from **ninfer** by Neroued ([Neroued/ninfer](https://github.com/Neroued/ninfer)) and credits its other forks, among them iamwavecut's ninfer-all.
 - **llama.cpp** by ggml-org ([ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp), MIT), whose converter and Q4_0 encoder our patch extends.
 - **Google**, for Gemma 4, the QAT checkpoints and the MTP assistants.
-- **TheDrummer**, for Artemis v1.2, the fine-tune the fast profile serves; **bartowski** and **mradermacher**, for the importance matrices our NVFP4 rounding uses; **zerofata**, for MeroMero v2, which we compared.
-- **LilaRest**, for the NVFP4-turbo conversion the fast profile served until 13 November and whose activation scales our builds reuse; **melcheikh**, for the QAT NVFP4 conversion (NVIDIA Model Optimizer) it served before; **yasu-oh**, for the QAT NVFP4 we compared; **Unsloth**, for the QAT UD GGUF and the vision projector; **Pajari**, for Q4_0_V2; **llmfan46**, for the Heretic QAT weights; **huihui-ai**, for the abliterated QAT weights we compared; and the authors of the abliterated Q4_K build this box served before.
+- **TheDrummer**, for Artemis v1.2, the fine-tune the fast profile served on 13–14 November; **bartowski** and **mradermacher**, for the importance matrices our NVFP4 rounding uses; **zerofata**, for MeroMero v2, which we compared.
+- **LilaRest**, for the NVFP4-turbo conversion the fast profile serves and whose activation scales our builds reuse; **melcheikh**, for the QAT NVFP4 conversion (NVIDIA Model Optimizer) it served before; **yasu-oh**, for the QAT NVFP4 we compared; **Unsloth**, for the QAT UD GGUF and the vision projector; **Pajari**, for Q4_0_V2; **llmfan46**, for the Heretic QAT weights; **huihui-ai**, for the abliterated QAT weights we compared; and the authors of the abliterated Q4_K build this box served before.
 - **iNordic**, for the NInfer web UI (Strata-derived).
 - The benchmark authors: GSM8K (OpenAI), MMLU (Hendrycks et al.), MMLU-Pro (TIGER-Lab), HumanEval (OpenAI).
 

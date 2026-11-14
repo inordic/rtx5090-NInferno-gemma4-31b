@@ -1,5 +1,5 @@
 [Unit]
-Description=NInferno Gemma 4 31B Artemis v1.2 (imw NVFP4, Q/K/V packed) + vision + MTP drafter retrained on Artemis K7, K-only FP8 KV, FP8 rings, 203K - fast
+Description=NInferno Gemma 4 31B NVFP4-turbo (BF16-derived, Q/K/V packed) + vision + MTP drafter K7, K-only FP8 KV, FP8 rings, 203K - fast
 After=network.target
 Conflicts=gemma4-31b-262k.service
 
@@ -12,7 +12,7 @@ Environment=NINFERNO_GEMMA4_EMBED_HOST=1
 Environment=NINFERNO_GEMMA4_WIDE_PREFILL_MIN_T=64
 Environment=NINFERNO_GEMMA4_SKIP_LAST_LAYER=1
 WorkingDirectory=/opt/models
-ExecStart=/opt/NInferno-up/build/apps-up4/ninferno-serve /opt/models/artemis/artemis-v1.2-imw-qkv-vision-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --vision --max-context 203136 --prefill-chunk 1280 --kv-dtype fp8 --sliding-kv-dtype fp8 --spec mtp --drafter /opt/models/artemis/assistant-artemis-n9.nvfp4.ninferno --draft-tokens 7 --chat-template /opt/models/templates/gemma4-agent.jinja --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 12288 --max-shared-prefixes 10
+ExecStart=/opt/NInferno-up/build/apps-up4/ninferno-serve /opt/models/dl2/turbo-qkv-vision-nvfp4.r31.ninferno --host 0.0.0.0 --port 8080 --model-id gemma4-31b-fast --vision --max-context 203136 --prefill-chunk 1280 --kv-dtype fp8 --sliding-kv-dtype fp8 --spec mtp --drafter /opt/models/dl2/assistant.nvfp4.ninferno --draft-tokens 7 --chat-template /opt/models/templates/gemma4-agent.jinja --auto-tools-shared-prefix --auto-shared-prefix-requested --host-state-slots 18 --host-kv-mib 12288 --max-shared-prefixes 10
 Restart=on-failure
 RestartSec=10
 

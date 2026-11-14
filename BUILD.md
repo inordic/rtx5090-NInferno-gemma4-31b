@@ -143,7 +143,10 @@ cd $D && NINFERNO_CONVERT_NORMED_QKV_DIVISOR=1 /opt/NInferno/build/apps/ninferno
 - Its `.conversion.json` lists `nvfp4: 240, bf16: 636, q8_g32_fp16: 1, q6_g64_fp16: 1, fp32: 60` and the components `text` and `vision`.
 - Every object holding `attention/query` also holds `attention/key`.
 
-### 3b2. The fast profile's target since 13 Nov: Artemis v1.2, imw NVFP4, Q/K/V packed, with vision
+### 3b2. Optional: Artemis v1.2, imw NVFP4, Q/K/V packed, with vision (the fast target on 13–14 Nov)
+
+> [!WARNING]
+> In role-play Artemis often acts out tool calls instead of making them: 42 of 100 picture requests called the tool, against 100 of 100 for 3b ([14 Nov](research/2026-11-14-artemis-tools.md)). The fast profile serves 3b again.
 
 [TheDrummer/Artemis-31B-v1.2](https://huggingface.co/TheDrummer/Artemis-31B-v1.2) is a BF16 fine-tune in Google's full layout, vision tower included. It is quantized here with [`bench/hlquant2.py`](bench/hlquant2.py) (importance-weighted rounding, using bartowski's public importance matrix for this model), then converted as in 3b ([night 8](research/2026-11-13-night8-finetunes.md)).
 
@@ -231,6 +234,7 @@ The first start takes about 25 s: weights, plan and CUDA graphs. The log line `c
 3. [`bench/gbench.py`](bench/gbench.py) `--pp 2048,8192,32768,65536` lands near the numbers in [`results/results.jsonl`](results/results.jsonl), label `Live up4`.
 4. [`bench/visiontest.py`](bench/visiontest.py) scores 7/7, and [`bench/needle.py`](bench/needle.py) `--lengths 140000,170000,205000 --depths 0.5` scores 3/3.
 5. [`bench/agenttest.py`](bench/agenttest.py) `--label check --runs 3` ends with `"markup_as_text": 0` and `"errors": 0`, and [`bench/textcalltest.py`](bench/textcalltest.py) prints `TEXTCALL leaks 0`.
+6. [`bench/imgcalltest.py`](bench/imgcalltest.py) `check 10` exits 0 (`IMGCALL check PASS`): in role-play, at least 9 of 10 picture requests per variant are real terminal calls. Run it for every new model or template; our coding-agent tests above don't catch a model that acts out its tools.
 
 [`bench/deploy_fast.sh`](bench/deploy_fast.sh) stops anything on 8080 and brings the fast unit up again. Our overnight runners call it after every test batch.
 

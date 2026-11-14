@@ -1,0 +1,11 @@
+{
+ "plain": {
+  "called": 20
+ },
+ "rule": {
+  "called": 20
+ },
+ "echo": {
+  "called": 20
+ }
+}

@@ -1,0 +1,3 @@
+IMGCALL artemis plain (temp default, n=20): written 12, called 4, fake media 3, no picture 1
+IMGCALL artemis rule (temp default, n=20): called 8, fake media 8, no picture 3, written 1
+IMGCALL artemis echo (temp default, n=20): called 16, fake media 3, written 1

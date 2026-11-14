@@ -1,0 +1,28 @@
+{
+ "0.7": {
+  "chat replies": 36,
+  "words/reply": 48.0,
+  "emoji/reply": 0.64,
+  "*actions*/reply": 1.14,
+  "distinct openings": "18/36",
+  "same-prompt overlap": 0.388,
+  "swedish answered in swedish": "4/4",
+  "chat replies that called a tool": 0,
+  "tool prompts right": "12/12 (picture 4/4, weather 4/4, notes 4/4)",
+  "decode tok/s (mean)": 68.0,
+  "drafts accepted": "19.6%"
+ },
+ "1.0": {
+  "chat replies": 36,
+  "words/reply": 48.8,
+  "emoji/reply": 0.42,
+  "*actions*/reply": 1.25,
+  "distinct openings": "21/36",
+  "same-prompt overlap": 0.329,
+  "swedish answered in swedish": "4/4",
+  "chat replies that called a tool": 0,
+  "tool prompts right": "12/12 (picture 4/4, weather 4/4, notes 4/4)",
+  "decode tok/s (mean)": 66.2,
+  "drafts accepted": "18.9%"
+ }
+}

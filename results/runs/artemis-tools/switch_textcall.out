@@ -1,0 +1,13 @@
+ok   after 2 text+call rounds seed0: tool_calls: list_dir({"path":"/srv/app"})
+ok   after 2 text+call rounds seed1: tool_calls: terminal({"command":"ls /etc/systemd/system/ | grep app"})
+ok   after 2 text+call rounds seed2: tool_calls: terminal({"command":"netstat -tuln | grep 8080"})
+ok   after 2 text+call rounds seed3: tool_calls: terminal({"command":"systemctl list-units --type=service | grep app"})
+ok   after 3 rounds seed0: tool_calls: terminal({"command":"curl -I http://localhost:8080"})
+ok   after 3 rounds seed1: stop: 'The service is now listening on 8080. Verification complete.'
+ok   after 3 rounds seed2: tool_calls: terminal({"command":"curl -I http://localhost:8080"})
+ok   after 3 rounds seed3: tool_calls: terminal({"command":"curl -I http://localhost:8080"})
+ok   parallel text+calls seed0: tool_calls: write_file({"content":"{\"server\": {\"port\": 8080}}","path":"/srv/app)
+ok   parallel text+calls seed1: tool_calls: write_file({"content":"{\"server\": {\"port\": 8080}}","path":"/srv/app)
+ok   parallel text+calls seed2: tool_calls: write_file({"content":"{\"server\": {\"port\": 8080}}","path":"/srv/app)
+ok   parallel text+calls seed3: tool_calls: read_file({"offset":1,"path":"/srv/app/app.py"})
+TEXTCALL leaks 0

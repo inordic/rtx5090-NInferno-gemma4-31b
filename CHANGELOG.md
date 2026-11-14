@@ -2,6 +2,23 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-14 09:32: the fast profile back on LilaRest's NVFP4-turbo; Artemis acts out its tool calls in role-play
+
+- **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) serves `dl2/turbo-qkv-vision-nvfp4.r31.ninferno` with Google's assistant `dl2/assistant.nvfp4.ninferno` again: the unit of 13 Nov before Artemis, flags unchanged. Sampling from the model's generation config: temperature 1, top_k 64, top_p 0.95.
+- **Why** ([14 Nov](research/2026-11-14-artemis-tools.md)):
+  - In role-play, Artemis often wrote a skill's command into its reply, or claimed a picture it never made, instead of calling the tool.
+  - On a new test, [`imgcalltest.py`](bench/imgcalltest.py), it called the tool 42 times in 100. LilaRest, on the same engine, flags and template, called it 100 times in 100.
+  - Not the parser or the template: Artemis never opened a call, and it ships Google's template byte for byte.
+  - Temperature 0.7 doesn't help, and a prompt rule turns pasted commands into fake pictures.
+  - Whether the fine-tune or our 4-bit build of it is to blame is the next test.
+- **Down:** 09:22:44–09:25:58 for the stock run on a test server, and 09:31:36–09:32:26 for the switch.
+- **Checks after the restart** ([`switch_stock.sh`](bench/runs/artemis-tools/switch_stock.sh), [output](results/runs/artemis-tools/switch.out)):
+  - verify OK;
+  - 0 tool-call leaks;
+  - `imgcalltest.py` PASS, 10/10 in each variant.
+- **New standard check:** `imgcalltest.py` is check 6 in [BUILD.md §4](BUILD.md#4-serve). [`tempfit.py`](bench/tempfit.py) measured temperature 0.7 against 1.0 on the stock model: the same tool calls and language, more repetitive replies at 0.7, decode 2.6% faster.
+- **Rollback to Artemis:** `/etc/systemd/system/gemma4-31b-fast.service.bak-20261114-083136` (Artemis and the n9 drafter), `systemctl daemon-reload`, restart.
+
 ## 2026-11-14 05:42: night 10, the drafter's second round and activation scales for Artemis (running setup unchanged)
 
 - **Ran** ([night 10](research/2026-11-14-night10.md)):

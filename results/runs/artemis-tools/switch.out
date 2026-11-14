@@ -1,0 +1,10 @@
+=== 08:31:36 Artemis unit saved as /etc/systemd/system/gemma4-31b-fast.service.bak-20261114-083136 (last request req#17)
+=== 08:31:36 restarting on stock
+=== 08:32:26 production active
+sampling | defaults: generation_config.json | thinking: temperature 1, top_k 64, top_p 0.95, min_p 0, presence 0, frequency 0 | non-thinking: temperature 1, top_k 64, top_p 0.95, min_p 0, presence 0, frequency 0
+/opt/models/dl2/turbo-qkv-vision-nvfp4.r31.ninferno /opt/models/dl2/assistant.nvfp4.ninferno /opt/models/templates/gemma4-agent.jinja 
+VERIFY OK
+TEXTCALL leaks 0
+imgcall exit 0
+IMGCALL stock-prod PASS: called plain 10/10, rule 10/10, echo 10/10 (need 90% each)
+=== 08:33:11 SWITCH_END: done

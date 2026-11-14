@@ -1,0 +1,4 @@
+IMGCALL stock-prod plain (temp default, n=10): called 10
+IMGCALL stock-prod rule (temp default, n=10): called 10
+IMGCALL stock-prod echo (temp default, n=10): called 10
+IMGCALL stock-prod PASS: called plain 10/10, rule 10/10, echo 10/10 (need 90% each)
