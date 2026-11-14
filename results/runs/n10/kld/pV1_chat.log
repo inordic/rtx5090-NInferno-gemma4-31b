@@ -1,0 +1,26 @@
+starting engine
+engine ready | V1 | total 12.8s | weights 16.4 GiB | CUDA sync spin | decode 1 step(s) per round
+routes | gpu class gb203:82sm | loaded 189 problems (307 generic-path, 51 route_as) from /opt/NInferno-up/routes/gb203.json; 172 problems it lacks from the next nearest (gb202 90, gb206 82)
+warning: device | device facts extrapolated (GeForce RTX 5090 Laptop GPU, a laptop: priced at the bottom of its published boost range): extrapolated GeForce RTX 5090 Laptop GPU ref 1597 MHz 896 GB/s
+fingerprint | nf1-7b419aba7f5406ff | manifest nm1-a0d7f3cb0d6b312a | ninferno-fingerprint/1
+preparing corpus
+corpus ready | 1 streams | 61,532 input tokens | 61,531 scored tokens | 30 windows | 37.0 ms
+scoring | 1 streams | 61,531 tokens | 30 windows
+scoring | 26,623/61,531 tokens | 12/30 windows | PPL 3.1396 | 2.44k tok/s | elapsed 10.9s | ETA 14.3s
+scoring | 51,199/61,531 tokens | 24/30 windows | PPL 3.0908 | 2.35k tok/s | elapsed 21.8s | ETA 4.4s
+[1/1] kl_chat.txt | 61,531 scored tokens | PPL 3.91194 | 27.1s
+scoring complete | 61,531 tokens | 30 windows | PPL 3.91194 | 27.1s | 2.27k tok/s
+Perplexity result
+artifact: V1
+kv: fp8-e4m3-r256, corpus: custom-kl_chat.txt / custom, context/stride: 4096/2048
+
+domain                            tokens        mean_nll             ppl
+custom                             61531        1.364032        3.911936
+overall                            61531        1.364032        3.911936
+
+score rate: 2268.9 tok/s
+
+against artemis-v1.2-imw-qkv-vision-nvfp4.r31 (top-32)
+mean KLD: 0.127409, median: 0.014123, p99: 2.552719
+top-1 agreement: 90.6990 %, PPL ratio: 1.0346
+report: "/root/gbench/n10/profiles/perplexity/V1/gemma4-prefill-1-60x5376-262144/fp8-e4m3-r256/custom-kl_chat.txt/custom/20261114-044000/report.json"

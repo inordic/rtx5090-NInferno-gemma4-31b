@@ -1,0 +1,14 @@
+HELDOUT ab-n10a all: {'requests': 166, 'tokens': 44802, 'decode_tok_s': 104.1, 'accepted': 36.5}
+HELDOUT ab-n10a greedy: {'requests': 83, 'tokens': 22733, 'decode_tok_s': 110.4, 'accepted': 39.4}
+HELDOUT ab-n10a sampled: {'requests': 83, 'tokens': 22069, 'decode_tok_s': 98.3, 'accepted': 33.8}
+HELDOUT ab-n10a english: {'requests': 16, 'tokens': 5493, 'decode_tok_s': 94.1, 'accepted': 31.6}
+HELDOUT ab-n10a other-languages: {'requests': 32, 'tokens': 15117, 'decode_tok_s': 84.5, 'accepted': 26.8}
+HELDOUT ab-n10a agent: {'requests': 16, 'tokens': 1071, 'decode_tok_s': 111.4, 'accepted': 41.9}
+HELDOUT ab-n10a agent-later: {'requests': 24, 'tokens': 1318, 'decode_tok_s': 148.5, 'accepted': 60.7}
+HELDOUT ab-n10a code: {'requests': 16, 'tokens': 7724, 'decode_tok_s': 154.0, 'accepted': 59.5}
+HELDOUT ab-n10a companion: {'requests': 14, 'tokens': 654, 'decode_tok_s': 92.8, 'accepted': 31.7}
+HELDOUT ab-n10a maths: {'requests': 16, 'tokens': 5259, 'decode_tok_s': 163.2, 'accepted': 64.9}
+HELDOUT ab-n10a oasst2: {'requests': 16, 'tokens': 7377, 'decode_tok_s': 87.4, 'accepted': 28.1}
+HELDOUT ab-n10a swedish: {'requests': 16, 'tokens': 7740, 'decode_tok_s': 81.9, 'accepted': 25.7}
+HELDOUT ab-n10a tools: {'requests': 16, 'tokens': 2019, 'decode_tok_s': 152.3, 'accepted': 61.1}
+HELDOUT ab-n10a ultrachat: {'requests': 16, 'tokens': 6147, 'decode_tok_s': 85.5, 'accepted': 27.5}

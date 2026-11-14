@@ -1,0 +1,6 @@
+drafter quantization nvfp4: 23 nvfp4
+source bf16: 23 matrices kept as nvfp4, LOSSY
+converting 44 parents in 252 tasks on 8 threads
+content digests: 48 objects, 0.28 GiB in 0.081 s
+wrote /opt/models/n10/assistant-artemis-n10.nvfp4.ninferno: 48 objects, 1 files, 2.6s (model 0.61s, plan 0.64s, weights 0.90s, finish 0.46s)
+speculation: no drafters attached, so --spec auto decodes plainly; ninferno-convert --attach-drafters --target-artifact /opt/models/n10/assistant-artemis-n10.nvfp4.ninferno --model-id <repo> attaches them (or convert with --with-drafters)

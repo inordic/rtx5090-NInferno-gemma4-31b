@@ -1,0 +1,26 @@
+starting engine
+engine ready | artemis-v1.2-imw-qkv-vision-nvfp4.r31 | total 4.0s | weights 16.4 GiB | CUDA sync spin | decode 1 step(s) per round
+routes | gpu class gb203:82sm | loaded 189 problems (307 generic-path, 51 route_as) from /opt/NInferno-up/routes/gb203.json; 172 problems it lacks from the next nearest (gb202 90, gb206 82)
+warning: device | device facts extrapolated (GeForce RTX 5090 Laptop GPU, a laptop: priced at the bottom of its published boost range): extrapolated GeForce RTX 5090 Laptop GPU ref 1597 MHz 896 GB/s
+fingerprint | nf1-f0bed493c5660a16 | manifest nm1-a4aeea3f88aea0ce | ninferno-fingerprint/1
+preparing corpus
+corpus ready | 1 streams | 50,320 input tokens | 50,319 scored tokens | 24 windows | 28.1 ms
+scoring | 1 streams | 50,319 tokens | 24 windows
+scoring | 24,575/50,319 tokens | 11/24 windows | PPL 1.7835 | 2.44k tok/s | elapsed 10.1s | ETA 10.6s
+scoring | 49,151/50,319 tokens | 23/24 windows | PPL 1.8424 | 2.34k tok/s | elapsed 21.0s | ETA 498 ms
+[1/1] kl_code.txt | 50,319 scored tokens | PPL 1.83974 | 21.8s
+scoring complete | 50,319 tokens | 24 windows | PPL 1.83974 | 21.8s | 2.30k tok/s
+Perplexity result
+artifact: artemis-v1.2-imw-qkv-vision-nvfp4.r31
+kv: fp8-e4m3-r256, corpus: custom-kl_code.txt / custom, context/stride: 4096/2048
+
+domain                            tokens        mean_nll             ppl
+custom                             50319        0.609626        1.839743
+overall                            50319        0.609626        1.839743
+
+score rate: 2304.8 tok/s
+
+against artemis-v1.2-imw-qkv-vision-nvfp4.r31 (top-32)
+mean KLD: 0.029478, median: 0.000789, p99: 0.360314
+top-1 agreement: 96.0949 %, PPL ratio: 1.0059
+report: "/root/gbench/n10/profiles/perplexity/artemis-v1.2-imw-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/fp8-e4m3-r256/custom-kl_code.txt/custom/20261114-043110/report.json"

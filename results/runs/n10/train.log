@@ -1,0 +1,17 @@
+Loading weights:   0%|          | 0/48 [00:00<?, ?it/s]Loading weights:   2%|▏         | 1/48 [00:01<00:53,  1.14s/it]Loading weights: 100%|██████████| 48/48 [00:01<00:00, 42.20it/s]
+02:11:28 BASE /opt/models/n9/asst-ep2
+02:16:03 base drafter [/opt/models/n10/states-imw]: {"sequences": 89, "top1_by_step": [0.8892, 0.8606, 0.841, 0.8243, 0.8059, 0.793, 0.7779], "accepted_per_round": 4.218, "accepted_per_round_greedy": 4.482, "rounds": 48112}
+02:19:40 base drafter [/opt/models/n9/states-imw]: {"sequences": 105, "top1_by_step": [0.7425, 0.6824, 0.6499, 0.6271, 0.6095, 0.5928, 0.5795], "accepted_per_round": 2.281, "accepted_per_round_greedy": 2.466, "rounds": 71893}
+02:19:41 train: 2557 sequences, 1485467 anchors per epoch, 1 epochs, ~362 optimizer steps, lr 3e-05
+02:19:47   epoch 1 step 1/362 loss 1.2536 lr 8.33e-07 (6s, peak 11.1 GiB)
+02:20:12   epoch 1 step 5/362 loss 0.7874 lr 4.17e-06 (31s, peak 14.7 GiB)
+02:21:42   epoch 1 step 20/362 loss 1.0166 lr 1.66e-05 (121s, peak 14.7 GiB)
+02:24:42   epoch 1 step 50/362 loss 0.9506 lr 2.87e-05 (301s, peak 14.7 GiB)
+02:29:51   epoch 1 step 100/362 loss 0.9155 lr 2.48e-05 (610s, peak 14.7 GiB)
+02:35:11   epoch 1 step 150/362 loss 1.0197 lr 1.91e-05 (930s, peak 14.7 GiB)
+02:40:32   epoch 1 step 200/362 loss 0.7740 lr 1.27e-05 (1251s, peak 14.7 GiB)
+02:45:37   epoch 1 step 250/362 loss 1.0389 lr 6.65e-06 (1555s, peak 14.7 GiB)
+02:50:54   epoch 1 step 300/362 loss 0.7671 lr 2.19e-06 (1873s, peak 14.7 GiB)
+02:55:05 epoch 1 [/opt/models/n10/states-imw]: {"sequences": 89, "top1_by_step": [0.8959, 0.8681, 0.8496, 0.8339, 0.8192, 0.8074, 0.7945], "accepted_per_round": 4.33, "accepted_per_round_greedy": 4.616, "rounds": 48112}
+02:56:25 epoch 1 [/opt/models/n9/states-imw]: {"sequences": 105, "top1_by_step": [0.7424, 0.6823, 0.6501, 0.6271, 0.6099, 0.5928, 0.5794], "accepted_per_round": 2.287, "accepted_per_round_greedy": 2.479, "rounds": 71893}
+02:56:25 TRAIN_DONE

@@ -1,0 +1,28 @@
+=== 04:07:33 A/B n10a
+2026-11-14 04:09:05.872  INFO  speculation | serves mtp K=7 (explicit) | fallback none | --spec
+HELDOUT ab-n10a all: {'requests': 166, 'tokens': 44802, 'decode_tok_s': 104.1, 'accepted': 36.5}
+HELDOUT ab-n10a greedy: {'requests': 83, 'tokens': 22733, 'decode_tok_s': 110.4, 'accepted': 39.4}
+HELDOUT ab-n10a sampled: {'requests': 83, 'tokens': 22069, 'decode_tok_s': 98.3, 'accepted': 33.8}
+=== 04:16:53 A/B n10b
+2026-11-14 04:18:24.899  INFO  speculation | serves mtp K=7 (explicit) | fallback none | --spec
+HELDOUT ab-n10b all: {'requests': 166, 'tokens': 45360, 'decode_tok_s': 104.0, 'accepted': 36.4}
+HELDOUT ab-n10b greedy: {'requests': 83, 'tokens': 22733, 'decode_tok_s': 110.4, 'accepted': 39.4}
+HELDOUT ab-n10b sampled: {'requests': 83, 'tokens': 22627, 'decode_tok_s': 98.2, 'accepted': 33.6}
+ref pref_code exit 0: scoring complete | 50,319 tokens | 24 windows | PPL 1.82895 | 2m 12.5s | 379.7 tok/s 
+exact pV1exact_code exit 0: mean KLD: 0.000000, median: 0.000000, p99: 0.000000 top-1 agreement: 100.0000 %, PPL ratio: 1.0000 
+run pV0_code exit 0: mean KLD: 0.029478, median: 0.000789, p99: 0.360314 top-1 agreement: 96.0949 %, PPL ratio: 1.0059 
+run pV1_code exit 0: mean KLD: 0.028433, median: 0.000748, p99: 0.347614 top-1 agreement: 96.0075 %, PPL ratio: 1.0015 
+run pV2_code exit 0: mean KLD: 0.028514, median: 0.000775, p99: 0.347721 top-1 agreement: 96.0174 %, PPL ratio: 1.0026 
+ref pref_agent exit 0: scoring complete | 50,346 tokens | 24 windows | PPL 10.9269 | 2m 13.0s | 378.5 tok/s 
+run pV0_agent exit 0: mean KLD: 0.855806, median: 0.019737, p99: 12.349111 top-1 agreement: 80.4831 %, PPL ratio: 1.0321 
+run pV1_agent exit 0: mean KLD: 0.842695, median: 0.019849, p99: 12.313846 top-1 agreement: 80.5069 %, PPL ratio: 1.0603 
+run pV2_agent exit 0: mean KLD: 0.826991, median: 0.019381, p99: 12.120094 top-1 agreement: 80.8108 %, PPL ratio: 1.0462 
+ref pref_chat exit 0: scoring complete | 61,531 tokens | 30 windows | PPL 3.78099 | 2m 46.2s | 370.2 tok/s 
+run pV0_chat exit 0: mean KLD: 0.126607, median: 0.014166, p99: 2.416802 top-1 agreement: 90.3545 %, PPL ratio: 1.0098 
+run pV1_chat exit 0: mean KLD: 0.127409, median: 0.014123, p99: 2.552719 top-1 agreement: 90.6990 %, PPL ratio: 1.0346 
+run pV2_chat exit 0: mean KLD: 0.126085, median: 0.014354, p99: 2.368819 top-1 agreement: 90.7348 %, PPL ratio: 1.0342 
+=== 04:41:08 production back (done)
+=== 04:41:49 production active
+VERIFY OK
+TEXTCALL leaks 0
+=== 04:42:01 FIX10_END: done

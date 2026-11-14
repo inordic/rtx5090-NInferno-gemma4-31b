@@ -1,0 +1,4 @@
+2026-11-14 03:08:25.971  INFO  choice | not planned (no GPU facts: GPU 0: cudaSetDevice: out of memory)
+2026-11-14 03:08:25.971  INFO  starting engine
+2026-11-14 03:08:26.153  INFO  engine start refused | initializing CUDA | 173 ms
+2026-11-14 03:08:26.153  FATAL server failed during startup | cudaSetDevice failed: cudaErrorMemoryAllocation: out of memory

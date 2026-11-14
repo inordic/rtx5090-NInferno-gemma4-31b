@@ -1,0 +1,7 @@
+models ['gemma4-31b-fast']
+chat '391' 0.15s
+stream chunks 8 done True first 0.118s total 0.32s
+turn 0: prompt 17606 cache 0 prompt_ms 4162.9815419999995 wall 5.31s decode 110.43033329223002
+turn 1: prompt 121 cache 17599 prompt_ms 206.996816 wall 0.53s decode 157.7444244234699
+turn 2: prompt 71 cache 17713 prompt_ms 192.37678 wall 0.60s decode 159.09391207741194
+VERIFY OK

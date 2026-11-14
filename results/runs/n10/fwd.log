@@ -1,0 +1,49 @@
+01:30:40 pass 1/6: 441 sequences, 360238 tokens, 25 micro-batches
+01:31:49   layer 10/60 (69s)
+01:32:58   layer 20/60 (138s)
+01:34:07   layer 30/60 (207s)
+01:35:15   layer 40/60 (275s)
+01:36:24   layer 50/60 (344s)
+01:37:34   layer 60/60 (415s)
+01:38:21 pass 1 written; greedy agreement so far 138365/140041 = 98.80%
+01:38:21 pass 2/6: 440 sequences, 360068 tokens, 25 micro-batches
+01:39:35   layer 10/60 (535s)
+01:40:44   layer 20/60 (604s)
+01:41:53   layer 30/60 (674s)
+01:43:02   layer 40/60 (742s)
+01:44:11   layer 50/60 (811s)
+01:45:21   layer 60/60 (881s)
+01:45:56 pass 2 written; greedy agreement so far 268696/271969 = 98.80%
+01:45:56 pass 3/6: 454 sequences, 360329 tokens, 25 micro-batches
+01:47:20   layer 10/60 (1000s)
+01:48:28   layer 20/60 (1068s)
+01:49:36   layer 30/60 (1136s)
+01:50:42   layer 40/60 (1203s)
+01:51:50   layer 50/60 (1270s)
+01:52:59   layer 60/60 (1339s)
+01:53:30 pass 3 written; greedy agreement so far 401526/406230 = 98.84%
+01:53:30 pass 4/6: 240 sequences, 360411 tokens, 55 micro-batches
+01:54:41   layer 10/60 (1441s)
+01:55:52   layer 20/60 (1513s)
+01:57:04   layer 30/60 (1584s)
+01:58:14   layer 40/60 (1654s)
+01:59:26   layer 50/60 (1726s)
+02:00:39   layer 60/60 (1799s)
+02:01:13 pass 4 written; greedy agreement so far 456465/462361 = 98.72%
+02:01:13 pass 5/6: 155 sequences, 361416 tokens, 69 micro-batches
+02:02:44   layer 10/60 (1924s)
+02:03:58   layer 20/60 (1998s)
+02:05:12   layer 30/60 (2072s)
+02:06:25   layer 40/60 (2145s)
+02:07:39   layer 50/60 (2219s)
+02:08:54   layer 60/60 (2294s)
+02:09:41 pass 5 written; greedy agreement so far 475660/482799 = 98.52%
+02:09:41 pass 6/6: 18 sequences, 39360 tokens, 7 micro-batches
+02:10:03   layer 10/60 (2363s)
+02:10:16   layer 20/60 (2376s)
+02:10:28   layer 30/60 (2388s)
+02:10:40   layer 40/60 (2400s)
+02:10:52   layer 50/60 (2412s)
+02:11:04   layer 60/60 (2424s)
+02:11:09 pass 6 written; greedy agreement so far 478765/486073 = 98.50%
+02:11:09 FWD_DONE imw: 206 shards, greedy agreement 478765/486073 = 98.50%, 2429s

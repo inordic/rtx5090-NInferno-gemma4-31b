@@ -1,0 +1,33 @@
+group                                  ab-n9r1         ab-n9r2         ab-n9r3         ab-n9r4         ab-n10a         ab-n10b        A mean        B mean B-A tok/s
+all (166)                        103.0/ 36.1%    102.8/ 35.8%    103.8/ 36.3%    103.1/ 35.9%    104.1/ 36.5%    104.0/ 36.4%   103.2/36.0%  104.0/36.4%     +0.8
+english (all but sv/oasst2) (134)   116.5/ 42.8%    115.9/ 42.3%    116.4/ 42.5%    115.4/ 42.0%    118.0/ 43.3%    117.5/ 43.0%   116.1/42.4%  117.8/43.2%     +1.7
+other languages (32)              83.9/ 26.7%     84.2/ 26.6%     85.9/ 27.4%     85.5/ 27.2%     84.5/ 26.8%     85.0/ 27.0%    84.9/27.0%   84.8/26.9%     -0.1
+greedy (83)                      108.4/ 38.6%    108.9/ 38.6%    108.9/ 38.6%    108.9/ 38.6%    110.4/ 39.4%    110.4/ 39.4%   108.8/38.6%  110.4/39.4%     +1.6
+sampled (83)                      98.0/ 33.8%     97.2/ 33.2%     99.1/ 34.1%     98.0/ 33.5%     98.3/ 33.8%     98.2/ 33.6%    98.1/33.6%   98.3/33.7%     +0.2
+agent (16)                       103.6/ 37.9%    103.7/ 37.8%    102.5/ 37.4%    104.1/ 38.3%    111.4/ 41.9%    116.6/ 44.3%   103.5/37.9%  114.0/43.1%    +10.5
+agent-later (24)                 129.1/ 49.7%    132.7/ 51.9%    125.2/ 48.3%    142.5/ 55.9%    148.5/ 60.7%    139.2/ 55.9%   132.4/51.5%  143.9/58.3%    +11.5
+code (16)                        147.9/ 56.9%    149.8/ 57.8%    149.1/ 57.3%    146.7/ 56.2%    154.0/ 59.5%    156.0/ 60.3%   148.4/57.1%  155.0/59.9%     +6.6
+companion (14)                    90.2/ 30.4%     90.6/ 30.6%     88.5/ 29.4%     87.4/ 29.0%     92.8/ 31.7%     92.8/ 31.6%    89.2/29.8%   92.8/31.7%     +3.6
+english (16)                      94.6/ 32.1%     91.1/ 30.2%     97.9/ 33.4%     93.4/ 31.2%     94.1/ 31.6%     93.8/ 31.4%    94.2/31.7%   93.9/31.5%     -0.3
+maths (16)                       158.3/ 62.9%    162.2/ 64.7%    160.4/ 63.3%    156.9/ 62.0%    163.2/ 64.9%    161.2/ 64.0%   159.4/63.2%  162.2/64.4%     +2.8
+oasst2 (16)                       87.7/ 28.2%     88.3/ 28.4%     90.8/ 29.6%     89.9/ 29.2%     87.4/ 28.1%     90.1/ 29.3%    89.2/28.8%   88.7/28.7%     -0.4
+swedish (16)                      80.6/ 25.3%     80.6/ 25.0%     81.5/ 25.4%     81.5/ 25.4%     81.9/ 25.7%     80.5/ 25.0%    81.0/25.3%   81.2/25.3%     +0.2
+tools (16)                       153.3/ 61.6%    144.9/ 57.2%    152.2/ 60.8%    153.5/ 61.5%    152.3/ 61.1%    149.4/ 59.6%   151.0/60.3%  150.9/60.3%     -0.1
+ultrachat (16)                    86.6/ 28.2%     86.7/ 28.0%     83.7/ 26.6%     84.9/ 27.2%     85.5/ 27.5%     84.2/ 26.8%    85.5/27.5%   84.8/27.2%     -0.6
+paired greedy: B accepts more on 31, fewer on 22, same 6; sign test p = 0.272
+paired greedy english: B accepts more on 24, fewer on 14, same 6; sign test p = 0.143
+paired sampled: B accepts more on 31, fewer on 23, same 1; sign test p = 0.341
+paired sampled english: B accepts more on 20, fewer on 17, same 1; sign test p = 0.743
+paired all: B accepts more on 62, fewer on 45, same 7; sign test p = 0.122
+paired all english: B accepts more on 44, fewer on 31, same 7; sign test p = 0.165
+paired agent: B accepts more on 3, fewer on 0, same 1; sign test p = 0.25
+paired agent-later: B accepts more on 2, fewer on 1, same 0; sign test p = 1
+paired code: B accepts more on 12, fewer on 4, same 0; sign test p = 0.0768
+paired companion: B accepts more on 4, fewer on 1, same 0; sign test p = 0.375
+paired english: B accepts more on 6, fewer on 7, same 0; sign test p = 1
+paired maths: B accepts more on 8, fewer on 6, same 2; sign test p = 0.791
+paired oasst2: B accepts more on 9, fewer on 7, same 0; sign test p = 0.804
+paired swedish: B accepts more on 9, fewer on 7, same 0; sign test p = 0.804
+paired tools: B accepts more on 3, fewer on 3, same 4; sign test p = 1
+paired ultrachat: B accepts more on 6, fewer on 9, same 0; sign test p = 0.607
+noise B (ab-n10a vs ab-n10b), all: 104.1 vs 104.0 tok/s, 36.5 vs 36.4% accepted

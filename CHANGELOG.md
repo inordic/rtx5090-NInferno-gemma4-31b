@@ -2,6 +2,25 @@
 
 Every change to the running setup, newest first. Each entry names what changed on the box, why, the measurement behind it, and how to roll it back. The README, BUILD.md, configs and results are updated in the same commit. Times are CET.
 
+## 2026-11-14 05:42: night 10, the drafter's second round and activation scales for Artemis (running setup unchanged)
+
+- **Ran** ([night 10](research/2026-11-14-night10.md)):
+  - the MTP assistant from night 9 trained one more epoch on Artemis's replies to code, maths, English chat and synthetic multi-turn agent episodes (0.99M new tokens), with half of night 9's data as replay;
+  - NVFP4 activation scales recalibrated for Artemis in two strengths, the weights bit-identical.
+  - Production was down from 02:30 to 05:42 CET.
+- **Drafter result:** against the deployed assistant on 166 held-out requests:
+  - agent turns +9–10%;
+  - code +4.4%, maths +1.8%;
+  - English overall +1.5%;
+  - conversation and the other languages unchanged.
+  - Greedy acceptance went from 38.6% to 39.4%, identical across runs.
+  - Not deployed; a live trial needs the owner's OK.
+- **Scales result:** the activation error falls by at most 3.5%, not on every text, and perplexity on two of three texts points the other way. Production keeps its scales.
+- **Went wrong:**
+  - The A/B helper's stop silently did nothing, so three runs were answered by the deployed assistant. Found and fixed at 05:06, and the new assistant's runs redone, not interleaved. The depth sweep was dropped.
+  - The planned 5-bit KL reference could not load (gate and up in different formats); production's exact activations replaced it.
+- **Back:** verify OK, follow-up turns at 0.53–0.60 s, 0 tool-call leaks. Unit, weights, assistant and flags unchanged.
+
 ## 2026-11-13 20:37: the fast profile drafts with the assistant retrained on Artemis
 
 - **Changed:** `gemma4-31b-fast` ([unit](config/systemd/gemma4-31b-fast.service)) drafts with `assistant-artemis-n9.nvfp4.ninferno`, Google's MTP assistant fine-tuned on Artemis's own text and states ([night 9](research/2026-11-13-night9-drafter.md)), in place of `assistant.nvfp4.ninferno`. Weights, flags, K=7, context and model id are unchanged. A drafter can't change what the target writes beyond numerical noise.

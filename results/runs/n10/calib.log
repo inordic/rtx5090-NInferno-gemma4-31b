@@ -1,0 +1,14 @@
+240 projection groups with peaks; 108 clip under the old scales (worst 14.41x); V1 raises 184 scales
+wrote /opt/models/n10/V1q 184 scales changed
+wrote /opt/models/n10/V2q 184 scales changed
+CALIB_DONE
+formats {'nvfp4': 240, 'bf16': 636, 'q8_g32_fp16': 1, 'q6_g64_fp16': 1, 'fp32': 60}
+-rw------- 1 root root 20259164164 Nov 14 02:16 /opt/models/n10/V1.ninferno
+CONV_DONE /opt/models/n10/V1.ninferno
+formats {'nvfp4': 240, 'bf16': 636, 'q8_g32_fp16': 1, 'q6_g64_fp16': 1, 'fp32': 60}
+-rw------- 1 root root 20259164164 Nov 14 02:19 /opt/models/n10/V2.ninferno
+CONV_DONE /opt/models/n10/V2.ninferno
+kl_chat.txt: 62 sequences, 61532 tokens
+kl_code.txt: 64 sequences, 50320 tokens
+kl_agent.txt: 22 sequences, 50347 tokens
+CPU_DONE

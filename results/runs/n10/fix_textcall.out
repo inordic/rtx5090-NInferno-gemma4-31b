@@ -1,0 +1,13 @@
+ok   after 2 text+call rounds seed0: tool_calls: terminal({"command":"curl -v http://localhost:8080"})
+ok   after 2 text+call rounds seed1: tool_calls: terminal({"command":"systemctl list-units --type=service | grep app"})
+ok   after 2 text+call rounds seed2: tool_calls: read_file({"path":"/srv/app/config.json"})
+ok   after 2 text+call rounds seed3: tool_calls: read_file({"path":"/srv/app/config.json"})
+ok   after 3 rounds seed0: stop: 'The service is now listening on 8080.'
+ok   after 3 rounds seed1: stop: 'The app is listening on port 8080 now.'
+ok   after 3 rounds seed2: stop: 'The app is now listening on 8080.'
+ok   after 3 rounds seed3: tool_calls: terminal({"command":"curl -s localhost:8080"})
+ok   parallel text+calls seed0: tool_calls: write_file({"content":"{\"server\": {\"port\": 8080}}\n","path":"/srv/a)
+ok   parallel text+calls seed1: tool_calls: write_file({"content":"{\"server\": {\"port\": 8080}}","path":"/srv/app)
+ok   parallel text+calls seed2: tool_calls: write_file({"content":"{\"server\": {\"port\": 8080}}","path":"/srv/app)
+ok   parallel text+calls seed3: tool_calls: write_file({"content":"{\"server\": {\"port\": 8080}}","path":"/srv/app)
+TEXTCALL leaks 0

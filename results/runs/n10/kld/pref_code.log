@@ -1,0 +1,33 @@
+starting engine
+engine ready | artemis-v1.2-imw-qkv-vision-nvfp4.r31 | total 3.3s | weights 16.4 GiB | CUDA sync spin | decode 1 step(s) per round
+routes | gpu class gb203:82sm | loaded 189 problems (307 generic-path, 51 route_as) from /opt/NInferno-up/routes/gb203.json; 172 problems it lacks from the next nearest (gb202 90, gb206 82)
+warning: device | device facts extrapolated (GeForce RTX 5090 Laptop GPU, a laptop: priced at the bottom of its published boost range): extrapolated GeForce RTX 5090 Laptop GPU ref 1597 MHz 896 GB/s
+fingerprint | nf1-4a0fe197b6b4ab0a | manifest nm1-328da3c5b60418a0 | ninferno-fingerprint/1
+preparing corpus
+corpus ready | 1 streams | 50,320 input tokens | 50,319 scored tokens | 24 windows | 25.1 ms
+scoring | 1 streams | 50,319 tokens | 24 windows
+scoring | 6,143/50,319 tokens | 2/24 windows | PPL 2.2751 | 549.8 tok/s | elapsed 11.2s | ETA 1m 20.3s
+scoring | 10,239/50,319 tokens | 4/24 windows | PPL 2.0391 | 462.6 tok/s | elapsed 22.1s | ETA 1m 26.6s
+scoring | 14,335/50,319 tokens | 6/24 windows | PPL 1.9607 | 432.8 tok/s | elapsed 33.1s | ETA 1m 23.1s
+scoring | 18,431/50,319 tokens | 8/24 windows | PPL 1.9073 | 417.6 tok/s | elapsed 44.1s | ETA 1m 16.4s
+scoring | 22,527/50,319 tokens | 10/24 windows | PPL 1.8098 | 408.4 tok/s | elapsed 55.2s | ETA 1m 8.1s
+scoring | 26,623/50,319 tokens | 12/24 windows | PPL 1.7392 | 402.2 tok/s | elapsed 1m 6.2s | ETA 58.9s
+scoring | 30,719/50,319 tokens | 14/24 windows | PPL 1.7317 | 397.6 tok/s | elapsed 1m 17.3s | ETA 49.3s
+scoring | 34,815/50,319 tokens | 16/24 windows | PPL 1.7197 | 394.2 tok/s | elapsed 1m 28.3s | ETA 39.3s
+scoring | 38,911/50,319 tokens | 18/24 windows | PPL 1.7048 | 391.5 tok/s | elapsed 1m 39.4s | ETA 29.1s
+scoring | 43,007/50,319 tokens | 20/24 windows | PPL 1.8451 | 389.3 tok/s | elapsed 1m 50.5s | ETA 18.8s
+scoring | 47,103/50,319 tokens | 22/24 windows | PPL 1.8194 | 387.6 tok/s | elapsed 2m 1.5s | ETA 8.3s
+scoring | 50,319/50,319 tokens | 24/24 windows | PPL 1.8289 | 379.7 tok/s | elapsed 2m 12.5s | ETA 0 us
+[1/1] kl_code.txt | 50,319 scored tokens | PPL 1.82895 | 2m 12.5s
+scoring complete | 50,319 tokens | 24 windows | PPL 1.82895 | 2m 12.5s | 379.7 tok/s
+Perplexity result
+artifact: artemis-v1.2-imw-qkv-vision-nvfp4.r31
+kv: bf16, corpus: custom-kl_code.txt / custom, context/stride: 4096/2048
+
+domain                            tokens        mean_nll             ppl
+custom                             50319        0.603742        1.828950
+overall                            50319        0.603742        1.828950
+
+score rate: 379.7 tok/s
+KLD reference: "/opt/models/n10/refp_code.kld"
+report: "/root/gbench/n10/profiles/perplexity/artemis-v1.2-imw-qkv-vision-nvfp4.r31/gemma4-prefill-1-60x5376-262144/bf16/custom-kl_code.txt/custom/20261114-042627/report.json"
